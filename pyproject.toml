@@ -1,0 +1,41 @@
+[project]
+name = "50ohm-de"
+version = "0.1.0"
+description = "Generator für 50ohm.de, die Ausbildungsplattform des DARC e.V."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[tool.ruff]
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    # Ensure PEP8-compatible code style.
+    "E",
+    # pep8-naming
+    # Ensure consisten, PEP8-compatible naming.
+    "N",
+    # Pyflakes
+    # Detect common errors.
+    "F",
+    # pyupgrade
+    # Ensure latest syntax is used (and code auto-upgraded).
+    "UP",
+    # flake8-bugbear
+    # Catch common, but intransparent errors.
+    "B",
+    # isort
+    # Sort imports.
+    "I",
+    # flake8-pytest-style
+    # Ensure consistent style in unit tests.
+    "PT",
+    # EXPERIMENTAL: mccabe
+    # Limits maximum complexity of functions via McCabe metric
+    "C90",
+    # ruff-specific: No unused noqa directives
+    "RUF100",
+]
