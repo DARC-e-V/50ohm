@@ -26,4 +26,8 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return f"{token.first}&#160;{token.second}"
 
     def render_nonbreaking_spaces_dots(self, token):
-        return f"&#160;{token.first}&#160;"
+        lookup = {
+            "" : "",
+            " " : "&#160;"
+        }
+        return f"{lookup[token.first]}{token.second}{lookup[token.third]}"
