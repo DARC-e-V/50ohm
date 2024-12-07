@@ -13,3 +13,6 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
     def render_quote(self, token):
         return f"„{self.render_inner(token)}“"
+
+    def render_underline(self, token):
+        return f"<u>{self.render_inner(token)}</u>"
