@@ -1,7 +1,7 @@
 import mistletoe
-from test.util import paragraph
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
+from test.util import paragraph
 
 
 def test_quote_html() :
