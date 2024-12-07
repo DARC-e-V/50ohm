@@ -1,5 +1,6 @@
 from mistletoe import HtmlRenderer
-from mistletoe.block_token import BlockToken
+
+from renderer.comment import Comment
 
 
 class FiftyOhmHtmlRenderer(HtmlRenderer):
@@ -9,13 +10,3 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     def render_comment():
         return None
 
-
-class Comment(BlockToken):
-    @staticmethod
-    def start(line):
-        return line.startswith("%")
-
-    @classmethod
-    def read(cls, lines):
-        next(lines)
-        return None
