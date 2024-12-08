@@ -18,7 +18,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     margin_id = 0
 
     def __init__(self):
-        super().__init__(Dash, BlockComment, SpanComment, Quote, Underline, Tag, HalfwidthSpaces, NonbreakingSpaces, NonbreakingSpacesDots, References)
+        super().__init__(Dash, BlockComment, SpanComment, Quote, Underline, Tag, HalfwidthSpaces, NonbreakingSpaces, NonbreakingSpacesDots, HalfwidthSpaces, NonbreakingSpaces, NonbreakingSpacesDots, References)
 
     def render_dash(self, token):
         return " &ndash; "
@@ -97,7 +97,8 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return f"{token.first}&#160;{token.second}"
 
     def render_nonbreaking_spaces_dots(self, token):
-        return f"&#160;{token.first}&#160;"
-
-    def render_references(self, token, dest_id=0, chap_url="DeineMama.html"):
-        return f"<a href=&#34;{chap_url}#ref_{token.first}&#34; onclick=&#34;highlightRef(&#39;{token.first}&#39;);&#34;>{dest_id}</a>"
+        lookup = {
+            "" : "",
+            " " : "&#160;"
+        }
+        return f"{lookup[token.first]}{token.second}{lookup[token.third]}"
