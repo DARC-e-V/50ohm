@@ -12,36 +12,6 @@ from renderer.tag import Tag
 from renderer.underline import Underline
 from renderer.unit import Unit
 
-units = {
-    "A": "A",
-    "Ah": "Ah",
-    "A/mm²": "A/mm²",
-    "baud": "baud",
-    "Bit": "Bit",
-    "Bit/s": "Bit/s",
-    "dB": "dB",
-    "dBi": "dBi",
-    "dBm": "dBm",
-    "dBW": "dBW",
-    "F": "F",
-    "J": "J",
-    "Hz": "Hz",
-    "H": "H",
-    "cm": "cm",
-    "m": "m",
-    "m²": "m²",
-    "ppm": "ppm",
-    "pps": "pps",
-    "s": "s",
-    "V": "V",
-    "W": "W",
-    "Wh": "Wh",
-    "°": "°",
-    "%": "%",
-}
-
-no_space_units = ["°", "%"]
-
 
 class FiftyOhmHtmlRenderer(HtmlRenderer):
     margin_anchor_id = 0
@@ -82,13 +52,24 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     def render_underline(self, token):
         return f"<u>{self.render_inner(token)}</u>"
 
-    @staticmethod
-    def render_unit(token):
-        unit = token.prefix + units[token.unit]
-        if token.unit in no_space_units:
+    @classmethod
+    def render_unit(cls, token):
+        unit = token.prefix + cls.format_unit(token.unit)
+        if token.unit in ["°", "%"]:
             return f"{token.value}{unit}"
         else:
             return f"{token.value}&#8239;{unit}"
+
+    units = {
+        "Ohm": "Ω",
+    }
+
+    @classmethod
+    def format_unit(cls, unit):
+        if unit in cls.units.keys():
+            return cls.units[unit]
+        else:
+            return unit
 
     def render_thematic_break(self, token):
         self.margin_anchor_id += 1
