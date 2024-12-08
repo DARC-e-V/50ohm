@@ -10,10 +10,15 @@ def test_paragraph_html():
     assert mistletoe.markdown(input, FiftyOhmHtmlRenderer) == paragraph(target)
 
 def test_three_points_html():
-    input = "Heute hatte ich ... zum Mittagessen."
-    target = "Heute hatte ich&#160;...&#160;zum Mittagessen."
+    assertions = {
+        "Heute hatte ich ... zum Mittagessen." : "Heute hatte ich&#160;...&#160;zum Mittagessen.",
+        "Niemals hätte ich gedacht, dass...ich ...nicht kann." : "Niemals hätte ich gedacht, dass...ich&#160;...nicht kann.",
+        "Oh nein ...ein Pinguin." : "Oh nein&#160;...ein Pinguin.",
+        "Haha .. . Hahaha" : "Haha .. . Hahaha"
+    }
 
-    assert mistletoe.markdown(input, FiftyOhmHtmlRenderer) == paragraph(target)
+    for key, value in assertions.items():
+        assert mistletoe.markdown(key, FiftyOhmHtmlRenderer) == paragraph(value)
 
 
 def test_absatz_html():
