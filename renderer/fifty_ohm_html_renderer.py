@@ -5,6 +5,7 @@ from mistletoe import HtmlRenderer
 from renderer.comment import BlockComment, SpanComment
 from renderer.dash import Dash
 from renderer.halfwidth_spaces import HalfwidthSpaces
+from renderer.morse import Morse
 from renderer.nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
 from renderer.quote import Quote
 from renderer.tag import Tag
@@ -17,7 +18,18 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     margin_id = 0
 
     def __init__(self):
-        super().__init__(Dash, BlockComment, SpanComment, Quote, Underline, Tag, HalfwidthSpaces, NonbreakingSpaces, NonbreakingSpacesDots)
+        super().__init__(
+            Dash,
+            BlockComment,
+            SpanComment,
+            Quote,
+            Underline,
+            Morse,
+            Tag,
+            HalfwidthSpaces,
+            NonbreakingSpaces,
+            NonbreakingSpacesDots,
+        )
 
     def render_dash(self, token):
         return " &ndash; "
@@ -37,6 +49,29 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     def render_thematic_break(self, token):
         self.margin_anchor_id += 1
         return f'<a id="margin_{self.margin_anchor_id}"></a>'
+
+    @staticmethod
+    def render_morse_helper(morse_code):
+        result = '<span class="morse">'
+        for char in morse_code:
+            result += '<span class="morse_char">\n'
+            for symbol in char:
+                result += '<span class="morse_char">\n'
+                if symbol == 1:
+                    result += '▄'
+                elif symbol == 2:
+                    result += '▄▄▄'
+                elif symbol == 3:
+                    result += '&nbsp;'
+                result += '</span>\n'
+            result += '</span>\n'
+        result += '</span>'
+                    
+        return result
+
+    def render_morse(self, token):
+        morse_code = Morse.convert_to_morse_code(token.content)
+        return self.render_morse_helper(morse_code)
 
     @staticmethod
     def render_tag_helper(type, content, margin_id, margin_anchor_id):
