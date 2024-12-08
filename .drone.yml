@@ -7,5 +7,5 @@ steps:
   image: ghcr.io/astral-sh/uv:python3.12-bookworm
   environment:
   commands:
-  - uv pip install --break-system-packages `cat requirements.txt`
+  - uv pip install --system --break-system-packages `cat requirements.txt`
   - cd test && pytest
