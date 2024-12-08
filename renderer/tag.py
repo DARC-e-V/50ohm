@@ -2,12 +2,24 @@ import re
 
 from mistletoe.block_token import BlockToken, tokenize
 
+captures = [
+    "margin",
+    "indepth",
+    "webmargin",
+    "tipp",
+    "webtipp",
+    "webindepth",
+    "unit",
+    "danger",
+    "webonly",
+    "latexonly",
+]
 
 class Tag(BlockToken):
 
     @staticmethod
     def start(line):
-        return re.match(r"^\s*<[^>]+>", line)
+        return re.match(r"^\s*<("+"|".join(captures)+r")+>", line)
 
     @classmethod
     def read(cls, lines):
