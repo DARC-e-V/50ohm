@@ -7,17 +7,33 @@ from renderer.dash import Dash
 from renderer.halfwidth_spaces import HalfwidthSpaces
 from renderer.nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
 from renderer.quote import Quote
+from renderer.references import References
 from renderer.tag import Tag
 from renderer.underline import Underline
 
 
 class FiftyOhmHtmlRenderer(HtmlRenderer):
-
     margin_anchor_id = 0
     margin_id = 0
+    section_url = "section.html"
+    ref_id = 0
 
     def __init__(self):
-        super().__init__(Dash, BlockComment, SpanComment, Quote, Underline, Tag, HalfwidthSpaces, NonbreakingSpaces, NonbreakingSpacesDots)
+        super().__init__(
+            Dash,
+            BlockComment,
+            SpanComment,
+            Quote,
+            Underline,
+            Tag,
+            HalfwidthSpaces,
+            NonbreakingSpaces,
+            NonbreakingSpacesDots,
+            HalfwidthSpaces,
+            NonbreakingSpaces,
+            NonbreakingSpacesDots,
+            References,
+        )
 
     def render_dash(self, token):
         return " &ndash; "
@@ -40,9 +56,9 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
     @staticmethod
     def render_tag_helper(type, content, margin_id, margin_anchor_id):
-        """ This function is used to render the different types of tags. It is
-        used in the HtmlRenderer class and also in the test class """
-        return textwrap.dedent(f'''\
+        """This function is used to render the different types of tags. It is
+        used in the HtmlRenderer class and also in the test class"""
+        return textwrap.dedent(f"""\
             <div class="margin {type}" id="margin_for_{margin_id}">
                 {content}
             </div>
@@ -62,33 +78,29 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
                 moveFunc();
             }})();
             </script>
-        ''')
+        """)
 
     def render_tag(self, token):
-        if(token.tagtype == "latexonly"):
+        if token.tagtype == "latexonly":
             return ""
-        elif(token.tagtype == "webonly"):
+        elif token.tagtype == "webonly":
             return self.render_inner(token)
 
         self.margin_id += 1
 
-        if(token.tagtype == "webmargin"):
+        if token.tagtype == "webmargin":
             type = "margin"
-        elif(token.tagtype == "webtipp"):
+        elif token.tagtype == "webtipp":
             type = "tipp"
-        elif(token.tagtype == "webindepth"):
+        elif token.tagtype == "webindepth":
             type = "indepth"
-        else :
+        else:
             type = token.tagtype
 
         return self.render_tag_helper(
-            type,
-            self.render_inner(token),
-            self.margin_id,
-            self.margin_anchor_id
+            type, self.render_inner(token), self.margin_id, self.margin_anchor_id
         )
-    
-    
+
     def render_halfwidth_spaces(self, token):
         return f"{token.first}.&#8239;{token.second}."
 
@@ -96,8 +108,8 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return f"{token.first}&#160;{token.second}"
 
     def render_nonbreaking_spaces_dots(self, token):
-        lookup = {
-            "" : "",
-            " " : "&#160;"
-        }
+        lookup = {"": "", " ": "&#160;"}
         return f"{lookup[token.first]}{token.second}{lookup[token.third]}"
+
+    def render_references(self, token):
+        return f'<a href="{self.section_url}#ref_{token.first}" onclick="highlightRef(\'{token.first}\');">{self.ref_id}</a>'
