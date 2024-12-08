@@ -16,6 +16,8 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
     margin_anchor_id = 0
     margin_id = 0
+    section_url = "DeineMama.html"
+    ref_id = 0
 
     def __init__(self):
         super().__init__(Dash, BlockComment, SpanComment, Quote, Underline, Tag, HalfwidthSpaces, NonbreakingSpaces, NonbreakingSpacesDots, HalfwidthSpaces, NonbreakingSpaces, NonbreakingSpacesDots, References)
@@ -102,3 +104,8 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             " " : "&#160;"
         }
         return f"{lookup[token.first]}{token.second}{lookup[token.third]}"
+
+    def render_references(self, token):
+        return f"<a href=&#34;{self.section_url}#ref_{token.first}&#34; onclick=&#34;highlightRef(&#39;{token.first}&#39;);&#34;>{self.ref_id}</a>"
+
+
