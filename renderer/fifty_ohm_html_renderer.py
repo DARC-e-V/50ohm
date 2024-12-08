@@ -2,11 +2,15 @@ import textwrap
 
 from mistletoe import HtmlRenderer
 
-from .comment import Comment
-from .quote import Quote
-from .tag import Tag
-from .underline import Underline
-from .unit import Unit
+from renderer.comment import BlockComment, SpanComment
+from renderer.dash import Dash
+from renderer.halfwidth_spaces import HalfwidthSpaces
+from renderer.nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
+from renderer.quote import Quote
+from renderer.references import References
+from renderer.tag import Tag
+from renderer.underline import Underline
+from renderer.unit import Unit
 
 units = {
     "A": "A",
@@ -26,7 +30,6 @@ units = {
     "cm": "cm",
     "m": "m",
     "m²": "m²",
-    "Ohm": "Ω",
     "ppm": "ppm",
     "pps": "pps",
     "s": "s",
@@ -43,12 +46,35 @@ no_space_units = ["°", "%"]
 class FiftyOhmHtmlRenderer(HtmlRenderer):
     margin_anchor_id = 0
     margin_id = 0
+    section_url = "section.html"
+    ref_id = 0
 
     def __init__(self):
-        super().__init__(Comment, Unit, Quote, Underline, Tag)
+        super().__init__(
+            Dash,
+            BlockComment,
+            SpanComment,
+            Quote,
+            Unit,
+            Underline,
+            Tag,
+            HalfwidthSpaces,
+            NonbreakingSpaces,
+            NonbreakingSpacesDots,
+            HalfwidthSpaces,
+            NonbreakingSpaces,
+            NonbreakingSpacesDots,
+            References,
+        )
 
-    def render_comment():
-        return None
+    def render_dash(self, token):
+        return " &ndash; "
+
+    def render_block_comment(self, token):
+        return ""
+
+    def render_span_comment(self, token):
+        return ""
 
     def render_quote(self, token):
         return f"„{self.render_inner(token)}“"
@@ -104,7 +130,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
         if token.tagtype == "webmargin":
             type = "margin"
-        elif token.tagtype == "webtip":
+        elif token.tagtype == "webtipp":
             type = "tipp"
         elif token.tagtype == "webindepth":
             type = "indepth"
@@ -114,3 +140,16 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return self.render_tag_helper(
             type, self.render_inner(token), self.margin_id, self.margin_anchor_id
         )
+
+    def render_halfwidth_spaces(self, token):
+        return f"{token.first}.&#8239;{token.second}."
+
+    def render_nonbreaking_spaces(self, token):
+        return f"{token.first}&#160;{token.second}"
+
+    def render_nonbreaking_spaces_dots(self, token):
+        lookup = {"": "", " ": "&#160;"}
+        return f"{lookup[token.first]}{token.second}{lookup[token.third]}"
+
+    def render_references(self, token):
+        return f'<a href="{self.section_url}#ref_{token.first}" onclick="highlightRef(\'{token.first}\');">{self.ref_id}</a>'
