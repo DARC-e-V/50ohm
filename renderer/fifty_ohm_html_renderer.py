@@ -4,6 +4,8 @@ from mistletoe import HtmlRenderer
 
 from renderer.comment import BlockComment, SpanComment
 from renderer.dash import Dash
+from renderer.halfwidth_spaces import HalfwidthSpaces
+from renderer.nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
 from renderer.quote import Quote
 from renderer.tag import Tag
 from renderer.underline import Underline
@@ -15,7 +17,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     margin_id = 0
 
     def __init__(self):
-        super().__init__(Dash, BlockComment, SpanComment, Quote, Underline, Tag)
+        super().__init__(Dash, BlockComment, SpanComment, Quote, Underline, Tag, HalfwidthSpaces, NonbreakingSpaces, NonbreakingSpacesDots)
 
     def render_dash(self, token):
         return " &ndash; "
@@ -86,3 +88,16 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             self.margin_anchor_id
         )
     
+    
+    def render_halfwidth_spaces(self, token):
+        return f"{token.first}.&#8239;{token.second}."
+
+    def render_nonbreaking_spaces(self, token):
+        return f"{token.first}&#160;{token.second}"
+
+    def render_nonbreaking_spaces_dots(self, token):
+        lookup = {
+            "" : "",
+            " " : "&#160;"
+        }
+        return f"{lookup[token.first]}{token.second}{lookup[token.third]}"
