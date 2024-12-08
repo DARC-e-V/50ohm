@@ -8,4 +8,4 @@ steps:
   environment:
   commands:
   - uv pip install --system --break-system-packages `cat requirements.txt`
-  - cd test && pytest
+  - cd test && pytest --junitxml=./test-reports/junit.xml 
