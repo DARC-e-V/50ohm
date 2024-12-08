@@ -21,7 +21,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return " &ndash; "
 
     def render_block_comment(self, token):
-        return "a"
+        return ""
 
     def render_span_comment(self, token):
         return ""
