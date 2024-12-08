@@ -1,9 +1,11 @@
-from mistletoe import HtmlRenderer
 import textwrap
 
-from renderer.comment import Comment
-from renderer.tag import Tag
+from mistletoe import HtmlRenderer
+
+from renderer.comment import BlockComment, SpanComment
+from renderer.dash import Dash
 from renderer.quote import Quote
+from renderer.tag import Tag
 from renderer.underline import Underline
 
 
@@ -13,10 +15,16 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     margin_id = 0
 
     def __init__(self):
-        super().__init__(Comment, Quote, Underline, Tag)
+        super().__init__(Dash, BlockComment, SpanComment, Quote, Underline, Tag)
 
-    def render_comment():
-        return None
+    def render_dash(self, token):
+        return " &ndash; "
+
+    def render_block_comment(self, token):
+        return ""
+
+    def render_span_comment(self, token):
+        return ""
 
     def render_quote(self, token):
         return f"„{self.render_inner(token)}“"
@@ -64,7 +72,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
         if(token.tagtype == "webmargin"):
             type = "margin"
-        elif(token.tagtype == "webtip"):
+        elif(token.tagtype == "webtipp"):
             type = "tipp"
         elif(token.tagtype == "webindepth"):
             type = "indepth"
