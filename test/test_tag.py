@@ -1,6 +1,8 @@
 import mistletoe
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
+from renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
+
 
 def test_thematic_break_html() :
     assertions = {
@@ -39,3 +41,44 @@ def test_thematic_break_and_tag_html() :
 
     for assertion in assertions:
         assert mistletoe.markdown(assertion, FiftyOhmHtmlRenderer) == assertions[assertion]
+
+def test_thematic_break_latex() :
+    assertions = {
+        "---" : '',
+        "---\n---" : '',
+    }
+
+    for assertion in assertions:
+        assert mistletoe.markdown(assertion, FiftyOhmLaTeXRenderer) == assertions[assertion]
+
+def test_tag_latex() :
+
+    assertions = {
+        "<margin>\nFoo\n</margin>" : "\Margin{\nFoo\n}",
+        "<danger>\nFoo\n</danger>" : "\MarginDanger{\nFoo\n}",
+        "<warning>\nFoo\n</warning>" : "\MarginWarning{\nFoo\n}",
+        "<attention>\nFoo\n</attention>" : "\MarginAttention{\nFoo\n}",
+        "<tip>\nFoo\n</tip>" : "\MarginTip{\nFoo\n}",
+        "<webtip>\nFoo\n</webtip>" : "\WebTip{\nFoo\n}",
+        "<unit>\nFoo\n</unit>" : "\MarginUnit{\nFoo\n}",
+        "<indepth>\nFoo\n</indepth>" : "\MarginInDepth{\nFoo\n}",
+        "<webindepth>\nFoo\n</webindepth>" : "\MarginWebInDepth{\nFoo\n}",
+        "<webmargin>\nFoo\n</webmargin>" : "\WebMargin{\nFoo\n}",
+        "<fullwidth>\nFoo\n</fullwidth>" : "\FullWidth{\nFoo\n}",
+        "<latexonly>\nFoo\n</latexonly>" : "\nFoo\n",
+        "<webonly>\nFoo\n</webonly>" : "",
+    }
+
+    for assertion in assertions:
+        assert mistletoe.markdown(assertion, FiftyOhmLaTeXRenderer) == assertions[assertion]
+
+def test_thematic_break_and_tag_latex() :
+
+    assertions = {
+        "---\n<margin>\nFoo\n</margin>" : "\Margin{\nFoo\n}",
+        "---\n<margin>\nFoo\n</margin>\n<margin>\nFoo\n</margin>" :  "\Margin{\nFoo\n}\Margin{\nFoo\n}",
+        "---\n<margin>\nFoo\n</margin>\n---\n<margin>\nFoo\n</margin>" : "\Margin{\nFoo\n}\Margin{\nFoo\n}",
+    }
+
+    for assertion in assertions:
+        assert mistletoe.markdown(assertion, FiftyOhmLaTeXRenderer) == assertions[assertion]
