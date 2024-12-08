@@ -4,10 +4,8 @@ name: default
 
 steps:
 - name: 50ohm.de
-  image: debian:latest
+  image: ghcr.io/astral-sh/uv:python3.12-bookworm
   environment:
   commands:
-  - apt-get update && apt-get install -qyf --no-install-recommends python3
-  - curl -LsSf https://astral.sh/uv/install.sh | sh
-  - pip install --break-system-packages `cat requirements.txt`
+  - uv pip install --break-system-packages `cat requirements.txt`
   - cd test && pytest
