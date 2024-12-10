@@ -6,20 +6,23 @@ captures = [
     "margin",
     "indepth",
     "webmargin",
+    "warning",
+    "attention",
     "tip",
     "webtip",
     "webindepth",
+    "fullwidth",
     "unit",
     "danger",
     "webonly",
     "latexonly",
 ]
 
-class Tag(BlockToken):
 
+class Tag(BlockToken):
     @staticmethod
     def start(line):
-        return re.match(r"^\s*<("+"|".join(captures)+r")+>", line)
+        return re.match(r"^\s*<(" + "|".join(captures) + r")+>", line)
 
     @classmethod
     def read(cls, lines):
@@ -31,7 +34,7 @@ class Tag(BlockToken):
         for line in lines:
             if line.startswith(f"</{tagtype}>"):
                 break
-            else :
+            else:
                 child_lines.append(line)
         return tagtype, tokenize(child_lines)
 
