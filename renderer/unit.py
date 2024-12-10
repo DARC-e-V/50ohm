@@ -35,17 +35,21 @@ class Unit(SpanToken):
     prefixes = ["p", "n", "μ", "m", "k", "M", "G"]
 
     pattern = re.compile(
-        r"([0-9,]+) ?("
+        r"(?P<value>[0-9,]+) ?(?P<prefix>"
         # Group all prefixes together in a capture group
         # Empty string at end of list is required so the group always exists in the resulting match
         + "|".join(prefixes + [""])
-        + ")("
+        + ")(?P<unit>"
         # Group all units together in a capture group.
         + "|".join(units)
         + r")(?!\w)"
     )
 
-    def __init__(self, match):
-        self.value = match.group(1)
-        self.prefix = match.group(2)
-        self.unit = match.group(3)
+    value: str
+    prefix: str
+    unit: str
+
+    def __init__(self, match: re.Match):
+        self.value = match.group("value")
+        self.prefix = match.group("prefix") or ""
+        self.unit = match.group("unit")
