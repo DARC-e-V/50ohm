@@ -53,11 +53,13 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return f"<u>{self.render_inner(token)}</u>"
 
     @classmethod
-    def render_unit(cls, token):
-        unit = token.prefix + cls.format_unit(token.unit)
+    def render_unit(cls, token: Unit):
+        unit = token.prefix + cls.convert_unit_helper(token.unit)
         if token.unit in ["°", "%"]:
+            # Special cases with no space between value and unit.
             return f"{token.value}{unit}"
         else:
+            # Default case is rendered with a narrow no-break space.
             return f"{token.value}&#8239;{unit}"
 
     units = {
@@ -65,7 +67,11 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     }
 
     @classmethod
-    def format_unit(cls, unit):
+    def convert_unit_helper(cls, unit: str) -> str:
+        """Converts human-typable units to their preferred representation.
+
+        :param str unit: The unit to convert
+        """
         if unit in cls.units.keys():
             return cls.units[unit]
         else:
