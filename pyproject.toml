@@ -39,3 +39,7 @@ select = [
     # ruff-specific: No unused noqa directives
     "RUF100",
 ]
+
+[tool.pytest.ini_options]
+addopts = ["--import-mode=importlib", "--color=yes"]
+markers = ["html"]
