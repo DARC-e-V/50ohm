@@ -1,7 +1,9 @@
 import mistletoe
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
+from renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
 from test.util import paragraph
+
 
 def test_paragraph_html():
     input = "Der Test befindet sich unter §2 vielleicht aber auch § 3."
@@ -32,5 +34,34 @@ def test_class_html():
     target = "Ich lerne für Klasse&#160;A, Klasse&#160;E und Klasse&#160;N."
 
     assert mistletoe.markdown(input, FiftyOhmHtmlRenderer) == paragraph(target)
+
+def test_paragraph_latex():
+    input = "Der Test befindet sich unter §2 vielleicht aber auch § 3."
+    target = "\nDer Test befindet sich unter §~2 vielleicht aber auch §~3.\n"
+
+    assert mistletoe.markdown(input, FiftyOhmLaTeXRenderer) == target
+
+def test_three_points_latex():
+    assertions = {
+        "Heute hatte ich ... zum Mittagessen." : "\nHeute hatte ich~...~zum Mittagessen.\n",
+        "Niemals hätte ich gedacht, dass...ich ...nicht kann." : "\nNiemals hätte ich gedacht, dass...ich~...nicht kann.\n",
+        "Oh nein ...ein Pinguin." : "\nOh nein~...ein Pinguin.\n",
+        "Haha .. . Hahaha" : "\nHaha .. . Hahaha\n"
+    }
+
+    for key, value in assertions.items():
+        assert mistletoe.markdown(key, FiftyOhmLaTeXRenderer) == value
+
+def test_absatz_latex():
+    input = "Der Test befindet sich unter Abs.2 vielleicht aber auch Abs. 3."
+    target = "\nDer Test befindet sich unter Abs.~2 vielleicht aber auch Abs.~3.\n"
+
+    assert mistletoe.markdown(input, FiftyOhmLaTeXRenderer) == target
+
+def test_class_latex():
+    input = "Ich lerne für Klasse A, Klasse E und Klasse N."
+    target = "\nIch lerne für Klasse~A, Klasse~E und Klasse~N.\n"
+
+    assert mistletoe.markdown(input, FiftyOhmLaTeXRenderer) == target
 
 
