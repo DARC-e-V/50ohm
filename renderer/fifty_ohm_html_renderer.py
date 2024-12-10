@@ -117,8 +117,8 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
         if token.tagtype == "webmargin":
             type = "margin"
-        elif token.tagtype == "webtipp":
-            type = "tipp"
+        elif token.tagtype == "webtip":
+            type = "tip"
         elif token.tagtype == "webindepth":
             type = "indepth"
         else:
