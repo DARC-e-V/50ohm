@@ -4,6 +4,7 @@ from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 from renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
 
 
+
 def test_thematic_break_html() :
     assertions = {
         "---" : '<a id="margin_1"></a>\n',
