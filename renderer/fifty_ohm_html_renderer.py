@@ -10,6 +10,7 @@ from renderer.quote import Quote
 from renderer.references import References
 from renderer.tag import Tag
 from renderer.underline import Underline
+from renderer.unit import Unit
 
 
 class FiftyOhmHtmlRenderer(HtmlRenderer):
@@ -24,6 +25,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             BlockComment,
             SpanComment,
             Quote,
+            Unit,
             Underline,
             Tag,
             HalfwidthSpaces,
@@ -49,6 +51,31 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
     def render_underline(self, token):
         return f"<u>{self.render_inner(token)}</u>"
+
+    @classmethod
+    def render_unit(cls, token: Unit):
+        unit = token.prefix + cls.convert_unit_helper(token.unit)
+        if token.unit in ["°", "%"]:
+            # Special cases with no space between value and unit.
+            return f"{token.value}{unit}"
+        else:
+            # Default case is rendered with a narrow no-break space.
+            return f"{token.value}&#8239;{unit}"
+
+    units = {
+        "Ohm": "Ω",
+    }
+
+    @classmethod
+    def convert_unit_helper(cls, unit: str) -> str:
+        """Converts human-typable units to their preferred representation.
+
+        :param str unit: The unit to convert
+        """
+        if unit in cls.units.keys():
+            return cls.units[unit]
+        else:
+            return unit
 
     def render_thematic_break(self, token):
         self.margin_anchor_id += 1
