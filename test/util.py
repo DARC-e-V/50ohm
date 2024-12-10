@@ -1,2 +1,2 @@
-def paragraph(text) :
-    return f'<p>{text}</p>\n'
+def paragraph(text):
+    return f"<p>{text}</p>\n"
