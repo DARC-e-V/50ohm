@@ -6,7 +6,7 @@ from mistletoe.span_token import SpanToken
 class NonbreakingSpaces(SpanToken):
     """
     Insert unbreakable space into span token (§ 3)
-    Identifies "§$number", "Abs.$number", "Klasse [A,E,N]" w/ and w\ space between.
+    Identifies "§$number", "Abs.$number", "Klasse [A,E,N]" w/ and without space between.
     """
     pattern = re.compile(r"(§|Abs\.|Klasse)\s?(\d|[NEA])")
 

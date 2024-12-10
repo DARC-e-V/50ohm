@@ -94,6 +94,8 @@ CQ CQ hier ist DL1PZ mit einem allgemeinen Anruf, hier ist DL1PZ und hört.
 [table:n_morsetelegrafie_morsecode_buchstaben:Morsecode (Buchstaben)]
 </webmargin>
 
+Das ist ein A in Morsecode: [morse:a], das finde ich ganz toll!
+
 <webtip>
 ...
 </webtip>
