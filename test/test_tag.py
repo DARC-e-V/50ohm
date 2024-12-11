@@ -1,9 +1,11 @@
 import mistletoe
+import pytest
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 from renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
 
 
+@pytest.mark.html
 def test_thematic_break_html():
     assertions = {
         "---": '<a id="margin_1"></a>\n',
@@ -14,6 +16,7 @@ def test_thematic_break_html():
         assert mistletoe.markdown(assertion, FiftyOhmHtmlRenderer) == assertions[assertion]
 
 
+@pytest.mark.html
 def test_tag_html():
     assertions = {
         "<margin>\nFoo\n</margin>": FiftyOhmHtmlRenderer.render_tag_helper("margin", "<p>Foo</p>", 1, 0) + "\n",
@@ -33,6 +36,7 @@ def test_tag_html():
         assert mistletoe.markdown(assertion, FiftyOhmHtmlRenderer) == assertions[assertion]
 
 
+@pytest.mark.html
 def test_thematic_break_and_tag_html():
     assertions = {
         "---\n<margin>\nFoo\n</margin>": '<a id="margin_1"></a>\n'
@@ -54,6 +58,7 @@ def test_thematic_break_and_tag_html():
         assert mistletoe.markdown(assertion, FiftyOhmHtmlRenderer) == assertions[assertion]
 
 
+@pytest.mark.latex
 def test_thematic_break_latex():
     assertions = {
         "---": "",
@@ -64,6 +69,7 @@ def test_thematic_break_latex():
         assert mistletoe.markdown(assertion, FiftyOhmLaTeXRenderer) == assertions[assertion]
 
 
+@pytest.mark.latex
 def test_tag_latex():
     assertions = {
         "<margin>\nFoo\n</margin>": "\Margin{\nFoo\n}",
@@ -85,6 +91,7 @@ def test_tag_latex():
         assert mistletoe.markdown(assertion, FiftyOhmLaTeXRenderer) == assertions[assertion]
 
 
+@pytest.mark.latex
 def test_thematic_break_and_tag_latex():
     assertions = {
         "---\n<margin>\nFoo\n</margin>": "\Margin{\nFoo\n}",
