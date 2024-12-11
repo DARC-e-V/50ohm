@@ -1,9 +1,11 @@
 import mistletoe
+import pytest
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 from test.util import paragraph
 
 
+@pytest.mark.html
 def test_morse_html():
     assertions = {
         '"[morse:a]"': FiftyOhmHtmlRenderer.render_morse_helper([[1, 2]]),

@@ -1,10 +1,12 @@
 import mistletoe
+import pytest
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 from renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
 from test.util import paragraph
 
 
+@pytest.mark.html
 def test_underline_html():
     assertions = {
         "<u>Text</u>": "<u>Text</u>",
@@ -16,6 +18,7 @@ def test_underline_html():
         assert mistletoe.markdown(assertion, FiftyOhmHtmlRenderer) == paragraph(assertions[assertion])
 
 
+@pytest.mark.latex
 def test_underline_latex():
     assertions = {
         "<u>Text</u>": "\n\\underline{Text}\n",

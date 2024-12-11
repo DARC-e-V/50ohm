@@ -1,9 +1,11 @@
 import mistletoe
+import pytest
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 from test.util import paragraph
 
 
+@pytest.mark.html
 def test_references_html():
     # Right now this tests only the default values.
     # The correct behavior can be tested when the information is added to the renderer class
