@@ -8,4 +8,5 @@ class Dash(SpanToken):
     Dash span token ( - ).
     Identifies a dash in a text.
     """
-    pattern = re.compile(r'(\s-\s)')
+
+    pattern = re.compile(r"(\s-\s)")

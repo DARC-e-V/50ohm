@@ -5,19 +5,18 @@ from renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
 from test.util import paragraph
 
 
-def test_dash_html() :
-
+def test_dash_html():
     assertions = {
-        "Foo - Bar" : "Foo &ndash; Bar",
+        "Foo - Bar": "Foo &ndash; Bar",
     }
 
     for assertion in assertions:
         assert mistletoe.markdown(assertion, FiftyOhmHtmlRenderer) == paragraph(assertions[assertion])
 
-def test_dash_latex() :
 
+def test_dash_latex():
     assertions = {
-        "Foo - Bar" : "\nFoo -- Bar\n",
+        "Foo - Bar": "\nFoo -- Bar\n",
     }
 
     for assertion in assertions:
