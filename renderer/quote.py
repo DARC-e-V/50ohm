@@ -8,4 +8,5 @@ class Quote(SpanToken):
     Quote span token ("Eiersalat").
     Identifies quoted text.
     """
+
     pattern = re.compile(r'"([^"]+)"')

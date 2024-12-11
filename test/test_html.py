@@ -1,11 +1,9 @@
-
 import mistletoe
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 
 
-def test_html(capsys) :
-
+def test_html(capsys):
     with capsys.disabled():
         with open("test/acceptanceTest.md") as file:
             content = file.read()

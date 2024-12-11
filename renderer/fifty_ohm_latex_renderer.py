@@ -1,16 +1,15 @@
 from mistletoe.latex_renderer import LaTeXRenderer
 
-from renderer.comment import BlockComment, SpanComment
-from renderer.dash import Dash
-from renderer.halfwidth_spaces import HalfwidthSpaces
-from renderer.nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
-from renderer.quote import Quote
-from renderer.tag import Tag
-from renderer.underline import Underline
+from .comment import BlockComment, SpanComment
+from .dash import Dash
+from .halfwidth_spaces import HalfwidthSpaces
+from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
+from .quote import Quote
+from .tag import Tag
+from .underline import Underline
 
 
 class FiftyOhmLaTeXRenderer(LaTeXRenderer):
-
     def __init__(self):
         super().__init__(
             Dash,
@@ -23,7 +22,7 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
             NonbreakingSpaces,
             NonbreakingSpacesDots,
         )
-    
+
     def render_document(self, token):
         self.footnotes.update(token.footnotes)
         return self.render_inner(token)
@@ -32,25 +31,24 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
         return " -- "
 
     def render_block_comment(self, token):
-        return "" # TODO propagate comments to the LaTeX document
+        return ""  # TODO propagate comments to the LaTeX document
 
     def render_span_comment(self, token):
-        return "" # TODO propagate comments to the LaTeX document
+        return ""  # TODO propagate comments to the LaTeX document
 
     def render_quote(self, token):
-        return fr"\enquote{{{self.render_inner(token)}}}"
+        return rf"\enquote{{{self.render_inner(token)}}}"
 
     def render_emphasis(self, token):
-        return fr"\emph{{{self.render_inner(token)}}}"
+        return rf"\emph{{{self.render_inner(token)}}}"
 
     def render_underline(self, token):
-        return fr"\underline{{{self.render_inner(token)}}}"
+        return rf"\underline{{{self.render_inner(token)}}}"
 
     def render_thematic_break(self, token):
         return ""
 
     def render_tag(self, token):  # noqa: C901
-
         tagtype = None
 
         match token.tagtype:
@@ -81,7 +79,7 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
             case _:
                 tagtype = "Margin"
 
-        return fr"\{tagtype}{{{self.render_inner(token)}}}"
+        return rf"\{tagtype}{{{self.render_inner(token)}}}"
 
     def render_halfwidth_spaces(self, token):
         return f"{token.first}.\,{token.second}."
@@ -90,8 +88,5 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
         return f"{token.first}~{token.second}"
 
     def render_nonbreaking_spaces_dots(self, token):
-        lookup = {
-            "" : "",
-            " " : "~"
-        }
+        lookup = {"": "", " ": "~"}
         return f"{lookup[token.first]}{token.second}{lookup[token.third]}"

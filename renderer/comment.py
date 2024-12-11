@@ -9,7 +9,9 @@ class SpanComment(SpanToken):
     Coment span token (% Eiersalat).
     Identifies a comment in text.
     """
-    pattern = re.compile(r'(%.*\n?)')
+
+    pattern = re.compile(r"(%.*\n?)")
+
 
 class BlockComment(BlockToken):
     @staticmethod

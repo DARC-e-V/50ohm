@@ -7,7 +7,7 @@ requires-python = ">=3.12"
 dependencies = []
 
 [tool.ruff]
-line-length = 88
+line-length = 120
 indent-width = 4
 
 [tool.ruff.lint]
@@ -39,3 +39,7 @@ select = [
     # ruff-specific: No unused noqa directives
     "RUF100",
 ]
+
+[tool.pytest.ini_options]
+addopts = ["--color=yes"]
+markers = ["html", "latex"]
