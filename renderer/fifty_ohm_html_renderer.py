@@ -2,16 +2,16 @@ import textwrap
 
 from mistletoe import HtmlRenderer
 
-from renderer.comment import BlockComment, SpanComment
-from renderer.dash import Dash
-from renderer.halfwidth_spaces import HalfwidthSpaces
-from renderer.morse import Morse
-from renderer.nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
-from renderer.quote import Quote
-from renderer.references import References
-from renderer.tag import Tag
-from renderer.underline import Underline
-from renderer.unit import Unit
+from .comment import BlockComment, SpanComment
+from .dash import Dash
+from .halfwidth_spaces import HalfwidthSpaces
+from .morse import Morse
+from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
+from .quote import Quote
+from .references import References
+from .tag import Tag
+from .underline import Underline
+from .unit import Unit
 
 
 class FiftyOhmHtmlRenderer(HtmlRenderer):
