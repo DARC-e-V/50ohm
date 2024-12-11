@@ -1,12 +1,12 @@
 from mistletoe.latex_renderer import LaTeXRenderer
 
-from renderer.comment import BlockComment, SpanComment
-from renderer.dash import Dash
-from renderer.halfwidth_spaces import HalfwidthSpaces
-from renderer.nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
-from renderer.quote import Quote
-from renderer.tag import Tag
-from renderer.underline import Underline
+from .comment import BlockComment, SpanComment
+from .dash import Dash
+from .halfwidth_spaces import HalfwidthSpaces
+from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
+from .quote import Quote
+from .tag import Tag
+from .underline import Underline
 
 
 class FiftyOhmLaTeXRenderer(LaTeXRenderer):
