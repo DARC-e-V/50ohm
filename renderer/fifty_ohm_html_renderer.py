@@ -146,9 +146,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         else:
             type = token.tagtype
 
-        return self.render_tag_helper(
-            type, self.render_inner(token), self.margin_id, self.margin_anchor_id
-        )
+        return self.render_tag_helper(type, self.render_inner(token), self.margin_id, self.margin_anchor_id)
 
     def render_halfwidth_spaces(self, token):
         return f"{token.first}.&#8239;{token.second}."
