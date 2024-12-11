@@ -41,5 +41,5 @@ select = [
 ]
 
 [tool.pytest.ini_options]
-addopts = ["--import-mode=importlib", "--color=yes"]
+addopts = ["--color=yes"]
 markers = ["html", "latex"]
