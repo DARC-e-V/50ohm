@@ -8,8 +8,9 @@ class Morse(SpanToken):
     Morse code span token ("[morse:moe]").
     Generates morse code from a text.
     """
+
     @staticmethod
-    def convert_to_morse_code(text): 
+    def convert_to_morse_code(text):
         dit = 1
         dah = 2
         space = 3
@@ -74,15 +75,15 @@ class Morse(SpanToken):
             "bk": [dah, dit, dit, dit, dah, dit, dah],
             "sk": [dit, dit, dit, dah, dit, dah],
             "correction": [dit, dit, dit, dit, dit, dit, dit, dit],
-            " ": [space]
+            " ": [space],
         }
-        
+
         result = []
 
         for char in text:
             if char.lower() in morse_code:
                 result.append(morse_code[char.lower()])
-        
+
         return result
 
     parse_inner = False
