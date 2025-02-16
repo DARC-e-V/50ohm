@@ -23,10 +23,10 @@ def test_comment_html():
 @pytest.mark.latex
 def test_comment_latex():
     assertions = {
-        "%Comment\nBar": "% Comment\nBar\n",
-        "%Comment\n": "% Comment",
+        "%Comment\nBar": "% Comment\n\nBar\n",
+        "%Comment\n": "% Comment\n",
         "Foo 100 % Bar": "\nFoo 100 \% Bar\n",
-        "Foo\n%Comment\nBar": "\nFoo\n% Comment\nBar\n",
+        "Foo\n%Comment\nBar": "\nFoo\n% Comment\n\nBar\n",
     }
 
     for assertion in assertions:

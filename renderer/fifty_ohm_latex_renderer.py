@@ -30,7 +30,7 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
         return " -- "
 
     def render_block_comment(self, token):
-        return f"% {token.content}"
+        return f"% {token.content}\n"
 
     def render_quote(self, token):
         return rf"\enquote{{{self.render_inner(token)}}}"
