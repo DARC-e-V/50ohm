@@ -9,23 +9,23 @@ from test.util import paragraph
 @pytest.mark.html
 def test_comment_html():
     assertions = {
-        "%Comment\nBar": "Bar",
-        # TODO: This test is not working as expected. The comment should be removed
-        # "%Comment\n" : "a",
-        "Foo\n%Comment\nBar": "Foo\nBar",
+        "%Comment\nBar": paragraph("Bar"),
+        "%Comment\n": "",
+        "Foo 100 % Bar": paragraph("Foo 100% Bar"),
+        "Foo\n%Comment\nBar": paragraph("Foo") + paragraph("Bar"),
     }
 
     for assertion in assertions:
-        assert mistletoe.markdown(assertion, FiftyOhmHtmlRenderer) == paragraph(assertions[assertion])
+        assert mistletoe.markdown(assertion, FiftyOhmHtmlRenderer) == assertions[assertion]
 
 
 @pytest.mark.latex
 def test_comment_latex():
     assertions = {
-        "%Comment\nBar": "\nBar\n",
-        # TODO: This test is not working as expected. The comment should be removed
-        # "%Comment\n" : "a",
-        "Foo\n%Comment\nBar": "\nFoo\nBar\n",
+        "%Comment\nBar": "% Comment\n\nBar\n",
+        "%Comment\n": "% Comment\n",
+        "Foo 100 % Bar": "\nFoo 100 \% Bar\n",
+        "Foo\n%Comment\nBar": "\nFoo\n% Comment\n\nBar\n",
     }
 
     for assertion in assertions:
