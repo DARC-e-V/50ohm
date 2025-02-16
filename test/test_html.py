@@ -1,10 +1,14 @@
+import json
+
 from mistletoe import Document
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 
 
 def question_stub(input):
-    return f"<question>{input}</question>"  # TODO implement this stub
+    with open('data/metadata.json') as file:
+        metadata = json.load(file)
+    return metadata[f"{input}"].get("number")
 
 
 def test_html(capsys):
