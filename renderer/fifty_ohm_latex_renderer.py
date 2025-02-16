@@ -1,6 +1,6 @@
 from mistletoe.latex_renderer import LaTeXRenderer
 
-from .comment import BlockComment, SpanComment
+from .comment import BlockComment
 from .dash import Dash
 from .halfwidth_spaces import HalfwidthSpaces
 from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
@@ -14,7 +14,6 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
         super().__init__(
             Dash,
             BlockComment,
-            SpanComment,
             Quote,
             Underline,
             Tag,
@@ -31,10 +30,7 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
         return " -- "
 
     def render_block_comment(self, token):
-        return ""  # TODO propagate comments to the LaTeX document
-
-    def render_span_comment(self, token):
-        return ""  # TODO propagate comments to the LaTeX document
+        return f"% {token.content}\n"
 
     def render_quote(self, token):
         return rf"\enquote{{{self.render_inner(token)}}}"

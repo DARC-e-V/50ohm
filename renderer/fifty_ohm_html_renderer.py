@@ -1,8 +1,8 @@
 import textwrap
 
-from mistletoe import HtmlRenderer
+from mistletoe import Document, HtmlRenderer
 
-from .comment import BlockComment, SpanComment
+from .comment import BlockComment
 from .dash import Dash
 from .halfwidth_spaces import HalfwidthSpaces
 from .morse import Morse
@@ -24,7 +24,6 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         super().__init__(
             Dash,
             BlockComment,
-            SpanComment,
             Quote,
             Unit,
             Underline,
@@ -40,10 +39,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return " &ndash; "
 
     def render_block_comment(self, token):
-        return ""
-
-    def render_span_comment(self, token):
-        return ""
+        return None
 
     def render_quote(self, token):
         return f"„{self.render_inner(token)}“"
@@ -160,3 +156,9 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
     def render_references(self, token):
         return f'<a href="{self.section_url}#ref_{token.first}" onclick="highlightRef(\'{token.first}\');">{self.ref_id}</a>'
+
+    def render_document(self, token: Document) -> str:
+        self.footnotes.update(token.footnotes)
+        # Filter out None values, so block tokens can return None to not be rendered.
+        inner = "\n".join(filter(lambda x: x is not None, [self.render(child) for child in token.children]))
+        return f"{inner}\n" if inner else ""
