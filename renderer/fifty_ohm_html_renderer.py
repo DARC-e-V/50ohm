@@ -154,11 +154,11 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         lookup = {"": "", " ": "&#160;"}
         return f"{lookup[token.first]}{token.second}{lookup[token.third]}"
 
-    def render_references(self, token: References):
+    def render_references(self, token):
         return f'<a href="{self.section_url}#ref_{token.first}" onclick="highlightRef(\'{token.first}\');">{self.ref_id}</a>'
 
     def render_document(self, token: Document) -> str:
         self.footnotes.update(token.footnotes)
         # Filter out None values, so block tokens can return None to not be rendered.
         inner = "\n".join(filter(lambda x: x is not None, [self.render(child) for child in token.children]))
-        return "{}\n".format(inner) if inner else ""
+        return f"{inner}\n" if inner else ""
