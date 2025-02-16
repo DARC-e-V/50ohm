@@ -4,13 +4,14 @@ from .comment import BlockComment
 from .dash import Dash
 from .halfwidth_spaces import HalfwidthSpaces
 from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
+from .question import Question
 from .quote import Quote
 from .tag import Tag
 from .underline import Underline
 
 
 class FiftyOhmLaTeXRenderer(LaTeXRenderer):
-    def __init__(self):
+    def __init__(self, question_renderer=None):
         super().__init__(
             Dash,
             BlockComment,
@@ -20,7 +21,9 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
             HalfwidthSpaces,
             NonbreakingSpaces,
             NonbreakingSpacesDots,
+            Question,
         )
+        self.question_renderer = question_renderer
 
     def render_document(self, token):
         self.footnotes.update(token.footnotes)
@@ -86,3 +89,6 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
     def render_nonbreaking_spaces_dots(self, token):
         lookup = {"": "", " ": "~"}
         return f"{lookup[token.first]}{token.second}{lookup[token.third]}"
+
+    def render_question(self, token):
+        return self.question_renderer(token.question_number)
