@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from mistletoe import Document
 
@@ -17,6 +19,24 @@ def test_comment_html():
 
     def test_function(input):
         return f"{input}"
+
+    with FiftyOhmHtmlRenderer(test_function) as renderer:
+        for assertion in assertions:
+            assert renderer.render(Document(assertion)) == assertions[assertion]
+
+@pytest.mark.html
+def test_comment_translation_html():
+    assertions = {
+        "[question:123]": "ED111\n",
+        "\n[question:123]\n": "ED111\n",
+        "\n[question:123]\n[question:123]": "ED111\nED111\n",
+        "Foo\n[question:123]\nBar": paragraph("Foo") + "ED111\n" + paragraph("Bar"),
+    }
+
+    def test_function(input):
+        with open('data/metadata.json') as file:
+            metadata = json.load(file)
+        return metadata[f"{input}"].get("number")
 
     with FiftyOhmHtmlRenderer(test_function) as renderer:
         for assertion in assertions:
