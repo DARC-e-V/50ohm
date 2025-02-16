@@ -23,10 +23,10 @@ def test_comment_html():
 @pytest.mark.latex
 def test_comment_latex():
     assertions = {
-        "%Comment\nBar": "\nBar\n",
-        # TODO: This test is not working as expected. The comment should be removed
-        # "%Comment\n" : "a",
-        "Foo\n%Comment\nBar": "\nFoo\nBar\n",
+        "%Comment\nBar": "% Comment\nBar\n",
+        "%Comment\n": "% Comment",
+        "Foo 100 % Bar": "\nFoo 100 \% Bar\n",
+        "Foo\n%Comment\nBar": "\nFoo\n% Comment\nBar\n",
     }
 
     for assertion in assertions:
