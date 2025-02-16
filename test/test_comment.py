@@ -9,7 +9,6 @@ from test.util import paragraph
 @pytest.mark.html
 def test_comment_html():
     assertions = {
-        # TODOD: Remove \n
         "%Comment\nBar": paragraph("Bar"),
         "%Comment\n": "",
         "Foo 100 % Bar": paragraph("Foo 100% Bar"),
