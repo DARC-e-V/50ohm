@@ -7,6 +7,7 @@ from .dash import Dash
 from .halfwidth_spaces import HalfwidthSpaces
 from .morse import Morse
 from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
+from .question import Question
 from .quote import Quote
 from .references import References
 from .tag import Tag
@@ -20,7 +21,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     section_url = "section.html"
     ref_id = 0
 
-    def __init__(self):
+    def __init__(self, question_renderer=None):
         super().__init__(
             Dash,
             BlockComment,
@@ -33,7 +34,9 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             NonbreakingSpaces,
             NonbreakingSpacesDots,
             References,
+            Question,
         )
+        self.question_renderer = question_renderer
 
     def render_dash(self, token):
         return " &ndash; "
@@ -156,6 +159,9 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
     def render_references(self, token):
         return f'<a href="{self.section_url}#ref_{token.first}" onclick="highlightRef(\'{token.first}\');">{self.ref_id}</a>'
+
+    def render_question(self, token):
+        return self.question_renderer(token.question_number)
 
     def render_document(self, token: Document) -> str:
         self.footnotes.update(token.footnotes)
