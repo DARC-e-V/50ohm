@@ -37,39 +37,39 @@ def question_stub(input):
         question = questions[number]
         metadata = metadata[f"{input}"]
 
-        data = {}
-
         if "answer_a" in question :
-            data["answers"] = [
+            answers = [
                     question["answer_a"],
                     question["answer_b"],
                     question["answer_c"],
                     question["answer_d"]
-                ]
+            ]
         else :
-            data["answers"] = []
+            answers = []
 
         if metadata["picture_a"] != "" :
-            data["answer_pictures"] = [
+            answer_pictures = [
                     metadata["picture_a"],
                     metadata["picture_b"],
                     metadata["picture_c"],
                     metadata["picture_d"]
                 ]
         else :
-            data["answer_pictures"] = []
+            answer_pictures = []
 
         if "picture_question" in question :
-            data["picture_question"] = metadata["picture_question"]
+            picture_question = metadata["picture_question"]
+        else :
+            picture_question = ""
 
-        data["question"] = question["question"]
-        data["number"] = number
-
-        return question_template.render(data) #fragenkatalog[metadata[f"{input}"]["number"]]
-
-
-    #metadata[f"{input}"].get("number")
-
+        return question_template.render(
+            question=question["question"],
+            number=number,
+            layout=metadata["layout"],
+            picture_question=picture_question,
+            answers=answers,
+            answer_pictures=answer_pictures
+        )
 
 def test_html(capsys):
     with capsys.disabled():
