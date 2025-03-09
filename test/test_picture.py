@@ -6,7 +6,7 @@ from test.util import paragraph
 
 
 @pytest.mark.html
-def test_underline_html():
+def test_picture_html():
     assertions = {
         "[picture:123:abc:Text]": FiftyOhmHtmlRenderer.render_picture_helper("123", "abc", "Text", "TODO"),
     }
