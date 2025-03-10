@@ -182,4 +182,4 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             """
 
     def render_picture(self, token) :
-        self.render_picture_helper(token.id, token.ref, token.text, token.number)
+        return self.render_picture_helper(token.id, token.ref, token.text, token.number)
