@@ -98,11 +98,9 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
 
     @staticmethod
     def render_picture_helper(id, ref, text, number):
-        return f"""
-                \DARCimage{{1.0\linewidth}}{{{id}include}}
-                \captionof{{figure}}{{{text}}}
-                \label{{{ref}}}
-            """
+        return rf"""\DARCimage{{1.0\linewidth}}{{{id}include}}
+\captionof{{figure}}{{{text}}}
+\label{{{ref}}}"""
 
     def render_picture(self, token) :
-        self.render_picture_helper(token.id, token.ref, token.text, token.number)
+        return self.render_picture_helper(token.id, token.ref, token.text, token.number)

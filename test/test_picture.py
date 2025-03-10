@@ -23,4 +23,4 @@ def test_picture_latex():
     }
 
     for assertion in assertions:
-        assert mistletoe.markdown(assertion, FiftyOhmLaTeXRenderer) == assertions[assertion]
+        assert mistletoe.markdown(assertion, FiftyOhmLaTeXRenderer) == "\n" + assertions[assertion] + "\n"
