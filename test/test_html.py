@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from mistletoe import Document
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
@@ -14,4 +15,5 @@ def test_html(capsys):
             with FiftyOhmHtmlRenderer(question_stub) as renderer:
                 output = renderer.render(Document(content))
                 with open("test/acceptanceTest.html", "w") as output_file:
-                    output_file.write(output)
+                    pretty = BeautifulSoup(output, 'html.parser').prettify()
+                    output_file.write(pretty)
