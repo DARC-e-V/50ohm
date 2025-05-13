@@ -1,5 +1,7 @@
 from mistletoe.latex_renderer import LaTeXRenderer
 
+from renderer.picture import Picture
+
 from .comment import BlockComment
 from .dash import Dash
 from .halfwidth_spaces import HalfwidthSpaces
@@ -22,6 +24,7 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
             NonbreakingSpaces,
             NonbreakingSpacesDots,
             Question,
+            Picture
         )
         self.question_renderer = question_renderer
 
@@ -92,3 +95,12 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
 
     def render_question(self, token):
         return self.question_renderer(token.question_number)
+
+    @staticmethod
+    def render_picture_helper(id, ref, text, number):
+        return rf"""\DARCimage{{1.0\linewidth}}{{{id}include}}
+\captionof{{figure}}{{{text}}}
+\label{{{ref}}}"""
+
+    def render_picture(self, token) :
+        return self.render_picture_helper(token.id, token.ref, token.text, token.number)
