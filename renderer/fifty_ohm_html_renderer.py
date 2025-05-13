@@ -2,13 +2,13 @@ import textwrap
 
 from mistletoe import Document, HtmlRenderer
 
-from renderer.picture import Picture
-
 from .comment import BlockComment
 from .dash import Dash
 from .halfwidth_spaces import HalfwidthSpaces
 from .morse import Morse
 from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
+from .photo import Photo
+from .picture import Picture
 from .question import Question
 from .quote import Quote
 from .references import References
@@ -37,7 +37,8 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             NonbreakingSpacesDots,
             References,
             Question,
-            Picture
+            Picture,
+            Photo
         )
         self.question_renderer = question_renderer
 
@@ -176,10 +177,22 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     def render_picture_helper(id, ref, text, number):
         return f"""
                 <figure class="picture" id="ref_{ref}" name="{ref}">
-                    <img src="img/picture_{id}.svg">
+                    <img src="picture/picture_{id}.svg">
                     <figcaption>Abbildung {number}: {text}</figcaption>
                 </figure>
             """
 
     def render_picture(self, token) :
         return self.render_picture_helper(token.id, token.ref, token.text, token.number)
+
+    @staticmethod
+    def render_photo_helper(id, ref, text, number):
+        return f"""
+                <figure class="photo" id="ref_{ref}" name="{ref}">
+                    <img src="photo/photo_{id}.png">
+                    <figcaption>Abbildung {number}: {text}</figcaption>
+                </figure>
+            """
+
+    def render_photo(self, token) :
+        return self.render_photo_helper(token.id, token.ref, token.text, token.number)
