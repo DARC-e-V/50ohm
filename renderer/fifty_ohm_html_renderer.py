@@ -2,6 +2,8 @@ import textwrap
 
 from mistletoe import Document, HtmlRenderer
 
+from renderer.picture import Picture
+
 from .comment import BlockComment
 from .dash import Dash
 from .halfwidth_spaces import HalfwidthSpaces
@@ -35,6 +37,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             NonbreakingSpacesDots,
             References,
             Question,
+            Picture
         )
         self.question_renderer = question_renderer
 
@@ -168,3 +171,15 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         # Filter out None values, so block tokens can return None to not be rendered.
         inner = "\n".join(filter(lambda x: x is not None, [self.render(child) for child in token.children]))
         return f"{inner}\n" if inner else ""
+
+    @staticmethod
+    def render_picture_helper(id, ref, text, number):
+        return f"""
+                <figure class="picture" id="ref_{ref}" name="{ref}">
+                    <img src="img/picture_{id}.svg">
+                    <figcaption>Abbildung {number}: {text}</figcaption>
+                </figure>
+            """
+
+    def render_picture(self, token) :
+        return self.render_picture_helper(token.id, token.ref, token.text, token.number)
