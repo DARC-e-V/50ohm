@@ -17,6 +17,8 @@ from .tag import Tag
 from .underline import Underline
 from .unit import Unit
 
+table_alignment = {"l": "left", "c": "center", "r": "right"}
+
 
 class FiftyOhmHtmlRenderer(HtmlRenderer):
     margin_anchor_id = 0
@@ -199,16 +201,12 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     def render_photo(self, token) :
         return self.render_photo_helper(token.id, token.ref, token.text, token.number)
 
-    @staticmethod 
+    @staticmethod
     def render_cell_helper(cell, alignment, type):
-        if alignment == "l":
-            return f"<{type} style='text-align: left;'>{cell}</{type}>"
-        elif alignment == "r":
-            return f"<{type} style='text-align: right;'>{cell}</{type}>"
-        elif alignment == "c":
-            return f"<{type} style='text-align: center;'>{cell}</{type}>"
-        else:
-            return f"<{type}>{cell}</{type}>"
+        style = ""
+        if alignment in table_alignment:
+            style = f' style="text-align: {table_alignment[alignment]};"'
+        return f"<{type}{style}>{cell}</{type}>\n"
 
     def render_table(self, token):
         alignment = token.alignment
