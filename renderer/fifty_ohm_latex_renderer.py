@@ -1,11 +1,11 @@
 from mistletoe.latex_renderer import LaTeXRenderer
 
-from renderer.picture import Picture
-
 from .comment import BlockComment
 from .dash import Dash
 from .halfwidth_spaces import HalfwidthSpaces
 from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
+from .photo import Photo
+from .picture import Picture
 from .question import Question
 from .quote import Quote
 from .tag import Tag
@@ -24,7 +24,8 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
             NonbreakingSpaces,
             NonbreakingSpacesDots,
             Question,
-            Picture
+            Picture,
+            Photo
         )
         self.question_renderer = question_renderer
 
@@ -104,3 +105,12 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
 
     def render_picture(self, token) :
         return self.render_picture_helper(token.id, token.ref, token.text, token.number)
+
+    @staticmethod
+    def render_photo_helper(id, ref, text, number):
+        return rf"""\includegraphics[width=1.0\linewidth]{{photo/{id}}}
+\captionof{{figure}}{{{text}}}
+\label{{{ref}}}"""
+
+    def render_photo(self, token) :
+        return self.render_photo_helper(token.id, token.ref, token.text, token.number)
