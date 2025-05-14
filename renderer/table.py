@@ -9,7 +9,7 @@ class Table(BlockToken):
         return '|' in line
 
     @classmethod
-    def parseHeader(cls, line): 
+    def parse_header(cls, line): 
         # Parse header, extract alignment and make an ordinary row out of it
         line = line.strip().strip('|') # Remove leading/trailing whitespace and pipes
         columns = [col.strip() for col in line.split('|')] # Split by pipe |
@@ -27,7 +27,7 @@ class Table(BlockToken):
     @classmethod
     def read(cls, lines):
         header = next(lines)
-        header, alignment = cls.parseHeader(header)
+        header, alignment = cls.parse_header(header)
         rows = [TableRow(header)]
 
         for line in lines:
@@ -44,7 +44,7 @@ class Table(BlockToken):
 
 class TableRow(BlockToken):
     @classmethod
-    def parseRow(self, line):
+    def parse_row(cls, line):
         line = line.strip().strip('|')
         columns = [col.strip() for col in line.split('|')]
 
@@ -56,7 +56,7 @@ class TableRow(BlockToken):
         return data
 
     def __init__(self, match):
-        self.children = self.parseRow(match)
+        self.children = self.parse_row(match)
 
 class TableCell(BlockToken) :
     def __init__(self, match):
