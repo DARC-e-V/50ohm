@@ -10,7 +10,7 @@ class Photo(SpanToken):
     """
 
     parse_inner = False
-    pattern = re.compile(r"\[photo:(\d+):(.+):(.+)\]")
+    pattern = re.compile(r"\[photo:(\d+):([^:\]]+):([^:\]]+)\]")
 
     def __init__(self, match_object):
         self.id = match_object.group(1)
