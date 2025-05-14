@@ -42,7 +42,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             Question,
             Picture,
             Photo,
-            Table
+            Table,
         )
         self.question_renderer = question_renderer
 
@@ -186,7 +186,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
                 </figure>
             """
 
-    def render_picture(self, token) :
+    def render_picture(self, token):
         return self.render_picture_helper(token.id, token.ref, token.text, token.number)
 
     @staticmethod
@@ -198,7 +198,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
                 </figure>
             """
 
-    def render_photo(self, token) :
+    def render_photo(self, token):
         return self.render_photo_helper(token.id, token.ref, token.text, token.number)
 
     @staticmethod
