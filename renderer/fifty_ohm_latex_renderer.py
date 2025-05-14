@@ -113,4 +113,4 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
 \label{{{ref}}}"""
 
     def render_photo(self, token) :
-        return self.render_picture_helper(token.id, token.ref, token.text, token.number)
+        return self.render_photo_helper(token.id, token.ref, token.text, token.number)
