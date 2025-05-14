@@ -87,4 +87,4 @@ class Morse(SpanToken):
         return result
 
     parse_inner = False
-    pattern = re.compile(r'"\[morse:\s*(.+)\]"')
+    pattern = re.compile(r'\[morse:\s*(.+)\]')
