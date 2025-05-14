@@ -215,17 +215,14 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             return f"<{type}>{cell}</{type}>"
 
     def render_table(self, token):
-        data = token.table
         alignment = token.alignment
-
         table = "<table>"
-
-        for i, row in enumerate(data):
+        
+        for i, row in enumerate(token.children):
             content = ""
-            for j, cell in enumerate(row[0]):
-                content += self.render_cell_helper(cell, alignment[j], ("th" if i==0 else "td"))
+            for j, cell in enumerate(row.children):
+                content += self.render_cell_helper(self.render_inner(cell), alignment[j], ("th" if i==0 else "td"))
             table += self.render_row_helper(content)
-            
         table += "</table>"
 
         return table
