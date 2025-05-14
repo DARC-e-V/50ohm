@@ -12,6 +12,7 @@ from .picture import Picture
 from .question import Question
 from .quote import Quote
 from .references import References
+from .table import Table
 from .tag import Tag
 from .underline import Underline
 from .unit import Unit
@@ -38,7 +39,8 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             References,
             Question,
             Picture,
-            Photo
+            Photo,
+            Table
         )
         self.question_renderer = question_renderer
 
@@ -196,3 +198,34 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
     def render_photo(self, token) :
         return self.render_photo_helper(token.id, token.ref, token.text, token.number)
+
+    @staticmethod
+    def render_row_helper(row):
+        return f"""<tr>{row}</tr>"""
+
+    @staticmethod 
+    def render_cell_helper(cell, alignment, type):
+        if alignment == "l":
+            return f"<{type} style='text-align: left;'>{cell}</{type}>"
+        elif alignment == "r":
+            return f"<{type} style='text-align: right;'>{cell}</{type}>"
+        elif alignment == "c":
+            return f"<{type} style='text-align: center;'>{cell}</{type}>"
+        else:
+            return f"<{type}>{cell}</{type}>"
+
+    def render_table(self, token):
+        data = token.table
+        alignment = token.alignment
+
+        table = "<table>"
+
+        for i, row in enumerate(data):
+            content = ""
+            for j, cell in enumerate(row[0]):
+                content += self.render_cell_helper(cell, alignment[j], ("th" if i==0 else "td"))
+            table += self.render_row_helper(content)
+            
+        table += "</table>"
+
+        return table

@@ -7,7 +7,7 @@ from test.util import paragraph
 
 
 @pytest.mark.html
-def test_comment_html():
+def test_question_html():
     assertions = {
         "[question:123]": "123\n",
         "\n[question:123]\n": "123\n",
@@ -24,7 +24,7 @@ def test_comment_html():
 
 
 @pytest.mark.latex
-def test_comment_latex():
+def test_question_latex():
     assertions = {
         "[question:123]": "123",
         "\n[question:123]\n": "123",
