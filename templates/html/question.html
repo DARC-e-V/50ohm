@@ -1,0 +1,25 @@
+<div class="question layout-{{ layout }}" id="{{ number }}">
+    <div class="question-text">{{ number }}: {{ question }}</div>
+    {% if picture_question %}
+      <div class="question-picture"><img src="img/picture_{{ picture_question }}.svg"></div>
+    {% endif %}
+    <div class="answers">
+      {% for i in range(4) %}
+        <button onclick="answer(this, {{ 'true' if i == 0 else 'false' }} );">
+          {% if answers[i] %}
+            {{ answers[i] }}
+          {% endif %}
+          {% if answer_pictures[i] %}
+            <div class="question-picture"><img src="img/picture_{{ answer_pictures[i] }}.svg"></div>
+          {% endif %}
+          {% if i == 0 %}
+            <div class="result material-icons">check</div>
+          {% else %}
+            <div class="result material-icons">clear</div>
+          {% endif %}
+        </button>
+      {% endfor %}
+    </div>
+  </div>
+  
+  
