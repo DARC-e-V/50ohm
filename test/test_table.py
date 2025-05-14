@@ -2,6 +2,7 @@ import pytest
 from mistletoe import Document
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
+from renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
 
 
 @pytest.mark.html
@@ -17,5 +18,18 @@ def test_table_html():
     }
 
     with FiftyOhmHtmlRenderer() as renderer:
+        for assertion in assertions:
+            assert renderer.render(Document(assertion)) == assertions[assertion]
+
+
+@pytest.mark.latex
+def test_thematic_break_latex():
+    assertions = {
+        "| l: a |" : "\\begin{DARCtabular}{l}\na\\\\\n\\end{DARCtabular}",
+        "| l: a |\n| *b* |" : "\\begin{DARCtabular}{l}\na\\\\\n\\emph{b}\\\\\n\\end{DARCtabular}",
+        "| l: a | X: b |\n| c | d |" : "\\begin{DARCtabular}{lX}\na & b\\\\\nc & d\\\\\n\\end{DARCtabular}",
+    }
+
+    with FiftyOhmLaTeXRenderer() as renderer:
         for assertion in assertions:
             assert renderer.render(Document(assertion)) == assertions[assertion]
