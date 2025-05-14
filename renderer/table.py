@@ -18,7 +18,7 @@ class Table(BlockToken):
         header = "| "
 
         for column in columns:
-            attr, val = column.split(':')
+            attr, val = re.match(r"^ ?(?:([lcrX]):)?(.*)", column).group(1, 2)
             alignment.append(attr)
             header += val + " | "
         
