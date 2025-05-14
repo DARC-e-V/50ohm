@@ -210,13 +210,16 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
     def render_table(self, token):
         alignment = token.alignment
-        table = "<table>"
-        
+        table = "<table>\n"
+
         for i, row in enumerate(token.children):
             content = ""
             for j, cell in enumerate(row.children):
-                content += self.render_cell_helper(self.render_inner(cell), alignment[j], ("th" if i==0 else "td"))
-            table += f"<tr>{content}</tr>" 
+                content += self.render_cell_helper(self.render_inner(cell), alignment[j], ("th" if i == 0 else "td"))
+            table += f"<tr>\n{content}</tr>\n"
+
+        if token.caption != "":
+            table += f"<caption>{token.caption}</caption>"
         table += "</table>"
 
         return table
