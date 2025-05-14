@@ -199,10 +199,6 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     def render_photo(self, token) :
         return self.render_photo_helper(token.id, token.ref, token.text, token.number)
 
-    @staticmethod
-    def render_row_helper(row):
-        return f"""<tr>{row}</tr>"""
-
     @staticmethod 
     def render_cell_helper(cell, alignment, type):
         if alignment == "l":
@@ -222,7 +218,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             content = ""
             for j, cell in enumerate(row.children):
                 content += self.render_cell_helper(self.render_inner(cell), alignment[j], ("th" if i==0 else "td"))
-            table += self.render_row_helper(content)
+            table += f"<tr>{content}</tr>" 
         table += "</table>"
 
         return table
