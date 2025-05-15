@@ -1,7 +1,12 @@
+beautifulsoup4==4.13.4
 coverage==7.6.9
 iniconfig==2.0.0
+jinja2==3.1.6
+markupsafe==3.0.2
 mistletoe==1.4.0
 packaging==24.2
 pluggy==1.5.0
 pytest==8.3.4
 pytest-cov==6.0.0
+soupsieve==2.7
+typing-extensions==4.13.2

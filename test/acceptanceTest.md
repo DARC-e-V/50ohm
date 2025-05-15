@@ -79,7 +79,7 @@ CQ CQ hier ist DL1PZ mit einem allgemeinen Anruf, hier ist DL1PZ und hört.
 </indepth>
 
 <webmargin>
-| c | l | c | l | c | l |
+| c: | l: | c: | l: | c: | l: |
 |  |  |  |  |  |  |
 | A | [morse:a] | K | [morse:k] | U | [morse:u] |
 | B | [morse:b] | L | [morse:l] | V | [morse:v] |
