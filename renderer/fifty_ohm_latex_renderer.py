@@ -8,6 +8,7 @@ from .photo import Photo
 from .picture import Picture
 from .question import Question
 from .quote import Quote
+from .table import Table
 from .tag import Tag
 from .underline import Underline
 
@@ -25,7 +26,8 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
             NonbreakingSpacesDots,
             Question,
             Picture,
-            Photo
+            Photo,
+            Table
         )
         self.question_renderer = question_renderer
 
@@ -114,3 +116,25 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
 
     def render_photo(self, token) :
         return self.render_photo_helper(token.id, token.ref, token.text, token.number)
+
+    def render_table(self, token):
+        alignments = token.alignment
+        align = ""
+        for alignment in alignments :
+            align += alignment
+
+        table = f"\\begin{{DARCtabular}}{{{align}}}\n"
+        
+        for row in token.children:
+            for j, cell in enumerate(row.children):
+                table += self.render_inner(cell)
+                if j < len(row.children) - 1:
+                    table += " & "
+            table += r"\\"+ "\n"
+
+        table += "\\end{DARCtabular}"
+        if token.caption != "" :
+            table += f"\\captionof{{figure}}{{{token.caption}}}\n"
+            table += f"\\label{{{token.name}}}\n"
+
+        return table
