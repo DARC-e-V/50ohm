@@ -133,5 +133,8 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
             table += r"\\"+ "\n"
 
         table += "\\end{DARCtabular}"
+        if token.caption != "" :
+            table += f"\\captionof{{figure}}{{{token.caption}}}\n"
+            table += f"\\label{{{token.name}}}\n"
 
         return table
