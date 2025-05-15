@@ -164,3 +164,6 @@ cython_debug/
 test/acceptanceTest.html
 .DS_Store
 .envrc
+config/config.json
+data/metadata.json
+data/book_N.json
