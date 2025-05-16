@@ -167,3 +167,4 @@ test/acceptanceTest.html
 config/config.json
 data/metadata.json
 data/book_N.json
+data/photo/*
