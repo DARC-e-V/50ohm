@@ -50,3 +50,11 @@ class DirectusAPI:
         else:
             raise Exception("One result expected, but got more than one result")
             
+    def get_file(self, endpoint, params = None):
+        if params is None:
+            params = {}
+        result = self.__get_raw(endpoint, params)
+        data = result.content
+        if data is None:
+            raise Exception("No data from API")
+        return data
