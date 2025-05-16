@@ -9,3 +9,4 @@ dl   = download.Download(api)
 
 dl.download_edition("N")
 dl.download_question_metadata()
+dl.download_photos()

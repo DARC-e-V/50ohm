@@ -79,3 +79,16 @@ class Download:
             json.dump(result, f, indent=4)
         f.close()
 
+    def download_photos(cls) :
+        print("Downloading photos")
+
+        photos = cls.api.get(
+            "items/Fotos",
+            params=None
+        )
+
+        for photo in tqdm(photos):
+            data = cls.api.get_file("assets/" + photo["photo"])
+            file = open("./data/photo/" + str(photo["id"]) + ".jpg", "wb")
+            file.write(data)
+            file.close()
