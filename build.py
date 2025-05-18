@@ -1,11 +1,13 @@
 
-import api.config as config
 import api.directus as directus
-import api.download as download
+import src.build as build
+import src.config as config
+import src.download as download
 
 conf = config.Config()
 api  = directus.DirectusAPI(conf)
 dl   = download.Download(api)
+bd   = build.Build()
 
 # Download the text files:
 dl.download_edition("N")
@@ -14,3 +16,7 @@ dl.download_edition("N")
 dl.download_question_metadata()
 dl.download_photos()
 dl.download_pictures()
+
+# Build edition:
+bd.build_edition("N")
+
