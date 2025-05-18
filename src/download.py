@@ -33,24 +33,25 @@ class Download:
 
             out_chapters.append(
                 {
-                    "title": in_chapter["title"],
-                    "abstract": in_chapter["abstract"],
-                    "ident": in_chapter["ident"],
-                    "video_url": in_chapter["video_url"],
-                    "sections": [],
+                    "title"     : in_chapter["title"],
+                    "abstract"  : in_chapter["abstract"],
+                    "ident"     : in_chapter["ident"],
+                    "video_url" : in_chapter["video_url"],
+                    "sections"  : [],
                 }
             )
 
             for in_section in in_sections:
                 out_chapters[-1]["sections"].append(
                     {
-                        "title": in_section["title"],
-                        "ident": in_section["ident"],
-                        "status": in_section["status"],
-                        "content": in_section["content"],
-                        "slide": in_section["slide"],
-                        "video": in_section["video_url"],
-                        "questions": [],
+                        "title"     : in_section["title"],
+                        "ident"     : in_section["ident"],
+                        "status"    : in_section["status"],
+                        "class"     : in_section["class"],
+                        "content"   : in_section["content"],
+                        "slide"     : in_section["slide"],
+                        "video"     : in_section["video_url"],
+                        "questions" : [],
                     }
                 )
 
@@ -61,12 +62,12 @@ class Download:
 
         questions = self.api.get(
             "items/questions",
-            params={"filter": {"class_3": {"_in": [1,2,3]}}, "sort": "position"}
+            params={"filter": {"class_3": {"_in": [1,2,3]}}, "sort": "position", "limit": -1}
         )
 
         result = {}
 
-        for question in tqdm(questions, desc="Downloading question metadata"):
+        for question in tqdm(questions, desc="Downloading metadata"):
             result[question["id"]] = {
                 "number":           question["number"],
                 "picture_question": question["picture_question"] if question["picture_question"] is not None else "",
@@ -136,8 +137,6 @@ class Download:
                 file.write(latex)
             file.close()
 
-        #for picture in tqdm(pictures, desc="Build all pictures"):
-        #    build_picture(picture)
         Parallel(n_jobs=multiprocessing.cpu_count())(
             delayed(build_picture)(picture) for picture in tqdm(pictures, desc="Build All Pictures")
         )
