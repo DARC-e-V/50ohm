@@ -35,6 +35,8 @@ class Download:
                 {
                     "title": in_chapter["title"],
                     "abstract": in_chapter["abstract"],
+                    "ident": in_chapter["ident"],
+                    "video_url": in_chapter["video_url"],
                     "sections": [],
                 }
             )
