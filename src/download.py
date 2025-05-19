@@ -121,10 +121,7 @@ class Download:
                 # Build the picture:
                 os.system(f"latexmk -lualatex -f -interaction=nonstopmode ./data/pictures/{pid}.tex > /dev/null 2>&1")
                 # Convert the PDF to SVG:
-                os.system(f"pdftocairo -svg data/pictures/{picture['id']}.pdf - > data/pictures/{picture['id']}.svg > /dev/null 2>&1")
-                # Remove all build files:
-                #os.system(f"latexmk -C ./data/pictures/{pid}.tex > /dev/null 2>&1")
-                #os.system(f"rm ./data/pictures/{pid}.tex > /dev/null 2>&1")
+                os.system(f"pdftocairo -svg data/pictures/{picture['id']}.pdf - > data/pictures/{picture['id']}.svg")
 
         pictures = self.api.get(
             "items/pictures",
