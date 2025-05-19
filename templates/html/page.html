@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>50Ω Lernplattform für Amateurfunk</title>
+
+    <link rel="icon" href="assets/favicon/icon.png" type="image/png">
+    <link rel="icon" href="assets/favicon/icon.svg" type="image/svg+xml">
+    <link rel="mask-icon" href="assets/favicon/mask-icon.svg" color="#00ADEF">
+    <link href="assets/bootstrap-5.2.0-beta1-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/style-fiftyohm.css?ts=202312172012">
+    <link rel="stylesheet" href="assets/style-course.css?ts=202312172012">
+    <link rel="stylesheet" href="assets/katex/katex.min.css">
+    <script defer src="assets/katex/katex.min.js"></script>
+    <script defer src="assets/katex/auto-render.min.js"></script>
+    <script defer src="assets/script.js"></script>  
+    <style>
+    </style>
+
+    <script>
+      function toggleNavBar() {
+        document.getElementById("nav-dropdown").classList.toggle("open");
+        document.getElementById("nav-button-closed").classList.toggle("hidden");
+        document.getElementById("nav-button-opened").classList.toggle("hidden");
+      }
+      function highlightRef(ref) {
+        console.log(ref)
+        document.getElementById('ref_' + ref).style.background='red';
+        setTimeout(() => {
+          document.getElementById('ref_' + ref).style.background='none';
+        }, 500);
+      }
+    </script>
+  </head>
+  <body>
+
+    <div class="fiftyohm-layout-outer fiftyohm-layout-outer-head">
+      <div class="fiftyohm-layout-inner">
+        <div class="fiftyohm-layout-left">
+          <a class="fiftyohm-brand" href="index.html">
+            <svg class="fiftyohm-darc-logo" version="1.1" viewBox="0 0 246.67 568" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"><g transform="matrix(1.3333 0 0 -1.3333 0 568)"><g transform="scale(.1)" fill-rule="evenodd"><path class="background" d="m925.58 4257.2 921.73-2126-921.73-2126-921.7 2126 921.7 2126" /><path class="foreground" d="m799.9 896.17c0 59.754 42.86 104.21 77.403 104.21h126.99c42.97 0 76.61-43.81 78.46-79.345 1.13-21.539 0.92-84.984 0.92-84.984h-92.787v30.215s1.43 17.007-4.485 25.152c-4.351 5.973-12.585 5.922-12.585 5.922l-49.133 0.098s-9.41 1.156-14.828-3.778c-8.129-7.41-6.895-31.086-6.895-31.086l-0.742-245.91s-1.246-23.664 6.898-31.062c5.414-4.95 14.821-3.793 14.821-3.793l49.144 0.105s8.223-0.055 12.567 5.926c5.937 8.137 4.492 25.148 4.492 25.148v30.215h92.793s0.21-63.465-0.93-84.984c-1.83-35.539-35.48-79.36-78.45-79.36h-126.99c-34.543 0-77.414 44.473-77.414 104.23 0 6.461 0.753 306.61 0.753 313.08zm579.59 938.37-0.68 585.24s135.56-0.65 163.11-0.65c57.13 0 107.14-32.64 107.14-92.84 0-52.22 1.16-140.81-0.2-169.36-3.01-62.64-12.03-86.63-48.82-100.15-0.5-0.91 63.25-223.12 63.25-223.12l-95.01-1-54.63 221.99-38.08 0.19 0.2-221.18-96.28 0.88zm-577.9 1958.4 180.9 0.92c35.476 0 57.856-13.14 78.026-33.78 20.17-20.67 22.22-72.35 22.22-92.03v-316.28c0-19.7 3.22-69.56-22.4-98.04-25.61-28.49-54.64-29.54-75.877-29.54-21.258 0-184.63 0.74-184.63 0.74zm102.26-93.9 52.777 0.24c10.344 0 16.859-3.26 22.75-8.4 5.887-5.12 6.477-17.93 6.477-22.83v-320.66c0-4.93 0.968-17.29-6.508-24.37-7.469-7.05-15.953-7.29-22.16-7.29-6.184 0-53.864 0.19-53.864 0.19zm-240.62-757.48 278.02 239.37 287.78-239.37h-152.81l-77.847 58.63-0.011-200.43s-187-32.49-245.48-81.75c-42.472-35.79-14.359-79.97-14.359-79.97s79.019 66.25 265.2 70.19c154.93 3.29 283.13-48.07 284.62-146.52 1.48-98.45-123.37-138.52-286.59-143.51-158.53-4.85-262.59 62.69-262.59 62.69s-26.492-56.49-21.562-94.03c3.969-30.24 28.957-62.09 28.957-62.09s127.82 60.1 253.23 60.1c180.69 0 297.72-49.65 297.79-135.56 0.07-85.87-120.96-132.83-274.27-138.78-150.89-5.89-282.2 62.69-282.2 62.69s-27.422-23.16-27.422-62.69c0-38.27 44.918-86.98 44.918-86.98s101.78 53.15 252.94 53.66c186.38 0.64 289.25-74.73 288.66-136.34-0.59-61.59-97.01-132.78-286.7-134.1-152.05-1.07-250.84 47.04-250.84 47.04s-8.519-54.46 48.145-83.28c75.105-38.19 197.85-32.14 197.85-32.14l0.27-110.24h204.22l-39.54-80.32h-461.47l-39.211 80.32h212.49l0.746 33.55s-200.26 3.91-227.98 157.03c-14.165 78.18 28.195 130.94 28.195 130.94s-84.285 87.86-76.426 180.29c7.836 92.11 58.844 138.72 58.844 138.72s-51.75 55-51.75 132.64c0 77.63 43.902 161.86 43.902 161.86s-30.512 25.55-29.383 99.96c2.602 174.92 254.86 210.34 254.86 210.34l1.648 126.71-70.551-58.78zm485.76-1443.7-33.46-67.98h-345.77l-33.184 67.98zm-58.08-117.98-32.56-66.12h-231.88l-32.297 66.12zm-57.17-116.12-28.59-58.05h-125.92l-28.352 58.05zm-53.203-108.05-25.816-52.45h-25.481l-25.609 52.45zm-518.6 1263.5 101.5-585.47h-107.27l-17.383 96.76-86.988-0.47-14.359-96.29h-111.09l97.531 584.45 138.06 1.02zm-95.485-378.04h54.079l-28.559 234.91zm1158.4 115.97c14.01 0.44 30.32 6.23 29.01 24.65-0.73 10.32-0.07 95.47-0.07 114.7 0 15.59-8.57 31.16-25.5 31.16-24.09 0-52.41-0.93-52.41-0.93l-0.28-170.38s25.99 0.07 49.25 0.8zm-334.95-219c0-28.15-89.04-50.95-198.9-50.95-109.86 0-198.91 50.95-198.91 50.95s89.046 50.95 198.91 50.95c109.86 0 198.9-22.81 198.9-50.95zm0 307.67c0-28.14-89.04-50.94-198.9-50.94-109.86 0-198.91 50.94-198.91 50.94s89.046 50.95 198.91 50.95c109.86 0 198.9-22.81 198.9-50.95zm0 315.51c0-28.14-89.04-50.97-198.9-50.97-109.86 0-198.91 50.97-198.91 50.97s89.046 50.94 198.91 50.94c109.86 0 198.9-22.8 198.9-50.94" /></g></g></svg>    
+          </a>
+        </div>
+        <div class="fiftyohm-layout-main">
+          <a class="fiftyohm-brand" href="index.html">
+            <img class="fiftyohm-logo" src="assets/images/50ohm.svg">
+            <span class="fiftyohm-logo-beta">BETA</span><br>
+            <span>Lernplattform für Amateurfunk</span>
+          </a>
+          <div class="fiftyohm-nav-button" id="nav-button" onclick="toggleNavBar();">
+            <svg id="nav-button-closed" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path class="background" d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/></svg>
+            <svg id="nav-button-opened" class="hidden" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M120-240v-80h520v80H120Zm664-40L584-480l200-200 56 56-144 144 144 144-56 56ZM120-440v-80h400v80H120Zm0-200v-80h520v80H120Z"/></svg>
+          </div>
+          <ul class="fiftyohm-navbar" id="nav-dropdown">
+            <li>
+              <a href="index.html">
+                <span class="material-icons">home</span>
+                Start
+              </a>
+            </li>
+            <li>
+              <a href="index.html#lernen">
+                <span class="material-icons">local_library</span>
+                Lernen
+              </a>
+            </li>
+            <li>
+              <a href="infos.html">
+                <span class="material-icons">info</span>
+                Infos
+              </a>
+            </li>
+            <li>
+              <a href="pruefung.html">
+                <span class="material-icons">fact_check</span>
+                Prüfung
+              </a>
+            </li>
+<!--            <li>
+              <a href="login.html">
+                <span class="material-icons">login</span>
+                Login
+              </a>
+            </li>-->
+          </ul>
+        </div>
+        <div class="fiftyohm-layout-right">
+        </div>
+      </div>
+    </div>
+  
+  
+    <div class="fiftyohm-layout-outer fiftyohm-layout-outer-content">
+      <div class="fiftyohm-layout-inner">
+        <div class="fiftyohm-layout-left">
+        </div>
+        <div class="fiftyohm-layout-main">
+          <div class="fiftyohm-content w-100">
+            {% if teaser %}
+              <div class="fiftyohm-content-teaser">
+                {{ teaser }}
+                <hr>
+              </div>
+            {% endif %}
+            {% if sidebar %}
+              <div class="fiftyohm-content-2cols">
+                <div>
+                  {{ content }}
+                </div>
+                <div>
+                  {{ sidebar }}
+                </div>
+              </div>
+            {% elif content %}
+              {{ content }}
+            {% endif %}
+
+            <footer class="text-lg-start border-top border-dark mt-5 pt-3">
+              <div class="d-flex flex-wrap justify-content-between gap-5 mb-5">
+                <div>
+                  <div class="mb-3">Ein Angebot des Deutschen Amateur-Radio-Clubs e.&nbsp;V.</div>
+                  <div class="d-flex justify-content-between align-items-center gap">
+                    <img class="fiftyohm-logo" src="assets/images/50ohm.svg">
+                    <div>
+                      <a class="text-secondary" href="https://darc.de/impressum">Impressum</a>
+                      <a class="text-secondary" href="https://darc.de/datenschutzerklaerung">Datenschutz</a>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-start">
+                  <div>Unterstützt von:</div>
+                  <div style="margin-top: -15px;"><a href="https://www.rohde-schwarz.com/ausbildung"><img style="width: 300px;" src="assets/images/rus-logo-gross.svg"></a></div>
+                </div>
+              </div>
+            </footer>
+              
+          </div>
+
+        <div class="fiftyohm-layout-right">
+        </div>
+      </div>
+    </div>
+  </div>
+    
+  <script src="assets/bootstrap-5.2.0-beta1-dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
