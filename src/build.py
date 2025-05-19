@@ -128,9 +128,10 @@ class Build:
             file.write(result)
 
     # cached
-    def __build_section(self, edition, section, chapter, next_section=None):
+    def __build_section(self, edition, section, chapter, next_section=None, next_chapter=None):
         section_template = self.env.get_template("section.html")
         next_section_template = self.env.get_template("next_section.html")
+        next_chapter_template = self.env.get_template("next_chapter.html")
         with open(f'build/{edition}_{section["ident"]}.html', 'w') as file:
 
             with FiftyOhmHtmlRenderer(self.__build_question, self.__picture_handler, self.__photo_handler) as renderer:
@@ -147,6 +148,11 @@ class Build:
                         url=f"{edition}_{next_section["ident"]}.html",
                         title=next_section["title"],
                     )
+                elif next_chapter is not None:
+                    result += next_chapter_template.render(
+                        url=f"{edition}_chapter_{next_chapter["ident"]}.html",
+                        title=next_chapter["title"],
+                    )
 
                 result = self.__build_page(result)
                 result = BeautifulSoup(result, "html.parser").prettify()
@@ -162,9 +168,9 @@ class Build:
                 next_chapter = book[number] if number < len(book) else None
                 self.__build_chapter(edition, number, chapter, next_chapter)
 
-                for number, section in enumerate(chapter["sections"],1) :
-                    next_section = chapter["sections"][number] if number < len(chapter["sections"]) else None
-                    self.__build_section(edition, section, chapter, next_section)
+                for i, section in enumerate(chapter["sections"],1) :
+                    next_section = chapter["sections"][i] if i < len(chapter["sections"]) else None
+                    self.__build_section(edition, section, chapter, next_section, next_chapter)
 
     def build_assets(self):
         shutil.copytree("assets", "build/assets", dirs_exist_ok=True)
