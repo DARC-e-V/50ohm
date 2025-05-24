@@ -162,7 +162,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         qso = ""
         for child in token.children:
             direction = "other" if child.received else "own"
-            qso += f'<div class="qso_{direction}">{self.render_inner(child)}</div>'
+            qso += f'<div class="qso_{direction}">{self.render_inner(child)}</div>\n'
         return self.render_tag_helper("qso", qso, self.margin_id, self.margin_anchor_id)
 
     def render_halfwidth_spaces(self, token):
