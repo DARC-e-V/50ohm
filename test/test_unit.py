@@ -41,6 +41,7 @@ def test_special_units_html():
     """Test special units: Don't put space before ° and %."""
     assertions = {
         "100%": "100%",
+        "100 %": "100%",
         "42,24°": "42,24°",
     }
 
