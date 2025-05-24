@@ -1,13 +1,12 @@
-
 import api.directus as directus
 import src.build as build
 import src.config as config
 import src.download as download
 
 conf = config.Config()
-api  = directus.DirectusAPI(conf)
-dl   = download.Download(api)
-bd   = build.Build()
+api = directus.DirectusAPI(conf)
+dl = download.Download(api, conf)
+bd = build.Build()
 
 # Download the text files:
 dl.download_edition("N")
@@ -22,4 +21,3 @@ bd.build_edition("N")
 
 # Build assets:
 bd.build_assets()
-
