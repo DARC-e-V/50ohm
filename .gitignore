@@ -165,7 +165,7 @@ test/acceptanceTest.html
 .DS_Store
 .envrc
 config/config.json
-data/metadata.json
-data/book_N.json
-data/photos/*
-data/pictures/*
+
+data/*
+!data/fragenkatalog3b.json
+!data/README.txt
