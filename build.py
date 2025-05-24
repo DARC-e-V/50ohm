@@ -14,9 +14,12 @@ dl.download_edition("N")
 
 # Download additional files:
 dl.download_question_metadata()
-dl.download_photos()
 dl.download_pictures()
+dl.download_photos()
 
 # Build edition:
 bd.build_edition("N")
+
+# Build assets:
+bd.build_assets()
 
