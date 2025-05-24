@@ -9,6 +9,7 @@ from .morse import Morse
 from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
 from .photo import Photo
 from .picture import Picture
+from .qso import Qso
 from .question import Question
 from .quote import Quote
 from .references import References
@@ -43,6 +44,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             Picture,
             Photo,
             Table,
+            Qso,
         )
         self.question_renderer = question_renderer
 
@@ -154,6 +156,14 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             type = token.tagtype
 
         return self.render_tag_helper(type, self.render_inner(token), self.margin_id, self.margin_anchor_id)
+
+    def render_qso(self, token):
+        self.margin_id += 1
+        qso = ""
+        for child in token.children:
+            direction = "other" if child.received else "own"
+            qso += f'<div class="qso_{direction}">{self.render_inner(child)}</div>\n'
+        return self.render_tag_helper("qso", qso, self.margin_id, self.margin_anchor_id)
 
     def render_halfwidth_spaces(self, token):
         return f"{token.first}.&#8239;{token.second}."
