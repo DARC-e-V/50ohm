@@ -44,7 +44,7 @@ class Unit(SpanToken):
         # Group all units together in a capture group.
         + "|".join(units)
         # Word boundary check at end of unit to ensure proper handling of units like A, Ah etc.
-        + r")\b"
+        + r")(?!\w)"
     )
 
     value: str
