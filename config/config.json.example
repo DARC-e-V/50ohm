@@ -1,3 +1,4 @@
 {
-  "key" : "INSERTKEYHERE"
+  "directus_base_url" : "https://fragenkatalog.darc.de/",
+  "no_latex": true
 }
