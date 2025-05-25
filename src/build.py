@@ -171,13 +171,14 @@ class Build:
         }
         return edition_names[edition]
 
-    def __build_index(self, edition, book):
+    def __build_book_index(self, edition, book):
         template = self.env.get_template("course_index.html")
         with open(f"build/{edition}_course_index.html", "w") as file:
             result = template.render(
                 titel=self.__edition_name(edition),
                 abstract="", #TODO we can add this later
                 book=book,
+                edition=edition,
             )
             result = self.__build_page(result)
             result = BeautifulSoup(result, "html.parser").prettify()
@@ -188,7 +189,7 @@ class Build:
 
         with open(f'data/book_{edition}.json') as f:
             book = json.load(f)
-            self.__build_index(edition, book)
+            self.__build_book_index(edition, book)
             for number, chapter in enumerate(tqdm(book, desc=f"Build Edition: {edition}"),1):
                 next_chapter = book[number] if number < len(book) else None
                 self.__build_chapter(edition, number, chapter, next_chapter)
