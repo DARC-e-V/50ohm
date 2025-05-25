@@ -113,6 +113,7 @@ class Build:
         with open(f'build/{edition}_chapter_{chapter["ident"]}.html', 'w') as file:
             result = chapter_template.render(
                 edition=edition,
+                name=self.__edition_name(edition),
                 number=number,
                 chapter=chapter,
             )
@@ -139,6 +140,7 @@ class Build:
 
                 result = section_template.render(
                     edition=edition,
+                    name=self.__edition_name(edition),
                     section=section,
                     chapter=chapter,
                 )
@@ -158,12 +160,35 @@ class Build:
                 result = BeautifulSoup(result, "html.parser").prettify()
                 file.write(result)
 
+    def __edition_name(self, edition):
+        edition_names = {
+            "N"   : "Gesamtkurs N",
+            "E"   : "Aufbaukurs N -> E",
+            "A"   : "Aufbaukurs E -> A",
+            "NE"  : "Gesamtkurs N + E",
+            "EA"  : "Aufbaukurs N -> A",
+            "NEA" : "Gesamtkurs A",
+        }
+        return edition_names[edition]
+
+    def __build_index(self, edition, book):
+        template = self.env.get_template("course_index.html")
+        with open(f"build/{edition}_course_index.html", "w") as file:
+            result = template.render(
+                titel=self.__edition_name(edition),
+                abstract="", #TODO we can add this later
+                book=book,
+            )
+            result = self.__build_page(result)
+            result = BeautifulSoup(result, "html.parser").prettify()
+            file.write(result) 
+
     def build_edition(self, edition):
         edition = edition.upper()
 
         with open(f'data/book_{edition}.json') as f:
             book = json.load(f)
-
+            self.__build_index(edition, book)
             for number, chapter in enumerate(tqdm(book, desc=f"Build Edition: {edition}"),1):
                 next_chapter = book[number] if number < len(book) else None
                 self.__build_chapter(edition, number, chapter, next_chapter)
