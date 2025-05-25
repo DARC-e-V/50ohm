@@ -28,6 +28,7 @@ def test_tag_html():
         + "\n",
         "<unit>\nFoo\n</unit>": FiftyOhmHtmlRenderer.render_tag_helper("unit", "<p>Foo</p>", 1, 0) + "\n",
         "<danger>\nFoo\n</danger>": FiftyOhmHtmlRenderer.render_tag_helper("danger", "<p>Foo</p>", 1, 0) + "\n",
+        "<wordorigin>\nFoo\n</wordorigin>": FiftyOhmHtmlRenderer.render_tag_helper("wordorigin", "<p>Foo</p>", 1, 0) + "\n",
         "<webonly>\nFoo\n</webonly>": "<p>Foo</p>\n",
         "<latexonly>\nFoo\n</latexonly>": "",
     }
