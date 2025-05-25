@@ -52,8 +52,6 @@ class Unit(SpanToken):
     unit: str
 
     def __init__(self, match: re.Match):
-        print("pattern", self.pattern)
-
         self.value = match.group("value")
         self.prefix = match.group("prefix") or ""
         self.unit = match.group("unit")
