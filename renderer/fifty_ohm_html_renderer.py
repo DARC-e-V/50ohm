@@ -1,5 +1,6 @@
-import textwrap
 
+
+from jinja2 import Environment, FileSystemLoader
 from mistletoe import Document, HtmlRenderer
 
 from .comment import BlockComment
@@ -27,7 +28,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     section_url = "section.html"
     ref_id = 0
 
-    def __init__(self, question_renderer=None):
+    def __init__(self, question_renderer=None, picture_handler=None, photo_handler=None):
         super().__init__(
             Dash,
             BlockComment,
@@ -47,6 +48,8 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             Qso,
         )
         self.question_renderer = question_renderer
+        self.picture_handler = picture_handler
+        self.photo_handler = photo_handler
 
     def render_dash(self, token):
         return " &ndash; "
@@ -116,27 +119,14 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     def render_tag_helper(type, content, margin_id, margin_anchor_id):
         """This function is used to render the different types of tags. It is
         used in the HtmlRenderer class and also in the test class"""
-        return textwrap.dedent(f"""\
-            <div class="margin {type}" id="margin_for_{margin_id}">
-                {content}
-            </div>
-            <a id="margin_orig_{margin_id}"></a>
-            <script>
-            (() => {{
-                function moveFunc() {{
-                    const targetEl = document.getElementById(
-                        window.innerWidth > 800 ? "margin_{margin_anchor_id}" : "margin_orig_{margin_id}"
-                    );
-                    targetEl.parentNode.insertBefore(
-                        document.getElementById("margin_for_{margin_id}"),
-                        targetEl
-                    );
-                }}
-                addEventListener("resize", moveFunc);
-                moveFunc();
-            }})();
-            </script>
-        """)
+        env = Environment(loader=FileSystemLoader("templates/html"))
+        margin_template = env.get_template("margin.html")
+        return margin_template.render(
+            type=type,
+            content=content,
+            id=margin_id,
+            margin_anchor_id=margin_anchor_id,
+        )
 
     def render_tag(self, token):
         if token.tagtype == "latexonly":
@@ -191,24 +181,28 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     def render_picture_helper(id, ref, text, number):
         return f"""
                 <figure class="picture" id="ref_{ref}" name="{ref}">
-                    <img src="picture/picture_{id}.svg">
+                    <img src="pictures/{id}.svg">
                     <figcaption>Abbildung {number}: {text}</figcaption>
                 </figure>
             """
 
     def render_picture(self, token):
+        if self.picture_handler is not None:
+            self.picture_handler(token.id)
         return self.render_picture_helper(token.id, token.ref, token.text, token.number)
 
     @staticmethod
     def render_photo_helper(id, ref, text, number):
         return f"""
                 <figure class="photo" id="ref_{ref}" name="{ref}">
-                    <img src="photo/photo_{id}.png">
+                    <img src="photos/{id}.jpg">
                     <figcaption>Abbildung {number}: {text}</figcaption>
                 </figure>
             """
 
     def render_photo(self, token):
+        if self.photo_handler is not None:
+            self.photo_handler(token.id)
         return self.render_photo_helper(token.id, token.ref, token.text, token.number)
 
     @staticmethod

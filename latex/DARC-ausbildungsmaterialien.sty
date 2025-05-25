@@ -1,0 +1,341 @@
+\ProvidesPackage{DARC-ausbildungsmaterialien}
+
+
+\RequirePackage{mathtools}
+\@fleqnfalse
+
+\PassOptionsToPackage{ngerman}{babel}
+\RequirePackage{babel}
+\RequirePackage{microtype}
+
+%fonts
+\RequirePackage{libertinus}
+\RequirePackage{sourcesanspro}
+\RequirePackage{sourceserifpro}
+\RequirePackage{anyfontsize}
+
+\RequirePackage{enumitem}
+
+\RequirePackage{listings}
+\lstset{ 
+	basicstyle=\ttfamily\color{red}
+}
+
+\RequirePackage{circuitikz}
+
+\RequirePackage{multicol}
+
+\RequirePackage[ddmmyyyy,hhmmss]{datetime}
+\renewcommand{\dateseparator}{.}
+
+\RequirePackage{ragged2e}
+
+\RequirePackage{tabularray}
+\SetTblrInner{row{1} = {font=\bfseries}}% bold first row 
+
+\RequirePackage{tabularx}
+\RequirePackage{multirow}
+
+\Ifundefinedorrelax{scr@fnt@questiontext}{
+	%TODO cleanup, but only use if not yet defined
+	% currently only in book
+	\newkomafont{questiontext}{\bfseries\boldmath}
+	\newkomafont{questionlabel}{\sffamily\bfseries}
+	\newcolumntype{x}[1]{>{\centering\let\newline\\\arraybackslash}p{#1}}
+	\newcolumntype{t}{>{\RaggedRight\let\newline\\\arraybackslash\hspace{0pt}}p{0.85\linewidth}}
+	\newcolumntype{s}{>{\RaggedRight\let\newline\\\arraybackslash\hspace{0pt}}p{0.35\linewidth}}
+	\newcolumntype{q}{>{\raggedleft\usekomafont{questionlabel}}p{0.15\linewidth}<{\hspace*{1ex}}}
+	\newcolumntype{h}{>{\usekomafont{questionlabel}}p{0.15\linewidth}}
+} {}
+
+
+
+\usepackage[locale=DE,]{siunitx}
+
+\usepackage{anyfontsize}
+\UseTblrLibrary{siunitx}
+\sisetup{
+	reset-text-family = false ,
+	reset-text-series = false ,
+	number-mode=match,
+	unit-mode=match,
+    per-mode=fraction
+}
+\DeclareSIUnit{\baud}{Bd}
+\DeclareSIUnit{\dBi}{dBi}
+\DeclareSIUnit{\dBm}{dBm}
+\DeclareSIUnit{\dBu}{dBu}
+\DeclareSIUnit{\dBV}{dbV}
+\DeclareSIUnit{\dBW}{dBW}
+\DeclareSIUnit{\ppm}{ppm}
+\DeclareSIUnit{\pps}{pps}
+\DeclareSIUnit{\CPM}{CPM}
+\DeclareSIUnit{\WPM}{WPM}
+\DeclareSIUnit\noop{\relax} % For printing prefixes
+
+\newcommand*{\eff}{{\operatorname{eff}}}
+
+\newcommand{\mytag}[1]{%
+  \tikz[baseline=(X.base)]\node [draw=red,fill=gray!40,semithick,rectangle,inner sep=2pt, rounded corners=3pt] (X) {#1};%
+}
+
+\newif\if@DARCinQuestion
+
+\ExplSyntaxOn
+\cs_new:Nn \__ptxcd_question_table_head:nnn {
+	\tl_set:Nn \l_ptxcd_question_tl {#1}
+		\makebox[0.15\linewidth][l]{\usekomafont{questionlabel}#1}
+		\parbox[t]{.85\linewidth}{
+			\RaggedRight\let\newline\\\arraybackslash\hspace{0pt}
+			\@DARCinQuestiontrue
+			{\usekomafont{questiontext}#2}
+		\tl_if_blank:nF {#3} {
+				{#3}
+		}
+	}
+	\\*[.3\parskip]
+}
+
+
+
+\AddToHook{begindocument}[DARC-ausbildungsmaterialien-question]{
+	\let\Question\relax% avoid conflict with unicde-math-symbol
+	\newenvironment{questiontabular}[1]{
+		\setlength{\tabcolsep}{0pt}%
+		\noindent\begin{tabular}{#1}
+		}{
+		\end{tabular}
+	}
+
+	\NewDocumentCommand{\Question}{+m+m+m+m+m+m+m}
+	{%
+		\par
+		\__ptxcd_question_table_head:nnn{#1}{#2}{#3}
+		\begin{questiontabular}{qt}
+			A                      & {#4} \\
+			B                      & {#5} \\
+			C                      & {#6} \\
+			D                      & {#7}
+		\end{questiontabular}
+		\par
+	}
+
+	\NewDocumentCommand{\QuestionMD}{+m+m+m+m+m+m+m}
+	{%
+		\par
+		\__ptxcd_question_table_head:nnn{#1}{#2}{#3}
+		\begin{questiontabular}{qt}
+			A                      & {#4} \\[10pt]
+			B                      & {#5} \\[10pt]
+			C                      & {#6} \\[10pt]
+			D                      & {#7}
+		\end{questiontabular}%
+		\par
+	}
+
+	\NewDocumentCommand{\QuestionTwoCol}{+m+m+m+m+m+m+m}{
+		\par
+		\__ptxcd_question_table_head:nnn{#1}{#2}{#3}
+			\begin{questiontabular}{qsqs}
+			A & {#4} & B & {#5} \\
+			C & {#6} & D & {#7}
+		\end{questiontabular}%
+		\par
+	}
+}
+
+\ExplSyntaxOff
+
+\PassOptionsToPackage{hidelinks}{hyperref}
+\RequirePackage{hyperref}
+
+\RequirePackage{qrcode}
+\newcommand*{\MarginQR}[1]{\marginline{\qrcode{#1}}}
+
+\ExplSyntaxOn
+\bool_lazy_and:nnTF {\bool_if_exist_p:N \g__ptxcd_print_bool} {\g__ptxcd_print_bool} {
+	\definecolor{DARCgreen}{cmyk}{.9,.05,.7,0}
+	\definecolor{DARCorange}{cmyk}{0,.3,1,0}
+	\definecolor{DARCred}{cmyk}{.05,.8,1,0}
+	\definecolor{DARCblue}{cmyk}{.8,.15,0,0}
+	\definecolor{DARCgray}{cmyk}{.05,0,0,.3}
+
+	\definecolor{unit-title}{cmyk}{.45,0,.45,0}
+	\definecolor{attention-title}{cmyk}{0,.1,.4,0}
+	\definecolor{danger-title}{cmyk}{0,.4,.4,0}
+	\definecolor{hint-title}{cmyk}{.3,.05,0,0}
+	\definecolor{advanced-title}{cmyk}{.05,0,0,.1}
+
+    \definecolor{DARCdarkblue}{cmyk}{0.88,0.52,0.27,0.11}
+                                
+    \definecolor{r}{cmyk}      {0.00,0.20,0.40,0.00}
+    \definecolor{rsilver}{cmyk}{0.29,0.21,0.22,0.03}
+    \definecolor{rgold}{cmyk}  {0.15,0.35,0.98,0.04}
+    \definecolor{rbrown}{cmyk} {0.25,0.75,1.00,0.30}
+    \definecolor{rblack}{cmyk} {0.00,0.00,0.00,1.00}
+    \definecolor{rred}{cmyk}   {1.00,1.00,0.00,0.00}
+    \definecolor{rorange}{cmyk}{0.02,0.56,0.92,0.00}
+    \definecolor{ryellow}{cmyk}{0.00,0.00,1.00,0.00}
+    \definecolor{rgreen}{cmyk} {0.94,0.31,0.96,0.24}
+    \definecolor{rblue}{cmyk}  {1.00,0.84,0.06,0.01}
+    \definecolor{rviolet}{cmyk}{0.77,0.82,0.00,0.00}
+    \definecolor{rgrey}{cmyk}  {0.62,0.52,0.50,0.47}
+    \definecolor{rwhite}{cmyk} {0.04,0.03,0.04,0.00}
+} {
+	\definecolor{DARCgreen}{RGB}{0,155,110}
+	\definecolor{DARCorange}{RGB}{250,180,0}
+	\definecolor{DARCred}{RGB}{225,80,35}
+	\definecolor{DARCblue}{RGB}{0,160,220}
+	\definecolor{DARCgray}{RGB}{190,190,190}
+
+	\definecolor{unit-title}{RGB}{155,205,185}
+	\definecolor{attention-title}{RGB}{255,230,170}
+	\definecolor{danger-title}{RGB}{245,175,150}
+	\definecolor{hint-title}{RGB}{185,220,245}
+	\definecolor{advanced-title}{RGB}{225,230,235}
+
+    \definecolor{DARCdarkblue}{RGB}{43, 103, 140}
+
+    \definecolor{r}{rgb}{0.98, 0.84, 0.65}
+    \definecolor{rsilver}{rgb}{0.75, 0.75, 0.75}
+    \definecolor{rgold}{rgb}{0.85, 0.65, 0.13}
+    \definecolor{rbrown}{rgb}{0.59, 0.29, 0.0}
+    \definecolor{rblack}{rgb}{0,0,0}
+    \definecolor{rred}{rgb}{0.89, 0.0, 0.13}
+    \definecolor{rorange}{rgb}{0.93, 0.53, 0.18}
+    \definecolor{ryellow}{rgb}{1.0, 0.96, 0.0}
+    \definecolor{rgreen}{rgb}{0.0, 0.42, 0.24}
+    \definecolor{rblue}{rgb}{0.06, 0.2, 0.65}
+    \definecolor{rviolet}{rgb}{0.56, 0.0, 1.0}
+    \definecolor{rgrey}{rgb}{0.33, 0.33, 0.33}
+    \definecolor{rwhite}{rgb}{0.96, 0.96, 0.96}
+}
+
+\ExplSyntaxOff
+
+\colorlet{danger-frame}{DARCred}
+\colorlet{attention-frame}{DARCorange}
+\colorlet{unit-frame}{DARCgreen}
+\colorlet{hint-frame}{DARCblue}
+\colorlet{advanced-frame}{DARCgray}
+
+
+%TODO Icons
+\RequirePackage{fontawesome5}
+
+\RequirePackage{tcolorbox}
+\tcbuselibrary{skins}
+\makeatletter
+\tcbset{
+	marginboxstyle/.style={
+		enhanced,
+		colbacktitle=red!10,coltitle=black,
+		interior hidden,
+		colframe=pink,
+		frame code={\fill[tcbcolframe](frame.north west)rectangle(interior.south west);},
+		boxsep=0pt,
+		left=1mm,right=0pt,top=2pt,bottom=0pt,
+		toptitle=1pt,bottomtitle=1pt,before title=\strut,
+		fonttitle=\footnotesize,
+		fontupper=\footnotesize,
+		title code={\fill[tcbcolbacktitle]([xshift={\kvtcb@lefttitle-1pt}]title.south west)rectangle(title.north east);},
+		before upper={\renewenvironment{figure}{\def\@captype{figure}}{}\renewenvironment{table}{\def\@captype{table}}{}}
+	}
+}
+
+\newkomafont{marginpar}{\normalfont\footnotesize}
+
+\newcommand*{\setupDARCmargin}{%
+		\usekomafont{marginpar}%
+		\setkomafont{caption}{\footnotesize}%
+		\renewcommand*{\figurename}{Abb.}%
+		\renewcommand*{\tablename}{Tab.}%
+		\renewenvironment{figure}{\def\@captype{figure}}{}%
+		\renewenvironment{table}{\def\@captype{table}}{}%
+		\ignorespaces%
+}
+
+\newcommand{\Margin}[1]{\DARCmarginpar{#1}}
+
+\providecommand{\DARCmarginpar}[1]{%
+	\marginpar{%
+		\setupDARCmargin
+		#1%
+	}
+}
+
+\newcommand{\MarginBoxDanger}[1]{\begin{tcolorbox}[marginboxstyle,colbacktitle=danger-title,colframe=danger-frame, title=\faExclamationTriangle\space Gefahr]#1\end{tcolorbox}}
+
+\newcommand{\MarginBoxAttention}[1]{\begin{tcolorbox}[marginboxstyle,colbacktitle=attention-title,colframe=attention-frame,title=\faExclamationCircle\space Achtung]#1\end{tcolorbox}}
+
+\newcommand{\MarginBoxTip}[1]{\begin{tcolorbox}[marginboxstyle,colbacktitle=hint-title,colframe=hint-frame,title=\faInfoCircle\space Tipp]#1\end{tcolorbox}}
+
+\newcommand{\WebBoxTip}[1]{\begin{tcolorbox}[marginboxstyle,colbacktitle=hint-title,colframe=hint-frame,title=\faInfoCircle\space Tipp]#1\end{tcolorbox}
+
+}
+
+\newcommand{\MarginBoxUnit}[1]{\begin{tcolorbox}[marginboxstyle,colbacktitle=unit-title,colframe=unit-frame, title=\faRuler\space Neue Einheit]#1\end{tcolorbox}}
+
+\newcommand{\MarginBoxInDepth}[1]{\begin{tcolorbox}[marginboxstyle,colbacktitle=advanced-title,colframe=advanced-frame,title={\faLightbulb[regular]\space Vertiefung}]#1\end{tcolorbox}}
+
+\newcommand{\BoxInDepth}[1]{\begin{tcolorbox}[marginboxstyle,colbacktitle=advanced-title,colframe=advanced-frame,title={\faLightbulb[regular]\space Vertiefung}]#1\end{tcolorbox}
+
+}
+
+\newcommand{\MarginDanger}[1]{\Margin{\DeclareEmphSequence{\bfseries\color{DARCred}}\MarginBoxDanger{#1}\DeclareEmphSequence{\bfseries\color{DARCblue}}}}
+
+\newcommand{\MarginAttention}[1]{\Margin{\DeclareEmphSequence{\bfseries\color{DARCorange}}\MarginBoxAttention{#1}\DeclareEmphSequence{\bfseries\color{DARCblue}}}}
+
+\newcommand{\MarginTip}[1]{\Margin{\MarginBoxTip{#1}}}
+
+\newcommand{\WebTip}[1]{\WebBoxTip{#1}}
+
+\newcommand{\MarginUnit}[1]{\Margin{\DeclareEmphSequence{\bfseries\color{DARCgreen}}\MarginBoxUnit{#1}\DeclareEmphSequence{\bfseries\color{DARCblue}}}}
+
+\newcommand{\MarginInDepth}[1]{\Margin{\DeclareEmphSequence{\bfseries\color{DARCgray}}\MarginBoxInDepth{#1}\DeclareEmphSequence{\bfseries\color{DARCblue}}}}
+
+\newcommand{\WebInDepth}[1]{\BoxInDepth{\DeclareEmphSequence{\bfseries\color{DARCgray}}#1\DeclareEmphSequence{\bfseries\color{DARCblue}}}}
+
+\newcommand{\FullWidth}[1]{#1}
+
+\ExplSyntaxOn
+\cs_if_exist:NF  \__ptxcd_floatbox_sep: {
+	\skip_new:N \g__ptxcd_floatbox_skip
+	\skip_gset:Nn \g__ptxcd_floatbox_skip{.5\baselineskip minus .25\baselineskip}
+	\cs_new:Nn \__ptxcd_floatbox_sep: {
+		\par
+		\skip_vertical:N \g__ptxcd_floatbox_skip
+	}
+}
+
+\newcommand{\WebMargin}[1]{
+	\__ptxcd_floatbox_sep:
+	\noindent\parbox{\linewidth}{#1}
+	\__ptxcd_floatbox_sep:
+} % In Web the content will be in the margin, in TeX it should go to the main text
+
+\ExplSyntaxOff
+
+\tcbset{QSO/.style={
+	enhanced,boxrule=0pt,
+	frame empty,colback=DARClightgray,fontupper=\footnotesize,
+	interior code={
+		\fill[tcbcolback](frame.north west)to(frame.north east)to([yshift=-\ht\strutbox]interior.north east)to(interior.south east)to(interior.south west)to([yshift=-\ht\strutbox]interior.north west)--cycle;
+	}
+}}
+\newcommand{\QSOown}[1]{\begin{tcolorbox}[
+		QSO,
+		leftrule=\ht\strutbox,
+		right skip=.1\linewidth
+]%
+#1%
+\end{tcolorbox}}
+
+\newcommand{\QSOother}[1]{\begin{tcolorbox}[
+		QSO,
+		rightrule=\ht\strutbox,
+		left skip=.1\linewidth]%
+		#1%
+\end{tcolorbox}}
+
+\endinput
