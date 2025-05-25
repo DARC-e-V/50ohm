@@ -16,6 +16,7 @@ captures = [
     "danger",
     "webonly",
     "latexonly",
+    "wordorigin",
 ]
 
 
