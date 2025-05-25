@@ -1,0 +1,19 @@
+<div class="margin {{ type }}" id="margin_for_{{ id }}">
+    {{ content }}
+</div>
+<a id="margin_orig_{{ id }}"></a>
+<script>
+    (() => {
+        function moveFunc() {
+        const targetEl = document.getElementById(
+            window.innerWidth > 800 ? "margin_{{ margin_anchor_id }}" : "margin_orig_{{ id }}"
+        );
+        targetEl.parentNode.insertBefore(
+            document.getElementById("margin_for_{{ id }}"),
+            targetEl
+        );
+        }
+        addEventListener("resize", moveFunc);
+        moveFunc();
+    })();
+</script>
