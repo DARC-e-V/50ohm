@@ -11,6 +11,7 @@ captures = [
     "tip",
     "webtip",
     "webindepth",
+    "person",
     "fullwidth",
     "unit",
     "danger",
