@@ -47,7 +47,7 @@ class Download:
                         "class": in_section["class"],
                         "content": in_section["content"],
                         "slide": in_section["slide"],
-                        "video": in_section["video_url"],
+                        "video_url": in_section["video_url"],
                         "questions": [],
                     }
                 )
