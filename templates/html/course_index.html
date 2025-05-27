@@ -1,8 +1,8 @@
-<h1>{{ titel }}</h1>
-<p>{{ abstract }}</p>
+<h1>{{ book["title"] }}</h1>
+<p>{{ book["abstract"] }}</p>
 <div class="chapter-toc d-grid gap-2">
-    {% for chapter in book %}
-        <a class="btn btn-outline-primary btn-labeled" href="{{ edition }}_chapter_{{ chapter["ident"] }}.html">
+    {% for chapter in book["chapters"] %}
+        <a class="btn btn-outline-primary btn-labeled" href="{{ book["edition"] }}_chapter_{{ chapter["ident"] }}.html">
             <span class="btn-label">{{loop.index}}</span>{{ chapter["title"]}}
         </a>
     {% endfor %}

@@ -107,13 +107,13 @@ class Build:
         shutil.copyfile(src, dst)
 
     # cached
-    def __build_chapter(self, edition, number, chapter, next_chapter=None):
+    def __build_chapter(self, edition, edition_name, number, chapter, next_chapter=None):
         chapter_template = self.env.get_template("chapter.html")
         next_chapter_template = self.env.get_template("next_chapter.html")
         with open(f'build/{edition}_chapter_{chapter["ident"]}.html', 'w') as file:
             result = chapter_template.render(
                 edition=edition,
-                name=self.__edition_name(edition),
+                name=edition_name,
                 number=number,
                 chapter=chapter,
             )
@@ -129,7 +129,7 @@ class Build:
             file.write(result)
 
     # cached
-    def __build_section(self, edition, section, chapter, next_section=None, next_chapter=None):
+    def __build_section(self, edition, edition_name, section, chapter, next_section=None, next_chapter=None):
         section_template = self.env.get_template("section.html")
         next_section_template = self.env.get_template("next_section.html")
         next_chapter_template = self.env.get_template("next_chapter.html")
@@ -140,7 +140,7 @@ class Build:
 
                 result = section_template.render(
                     edition=edition,
-                    name=self.__edition_name(edition),
+                    name=edition_name,
                     section=section,
                     chapter=chapter,
                 )
@@ -160,25 +160,11 @@ class Build:
                 result = BeautifulSoup(result, "html.parser").prettify()
                 file.write(result)
 
-    def __edition_name(self, edition):
-        edition_names = {
-            "N"   : "Gesamtkurs N",
-            "E"   : "Aufbaukurs N -> E",
-            "A"   : "Aufbaukurs E -> A",
-            "NE"  : "Gesamtkurs N + E",
-            "EA"  : "Aufbaukurs N -> A",
-            "NEA" : "Gesamtkurs A",
-        }
-        return edition_names[edition]
-
-    def __build_book_index(self, edition, book):
+    def __build_book_index(self, book):
         template = self.env.get_template("course_index.html")
-        with open(f"build/{edition}_course_index.html", "w") as file:
+        with open(f"build/{book['edition']}_course_index.html", "w") as file:
             result = template.render(
-                titel=self.__edition_name(edition),
-                abstract="", #TODO we can add this later
                 book=book,
-                edition=edition,
             )
             result = self.__build_page(result)
             result = BeautifulSoup(result, "html.parser").prettify()
@@ -189,14 +175,16 @@ class Build:
 
         with open(f'data/book_{edition}.json') as f:
             book = json.load(f)
-            self.__build_book_index(edition, book)
-            for number, chapter in enumerate(tqdm(book, desc=f"Build Edition: {edition}"),1):
-                next_chapter = book[number] if number < len(book) else None
-                self.__build_chapter(edition, number, chapter, next_chapter)
+            chapters = book["chapters"]
+            edition_name = book["title"]
+            self.__build_book_index(book)
+            for number, chapter in enumerate(tqdm(chapters, desc=f"Build Edition: {edition}"),1):
+                next_chapter = chapters[number] if number < len(chapters) else None
+                self.__build_chapter(edition, edition_name, number, chapter, next_chapter)
 
                 for i, section in enumerate(chapter["sections"],1) :
                     next_section = chapter["sections"][i] if i < len(chapter["sections"]) else None
-                    self.__build_section(edition, section, chapter, next_section, next_chapter)
+                    self.__build_section(edition, edition_name, section, chapter, next_section, next_chapter)
 
     def build_assets(self):
         shutil.copytree("assets", "build/assets", dirs_exist_ok=True)
