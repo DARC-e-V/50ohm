@@ -47,13 +47,20 @@ class Download:
                         "class": in_section["class"],
                         "content": in_section["content"],
                         "slide": in_section["slide"],
-                        "video": in_section["video_url"],
+                        "video_url": in_section["video_url"],
                         "questions": [],
                     }
                 )
 
+            out_edition = {
+                "title": in_edition["title"],
+                "abstract": in_edition["abstract"],
+                "chapters": out_chapters,
+                "edition": edition,
+            }
+
             with open("data/book_" + edition + ".json", "w", encoding="utf-8") as file:
-                json.dump(out_chapters, file, ensure_ascii=False, indent=4)
+                json.dump(out_edition, file, ensure_ascii=False, indent=4)
 
     def download_question_metadata(self):
         questions = self.api.get(
