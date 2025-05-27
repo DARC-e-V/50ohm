@@ -201,6 +201,11 @@ class Build:
                     snippets[key] = snippets[key][3:-4]
         return snippets
 
+    def __parse_contents(self):
+        with open("data/content.json") as f:
+            contents = json.load(f)
+            return contents
+
     def __build_index(self, snippets):
         template = self.env.get_template("index.html")
         result = template.render({"snippets": snippets})
@@ -219,9 +224,30 @@ class Build:
             result = BeautifulSoup(result, "html.parser").prettify()
             file.write(result)
 
+    def __build_html_page(self, contents, page):
+        for content in contents:
+            if content["url_part"] == page:
+
+                if content["sidebar"] is None:
+                    result = content["content"]
+                else:
+                    result  = '<div class="fiftyohm-content-2cols">\n'
+                    result += f'<div>{content["content"]}</div>\n'
+                    result += f'<div>{content["sidebar"]}</div>\n'
+                    result += '</div>\n'
+
+                with open(f"build/{page}.html", "w") as file:
+
+                    result = self.__build_page(result)
+                    result = BeautifulSoup(result, "html.parser").prettify()
+                    file.write(result)
+
     def build_website(self):
         snippets = self.__parse_snippets()
+        contents = self.__parse_contents()
         self.__build_index(snippets)
         self.__build_course_page(snippets, "kurse-karte", "kurse_vor_ort_karte")
         self.__build_course_page(snippets, "kurse-liste", "kurse_vor_ort_liste")
         self.__build_course_page(snippets, "patenkarte", "patenkarte")
+        self.__build_html_page(contents, "pruefung")
+        self.__build_html_page(contents, "infos")
