@@ -139,3 +139,17 @@ class Download:
             snippets[snippet["ident"]] = snippet["content"]
         with open("data/snippets.json", "w", encoding="utf-8") as file:
             json.dump(snippets, file, ensure_ascii=False, indent=4)
+
+    def download_content(self):
+        contents = []
+        for content in self.content_api.get("items/content"): #tqdm(self.content_api.get("items/content"), desc="Downloading content"):
+            contents.append(
+                {
+                    "url_part": content["url_part"],
+                    "content": content["content"],
+                    "sidebar": content["sidebar"],
+                }
+            )
+            
+        with open("data/content.json", "w", encoding="utf-8") as file:
+            json.dump(contents, file, ensure_ascii=False, indent=4)
