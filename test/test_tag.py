@@ -23,6 +23,7 @@ def test_tag_html():
         "<indepth>\nFoo\n</indepth>": FiftyOhmHtmlRenderer.render_tag_helper("indepth", "<p>Foo</p>", 1, 0) + "\n",
         "<webmargin>\nFoo\n</webmargin>": FiftyOhmHtmlRenderer.render_tag_helper("margin", "<p>Foo</p>", 1, 0) + "\n",
         "<tip>\nFoo\n</tip>": FiftyOhmHtmlRenderer.render_tag_helper("tip", "<p>Foo</p>", 1, 0) + "\n",
+        "<person>\nFoo\n</person>": FiftyOhmHtmlRenderer.render_tag_helper("person", "<p>Foo</p>", 1, 0) + "\n",
         "<webtip>\nFoo\n</webtip>": FiftyOhmHtmlRenderer.render_tag_helper("tip", "<p>Foo</p>", 1, 0) + "\n",
         "<webindepth>\nFoo\n</webindepth>": FiftyOhmHtmlRenderer.render_tag_helper("indepth", "<p>Foo</p>", 1, 0)
         + "\n",
