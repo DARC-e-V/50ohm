@@ -6,7 +6,7 @@ import src.download as download
 conf = config.Config()
 api = directus.DirectusAPI(conf.question_base_url, conf.question_access_token)
 content_api = directus.DirectusAPI(conf.content_base_url, conf.content_access_token)
-dl = download.Download(api, conf)
+dl = download.Download(api, content_api, conf)
 bd = build.Build()
 
 # Download the text files:
@@ -16,9 +16,9 @@ dl.download_edition("N")
 dl.download_question_metadata()
 dl.download_pictures()
 dl.download_photos()
+dl.download_snippets()
 
-# Build edition:
+# Build Everything:
+bd.build_website()
 bd.build_edition("N")
-
-# Build assets:
 bd.build_assets()

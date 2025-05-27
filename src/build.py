@@ -124,7 +124,8 @@ class Build:
                     title=next_chapter["title"],
                 )
 
-            result = self.__build_page(result)
+
+            result = self.__build_page('<div class="course">'+result+'</div>')
             result = BeautifulSoup(result, "html.parser").prettify()
             file.write(result)
 
@@ -156,7 +157,7 @@ class Build:
                         title=next_chapter["title"],
                     )
 
-                result = self.__build_page(result)
+                result = self.__build_page('<div class="course">'+result+'</div>')
                 result = BeautifulSoup(result, "html.parser").prettify()
                 file.write(result)
 
@@ -188,3 +189,25 @@ class Build:
 
     def build_assets(self):
         shutil.copytree("assets", "build/assets", dirs_exist_ok=True)
+
+    def __build_index(self):
+        template = self.env.get_template("index.html")
+        with open("data/snippets.json") as f:
+            snippets = json.load(f)
+
+            with FiftyOhmHtmlRenderer(self.__build_question, self.__picture_handler, self.__photo_handler) as renderer:
+                for key, value in snippets.items():
+                    snippets[key] = renderer.render_inner(Document(value))
+                    # Remove leading <p> and trailing </p>:
+                    snippets[key] = snippets[key][3:-4]
+
+                result = template.render({"snippets": snippets})
+
+                with open("build/index.html", "w") as file:
+                    result = self.__build_page(result)
+                    result = BeautifulSoup(result, "html.parser").prettify()
+                    file.write(result)
+
+
+    def build_website(self):
+        self.__build_index()
