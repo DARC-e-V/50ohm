@@ -135,7 +135,7 @@ class Download:
 
     def download_snippets(self):
         snippets = {}
-        for snippet in tqdm(self.content_api.get("items/snippet"), desc="Downloading photos"):
+        for snippet in tqdm(self.content_api.get("items/snippet"), desc="Downloading snippets"):
             snippets[snippet["ident"]] = snippet["content"]
         with open("data/snippets.json", "w", encoding="utf-8") as file:
             json.dump(snippets, file, ensure_ascii=False, indent=4)
