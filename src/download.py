@@ -8,9 +8,10 @@ from tqdm import tqdm
 
 
 class Download:
-    def __init__(self, api, config):
+    def __init__(self, api, content_api, config):
         self.api = api
         self.config = config
+        self.content_api = content_api
 
     def download_edition(self, edition):
         in_edition = self.api.get_one("items/edition", {"filter": {"ident": {"_eq": edition}}})
@@ -131,3 +132,10 @@ class Download:
         Parallel(n_jobs=multiprocessing.cpu_count())(
             delayed(build_picture)(picture) for picture in tqdm(pictures, desc="Build All Pictures")
         )
+
+    def download_snippets(self):
+        snippets = {}
+        for snippet in tqdm(self.content_api.get("items/snippet"), desc="Downloading photos"):
+            snippets[snippet["ident"]] = snippet["content"]
+        with open("data/snippets.json", "w", encoding="utf-8") as file:
+            json.dump(snippets, file, ensure_ascii=False, indent=4)
