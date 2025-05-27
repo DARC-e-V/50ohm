@@ -9,6 +9,7 @@ from test.util import paragraph
 def test_morse_html():
     assertions = {
         '[morse:a]': FiftyOhmHtmlRenderer.render_morse_helper([[1, 2]]),
+        '[morse:a] abc [morse:a]': FiftyOhmHtmlRenderer.render_morse_helper([[1, 2]])+ ' abc ' + FiftyOhmHtmlRenderer.render_morse_helper([[1, 2]]),
         '[morse: a]': FiftyOhmHtmlRenderer.render_morse_helper([[1, 2]]),
         '[morse: aaa]': FiftyOhmHtmlRenderer.render_morse_helper([[1, 2], [1, 2], [1, 2]]),
         '[morse: a a]': FiftyOhmHtmlRenderer.render_morse_helper([[1, 2], [3], [1, 2]]),
