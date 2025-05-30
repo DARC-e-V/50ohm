@@ -2,7 +2,6 @@ import json
 import os
 import shutil
 
-from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
 from joblib import Memory
 from mistletoe import Document
@@ -22,7 +21,7 @@ class Build:
         self.__build_chapter  = memory.cache(self.__build_chapter)
         self.__build_section  = memory.cache(self.__build_section)
         self.__build_page     = memory.cache(self.__build_page)
-
+    
     def __parse_katalog(self):
         with open("data/fragenkatalog3b.json") as fragenkatalog_file:
             fragenkatalog = json.load(fragenkatalog_file)
@@ -126,7 +125,6 @@ class Build:
 
 
             result = self.__build_page('<div class="course">'+result+'</div>')
-            result = BeautifulSoup(result, "html.parser").prettify()
             file.write(result)
 
     # cached
@@ -158,7 +156,6 @@ class Build:
                     )
 
                 result = self.__build_page('<div class="course">'+result+'</div>')
-                result = BeautifulSoup(result, "html.parser").prettify()
                 file.write(result)
 
     def __build_book_index(self, book):
@@ -168,7 +165,6 @@ class Build:
                 book=book,
             )
             result = self.__build_page(result)
-            result = BeautifulSoup(result, "html.parser").prettify()
             file.write(result) 
 
     def build_edition(self, edition):
@@ -212,7 +208,7 @@ class Build:
 
         with open("build/index.html", "w") as file:
             result = self.__build_page(result)
-            result = BeautifulSoup(result, "html.parser").prettify()
+
             file.write(result)
 
     def __build_course_page(self, snippets, template, page):
@@ -221,7 +217,6 @@ class Build:
 
         with open(f"build/{page}.html", "w") as file:
             result = self.__build_page(result)
-            result = BeautifulSoup(result, "html.parser").prettify()
             file.write(result)
 
     def __build_html_page(self, contents, page):
@@ -239,7 +234,6 @@ class Build:
                 with open(f"build/{page}.html", "w") as file:
 
                     result = self.__build_page(result)
-                    result = BeautifulSoup(result, "html.parser").prettify()
                     file.write(result)
 
     def build_website(self):
