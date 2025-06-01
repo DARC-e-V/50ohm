@@ -20,7 +20,7 @@ def test_question_html():
     def test_function(input):
         return f"{input}"
 
-    with FiftyOhmHtmlRenderer(test_function) as renderer:
+    with FiftyOhmHtmlRenderer(question_renderer=test_function) as renderer:
         for assertion in assertions:
             assert renderer.render(Document(assertion)) == assertions[assertion]
 
@@ -38,7 +38,7 @@ def test_question_translation_html():
             metadata = json.load(file)
         return metadata[f"{input}"].get("number")
 
-    with FiftyOhmHtmlRenderer(test_function) as renderer:
+    with FiftyOhmHtmlRenderer(question_renderer=test_function) as renderer:
         for assertion in assertions:
             assert renderer.render(Document(assertion)) == assertions[assertion]
 
