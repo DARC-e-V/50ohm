@@ -221,6 +221,16 @@ class Build:
             result = self.__build_page(result)
             result = BeautifulSoup(result, "html.parser").prettify()
             file.write(result) 
+    
+    def __build_slide_index(self, book):
+        template = self.env.get_template("slide/slide_index.html")
+        with open(f"build/{book['edition']}_slide_index.html", "w") as file:
+            result = template.render(
+                book=book,
+            )
+            result = self.__build_page(result)
+            result = BeautifulSoup(result, "html.parser").prettify()
+            file.write(result) 
 
     def build_edition(self, edition):
         edition = edition.upper()
@@ -230,6 +240,7 @@ class Build:
             chapters = book["chapters"]
             edition_name = book["title"]
             self.__build_book_index(book)
+            self.__build_slide_index(book)
             for number, chapter in enumerate(tqdm(chapters, desc=f"Build Edition: {edition}"),1):
                 next_chapter = chapters[number] if number < len(chapters) else None
                 self.__build_chapter(edition, edition_name, number, chapter, next_chapter)
