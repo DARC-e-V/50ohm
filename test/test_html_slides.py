@@ -84,7 +84,6 @@ def question_stub(input):
             answer_pictures=answer_pictures,
         )
 
-
 def print_head():
     return """<html><head>
     <meta charset="utf-8">
