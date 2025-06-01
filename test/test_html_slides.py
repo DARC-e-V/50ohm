@@ -85,7 +85,8 @@ def question_stub(input):
         )
 
 def print_head():
-    return """<html><head>
+    return """<! DOCTYPE html>
+    <html lang="de"><head>
     <meta charset="utf-8">
 
     <title>DARC Ausbildungsplattform</title>
