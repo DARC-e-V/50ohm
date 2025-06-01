@@ -128,6 +128,11 @@ class Build:
             result = BeautifulSoup(result, "html.parser").prettify()
             file.write(result)
 
+    def __include_handler(self, include):
+        with open("data/includes.json") as file:
+            includes = json.load(file)
+            return includes.get(include)
+
     # cached
     def __build_section(self, edition, edition_name, section, chapter, next_section=None, next_chapter=None):
         section_template = self.env.get_template("section.html")
@@ -135,7 +140,12 @@ class Build:
         next_chapter_template = self.env.get_template("next_chapter.html")
         with open(f'build/{edition}_{section["ident"]}.html', 'w') as file:
 
-            with FiftyOhmHtmlRenderer(self.__build_question, self.__picture_handler, self.__photo_handler) as renderer:
+            with FiftyOhmHtmlRenderer(
+                self.__build_question,
+                self.__picture_handler,
+                self.__photo_handler,
+                self.__include_handler
+            ) as renderer:
                 section["content"] = renderer.render(Document(section["content"]))
 
                 result = section_template.render(
