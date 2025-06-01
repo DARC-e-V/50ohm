@@ -1,5 +1,6 @@
 import json
 import os
+import random
 import shutil
 
 from bs4 import BeautifulSoup
@@ -9,19 +10,23 @@ from mistletoe import Document
 from tqdm import tqdm
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
+from renderer.fifty_ohm_html_slide_renderer import FiftyOhmHtmlSlideRenderer
 
 
 class Build:
     def __init__(self):
         memory = Memory("./cache", verbose=0)
-        self.env = Environment(loader=FileSystemLoader("templates/html"))
+        self.env = Environment(loader=FileSystemLoader("templates/"))
+        self.env.filters["shuffle_answers"] = self.__filter_shuffle_answers
         self.questions = self.__parse_katalog()
 
         # Decorate the method with memory.cache
-        self.__build_question = memory.cache(self.__build_question)
-        self.__build_chapter  = memory.cache(self.__build_chapter)
-        self.__build_section  = memory.cache(self.__build_section)
-        self.__build_page     = memory.cache(self.__build_page)
+        self.__build_question          = memory.cache(self.__build_question)
+        self.__build_question_slide    = memory.cache(self.__build_question_slide)
+        self.__build_chapter           = memory.cache(self.__build_chapter)
+        self.__build_section           = memory.cache(self.__build_section)
+        self.__build_page              = memory.cache(self.__build_page)
+        self.__build_chapter_slidedeck = memory.cache(self.__build_chapter_slidedeck)
 
     def __parse_katalog(self):
         with open("data/fragenkatalog3b.json") as fragenkatalog_file:
@@ -42,10 +47,10 @@ class Build:
             return questions
 
     # cached
-    def __build_question(self, input):
+    def __build_question(self, input, template_file="html/question.html"):
         """Combines the original question dataset from BNetzA with our internal metadata"""
 
-        question_template = self.env.get_template("question.html")
+        question_template = self.env.get_template(template_file)
 
         with open("data/metadata.json") as metadata_file:
             metadata = json.load(metadata_file)
@@ -89,9 +94,12 @@ class Build:
                 answer_pictures=answer_pictures,
             )
 
+    def __build_question_slide(self, input):
+        return self.__build_question(input, template_file="slide/question.html")
+
     # cached
     def __build_page(self, content) :
-        page_template = self.env.get_template("page.html")
+        page_template = self.env.get_template("html/page.html")
         return page_template.render(content=content)
     
     def __picture_handler(self, id):
@@ -108,8 +116,8 @@ class Build:
 
     # cached
     def __build_chapter(self, edition, edition_name, number, chapter, next_chapter=None):
-        chapter_template = self.env.get_template("chapter.html")
-        next_chapter_template = self.env.get_template("next_chapter.html")
+        chapter_template = self.env.get_template("html/chapter.html")
+        next_chapter_template = self.env.get_template("html/next_chapter.html")
         with open(f'build/{edition}_chapter_{chapter["ident"]}.html', 'w') as file:
             result = chapter_template.render(
                 edition=edition,
@@ -129,10 +137,10 @@ class Build:
             file.write(result)
 
     # cached
-    def __build_section(self, edition, edition_name, section, chapter, next_section=None, next_chapter=None):
-        section_template = self.env.get_template("section.html")
-        next_section_template = self.env.get_template("next_section.html")
-        next_chapter_template = self.env.get_template("next_chapter.html")
+    def __build_section(self, edition, edition_name, section, section_id, chapter, next_section=None, next_chapter=None):
+        section_template = self.env.get_template("html/section.html")
+        next_section_template = self.env.get_template("html/next_section.html")
+        next_chapter_template = self.env.get_template("html/next_chapter.html")
         with open(f'build/{edition}_{section["ident"]}.html', 'w') as file:
 
             with FiftyOhmHtmlRenderer(
@@ -146,6 +154,7 @@ class Build:
                     edition=edition,
                     name=edition_name,
                     section=section,
+                    section_id=section_id,
                     chapter=chapter,
                 )
 
@@ -164,8 +173,41 @@ class Build:
                 result = BeautifulSoup(result, "html.parser").prettify()
                 file.write(result)
 
+    def __build_chapter_slidedeck(self, edition, chapter, sections):
+        with open(f'build/{edition}_slide_{chapter["ident"]}.html', 'w') as file:
+            slide_template = self.env.get_template("slide/slide.html")
+            help_template = self.env.get_template("slide/help.html")
+            with FiftyOhmHtmlSlideRenderer(
+                question_renderer=self.__build_question_slide,
+                picture_handler=self.__picture_handler,
+                photo_handler=self.__photo_handler
+            ) as renderer:
+                result = "<section>\n"
+                result += f'<section data-background="#DAEEFA">\n<h1>{chapter["title"]}</h1>\n</section>\n'
+                result += help_template.render()
+                result += "</section>\n"
+                for section in sections:
+                    tmp = f'<section data-background="#DAEEFA">\n<h1>{section["title"]}</h1>\n</section>\n'
+                    tmp += renderer.render_wrapper(section["slide"])
+                    result += f"<section>{tmp}</section>\n"
+                
+                result = slide_template.render(content=result)
+                file.write(result)
+
+    def __filter_shuffle_answers(self, seq):
+        answers = []
+        firstrun = True
+        for answer in seq:
+            if firstrun:
+                answers.append({"content": answer, "correct": True})
+                firstrun = False
+            else:
+                answers.append({"content": answer, "correct": False})
+        random.shuffle(answers)
+        return answers
+            
     def __build_book_index(self, book):
-        template = self.env.get_template("course_index.html")
+        template = self.env.get_template("html/course_index.html")
         with open(f"build/{book['edition']}_course_index.html", "w") as file:
             result = template.render(
                 book=book,
@@ -185,10 +227,11 @@ class Build:
             for number, chapter in enumerate(tqdm(chapters, desc=f"Build Edition: {edition}"),1):
                 next_chapter = chapters[number] if number < len(chapters) else None
                 self.__build_chapter(edition, edition_name, number, chapter, next_chapter)
+                self.__build_chapter_slidedeck(edition, chapter, chapter["sections"])
 
                 for i, section in enumerate(chapter["sections"],1) :
                     next_section = chapter["sections"][i] if i < len(chapter["sections"]) else None
-                    self.__build_section(edition, edition_name, section, chapter, next_section, next_chapter)
+                    self.__build_section(edition, edition_name, section, i, chapter, next_section, next_chapter)
 
     def build_assets(self):
         shutil.copytree("assets", "build/assets", dirs_exist_ok=True)
