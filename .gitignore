@@ -162,6 +162,7 @@ cython_debug/
 #.idea/
 
 test/acceptanceTest.html
+test/acceptanceTestSlides.html
 .DS_Store
 .envrc
 config/config.json
