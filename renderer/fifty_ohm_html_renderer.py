@@ -1,5 +1,7 @@
 
 
+from itertools import chain
+
 from jinja2 import Environment, FileSystemLoader
 from mistletoe import Document, HtmlRenderer
 
@@ -28,8 +30,9 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     section_url = "section.html"
     ref_id = 0
 
-    def __init__(self, question_renderer=None, picture_handler=None, photo_handler=None):
-        super().__init__(
+    def __init__(self, *extras, question_renderer=None, picture_handler=None, photo_handler=None):
+        
+        final_extras = chain(extras,(
             Dash,
             BlockComment,
             Quote,
@@ -46,7 +49,10 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             Photo,
             Table,
             Qso,
-        )
+        ))
+
+        super().__init__(*final_extras)
+
         self.question_renderer = question_renderer
         self.picture_handler = picture_handler
         self.photo_handler = photo_handler

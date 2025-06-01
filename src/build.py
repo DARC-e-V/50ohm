@@ -135,7 +135,11 @@ class Build:
         next_chapter_template = self.env.get_template("next_chapter.html")
         with open(f'build/{edition}_{section["ident"]}.html', 'w') as file:
 
-            with FiftyOhmHtmlRenderer(self.__build_question, self.__picture_handler, self.__photo_handler) as renderer:
+            with FiftyOhmHtmlRenderer(
+                question_renderer=self.__build_question,
+                picture_handler=self.__picture_handler,
+                photo_handler=self.__photo_handler
+            ) as renderer:
                 section["content"] = renderer.render(Document(section["content"]))
 
                 result = section_template.render(
