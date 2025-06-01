@@ -1,0 +1,15 @@
+<section data-background="#DAEEFA">
+    <h2>Fragen?</h2>
+    <hr />
+    <h3>Links zu diesem Foliensatz</h3>
+    <ul>
+        {% if next_chapter is defined -%}
+        <li><a href="{{ edition }}_slide_{{ next_chapter["ident"] }}.html">Weiter zum nächsten Kapitel: {{
+                next_chapter["title"] }}</a></li>
+        {% endif -%}
+        <li><a href="{{ edition }}_chapter_{{ chapter["ident"] }}.html">Zum Kapitel auf 50Ohm.de</a></li>
+        <li><a href="{{ edition }}_slide_index.html">Zur Kapitelübersicht aller Foliensätze</a></li>
+        <li><a href="?print-pdf">Diesen Foliensatz zum Ausdrucken öffnen</a></li>
+        <li><a href="?print-pdf&showNotes=true">Diesen Foliensatz mit Notizen zum Ausdrucken öffnen</a></li>
+    </ul>
+</section>
