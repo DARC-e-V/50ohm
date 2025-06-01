@@ -1,5 +1,7 @@
 % Kommentar: DARC-DOWN-TEST
 
+[include:test]
+
 Das ist eine Item-Liste: 
 
 * Erster Eintrag
@@ -77,8 +79,6 @@ CQ CQ hier ist DL1PZ mit einem allgemeinen Anruf, hier ist DL1PZ und hört.
 <indepth>
 *QSO* ist eine Abkürzung, die ursprünglich aus der Morsetelegrafie stammt und "ich habe direkten Kontakt zu Station X" bedeutet. Daran angelehnt, sprechen Funkamateure oftmals von einem QSO, wenn sie eine erfolgreiche Funkverbindung meinen.
 </indepth>
-
-[include:test]
 
 <webmargin>
 | c: | l: | c: | l: | c: | l: |

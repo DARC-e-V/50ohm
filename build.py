@@ -15,6 +15,7 @@ dl.download_edition("N")
 dl.download_question_metadata()
 dl.download_pictures()
 dl.download_photos()
+dl.download_includes()
 
 # Build edition:
 bd.build_edition("N")
