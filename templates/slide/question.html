@@ -7,7 +7,7 @@
 {% endif -%}
 <div class="question-text">{{ number }}: {{ question }}</div>
   {% if picture_question -%}
-  <div class="question-picture"><img class="r-stretch" src="picture/{{ picture_question }}.svg"></div>
+  <div class="question-picture"><img class="r-stretch" src="pictures/{{ picture_question }}.svg"></div>
   {% endif -%}
   <div class="answers">
     {% if answers[0] -%}
@@ -17,7 +17,7 @@
     {% endif -%}
     {% if answer_pictures[0] -%}
       {% for answer in answer_pictures|shuffle_answers -%}
-        <div class="question-picture{% if not answer.correct %} fragment semi-fade-out{% endif -%}" {% if not answer.correct -%} data-fragment-index="1" {% endif -%}><b>{{ answer_label[loop.index - 1] }}:</b><img class="r-stretch" src="picture/{{ answer.content }}.svg"></div>
+        <div class="question-picture{% if not answer.correct %} fragment semi-fade-out{% endif -%}" {% if not answer.correct -%} data-fragment-index="1" {% endif -%}><b>{{ answer_label[loop.index - 1] }}:</b><img class="r-stretch" src="pictures/{{ answer.content }}.svg"></div>
       {% endfor -%}
     {% endif -%}
   </div>
