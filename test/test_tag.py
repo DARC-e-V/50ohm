@@ -2,6 +2,7 @@ import mistletoe
 import pytest
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
+from renderer.fifty_ohm_html_slide_renderer import FiftyOhmHtmlSlideRenderer
 from renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
 
 
@@ -103,3 +104,30 @@ def test_thematic_break_and_tag_latex():
 
     for assertion in assertions:
         assert mistletoe.markdown(assertion, FiftyOhmLaTeXRenderer) == assertions[assertion]
+
+
+@pytest.mark.slide
+def test_tag_slide():
+    assertions = {
+        "<note>\nFoo\n</note>": '<aside class="notes">\n<p>Foo</p>\n</aside>\n\n',
+        "<fragment>\nFoo\n</fragment>": '<div class="fragment">\n<p>Foo</p>\n</div>\n\n',
+        "<left>\nFoo\n</left>": '<div id="left">\n<p>Foo</p>\n</div>\n\n',
+        "<right>\nFoo\n</right>": '<div id="right">\n<p>Foo</p>\n</div>\n\n',
+    }
+
+    for assertion in assertions:
+        assert mistletoe.markdown(assertion, FiftyOhmHtmlSlideRenderer) == assertions[assertion]
+
+@pytest.mark.slide
+def test_slide_break():
+    assertions = {
+        "---\na\n" : "<section>\n<p>a</p>\n</section>\n\n",
+        "---\na\n---\nb\n" : "<section>\n<p>a</p>\n</section>\n\n<section>\n<p>b</p>\n</section>\n\n",
+        "--- attention\na\n" : "<section data-background-color=\"#B8EAFF\">\n<p>a</p>\n</section>\n\n",
+        "--- unit\na\n" : "<section data-background-color=\"#40C08C\">\n<p>a</p>\n</section>\n\n",
+        "--- danger\na\n" : "<section data-background-color=\"#FF756D\">\n<p>a</p>\n</section>\n\n",
+        "--- foo\na\n" : "<section foo>\n<p>a</p>\n</section>\n\n",
+    }
+
+    for assertion in assertions:
+        assert mistletoe.markdown(assertion, FiftyOhmHtmlSlideRenderer) == assertions[assertion]
