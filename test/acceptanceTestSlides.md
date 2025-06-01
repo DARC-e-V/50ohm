@@ -1,3 +1,44 @@
+# Akzeptanztest
+
+--- style="font-size: 4pt;"
+
+## Kleinere Schrift
+* Längere
+* Liste
+
+---
+
+## Folie mit direktem Übergang
+Mit Text
+
+--- data-transition="none"
+
+## Folie mit direktem Übergang
+Mit anderem Text
+
+---
+
+## Externer Link und Formel
+
+[Link zum DARC](https://darc.de/)
+
+$\lambda[[\text{m}]] = \dfrac{300}{f[[\text{MHz}]]} = \dfrac{300}{145,3 \ \text{MHz}} \approx 2,06 \ \text{m}$
+
+---
+
+## Notes Test
+
+Diese Folie hat Notizen
+
+<note>
+Die Notiz wird nur in der Speaker-Ansicht angezeigt
+* Listen sind auch möglich
+* Am besten <u>kurz</u> halten
+* Der Platz ist *begrenzt*
+</note>
+
+---
+
 ## Fragment Test
 
 Dies ist ein Text der direkt da ist
@@ -18,6 +59,8 @@ Ist diese Frequenz frei? DL1PZ
 CQ CQ hier ist DL1PZ mit einem allgemeinen Anruf, hier ist DL1PZ und hört.
 > DL1PZ hier ist DL9MJ bitte kommen
 </qso>
+
+---
 
 ## Slide mit Picture
 
@@ -63,3 +106,30 @@ Slide C
 ## Slide PINK
 
 PINK
+
+## Iframe als Hintergrund
+
+--- data-background-iframe="https://f5len.org/tools/locator/" data-background-interactive
+
+---
+
+## Double Column
+
+<left>
+[photo:167:rufzeichen_flugzeug:Flugzeug mit dem Rufzeichen DEBPF]
+</left>
+<right>
+* Funkstationen verwenden Rufzeichen, um sich zu identifizieren
+* Folge von Buchstaben und Ziffern
+* Jedes mit Funk ausgerüstete Flugzeug und Schiff hat ein Rufzeichen
+</right>
+
+---
+
+## Folie mit direktem Übergang
+Mit Text
+
+--- data-transition="none"
+
+## Folie mit direktem Übergang
+Mit anderem Text ... keine ahnung ob das je ging?
