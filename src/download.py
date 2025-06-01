@@ -131,3 +131,13 @@ class Download:
         Parallel(n_jobs=multiprocessing.cpu_count())(
             delayed(build_picture)(picture) for picture in tqdm(pictures, desc="Build All Pictures")
         )
+
+    def download_includes(self):
+        includes = self.api.get("items/include", params={"limit": -1})
+
+        result = {}
+        for include in tqdm(includes, desc="Downloading includes"):
+            result[include["ident"]] = include["content"]
+            
+            with open("data/includes.json", "w") as f:
+                json.dump(result, f, indent=4)
