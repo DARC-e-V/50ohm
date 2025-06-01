@@ -18,6 +18,7 @@ captures = [
     "webonly",
     "latexonly",
     "wordorigin",
+    "fragment",
 ]
 
 
