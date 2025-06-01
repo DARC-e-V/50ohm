@@ -173,10 +173,11 @@ class Build:
                 result = BeautifulSoup(result, "html.parser").prettify()
                 file.write(result)
 
-    def __build_chapter_slidedeck(self, edition, chapter, sections):
+    def __build_chapter_slidedeck(self, edition, chapter, sections, next_chapter):
         with open(f'build/{edition}_slide_{chapter["ident"]}.html', 'w') as file:
             slide_template = self.env.get_template("slide/slide.html")
             help_template = self.env.get_template("slide/help.html")
+            next_template = self.env.get_template("slide/next.html")
             with FiftyOhmHtmlSlideRenderer(
                 question_renderer=self.__build_question_slide,
                 picture_handler=self.__picture_handler,
@@ -190,6 +191,11 @@ class Build:
                     tmp = f'<section data-background="#DAEEFA">\n<h1>{section["title"]}</h1>\n</section>\n'
                     tmp += renderer.render_wrapper(section["slide"])
                     result += f"<section>{tmp}</section>\n"
+                result += next_template.render(
+                    edition=edition,
+                    next_chapter=next_chapter,
+                    chapter=chapter,
+                )
                 
                 result = slide_template.render(content=result)
                 file.write(result)
@@ -227,7 +233,7 @@ class Build:
             for number, chapter in enumerate(tqdm(chapters, desc=f"Build Edition: {edition}"),1):
                 next_chapter = chapters[number] if number < len(chapters) else None
                 self.__build_chapter(edition, edition_name, number, chapter, next_chapter)
-                self.__build_chapter_slidedeck(edition, chapter, chapter["sections"])
+                self.__build_chapter_slidedeck(edition, chapter, chapter["sections"], next_chapter)
 
                 for i, section in enumerate(chapter["sections"],1) :
                     next_section = chapter["sections"][i] if i < len(chapter["sections"]) else None
