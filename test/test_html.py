@@ -74,7 +74,7 @@ def test_html(capsys):
     with capsys.disabled():
         with open("test/acceptanceTest.md") as file:
             content = file.read()
-            with FiftyOhmHtmlRenderer(question_stub) as renderer:
+            with FiftyOhmHtmlRenderer(question_renderer=question_stub) as renderer:
                 output = renderer.render(Document(content))
                 with open("test/acceptanceTest.html", "w") as output_file:
                     pretty = BeautifulSoup(output, "html.parser").prettify()
