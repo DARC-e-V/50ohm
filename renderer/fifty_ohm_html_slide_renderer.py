@@ -2,9 +2,7 @@ from mistletoe import Document
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 
-from .qso import Qso
 from .slide_break import SlideBreak
-from .tag import Tag
 
 
 class FiftyOhmHtmlSlideRenderer(FiftyOhmHtmlRenderer):
@@ -18,8 +16,6 @@ class FiftyOhmHtmlSlideRenderer(FiftyOhmHtmlRenderer):
         ):
         super().__init__(
             SlideBreak,
-            Qso,
-            Tag,
             question_renderer=question_renderer,
             picture_handler=picture_handler,
             photo_handler=photo_handler,
