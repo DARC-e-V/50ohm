@@ -238,4 +238,4 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return table
 
     def render_include(self, token):
-        return self.include_handler(token.content)
+        return self.include_handler(token.ident)

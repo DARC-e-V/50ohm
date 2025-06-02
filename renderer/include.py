@@ -1,13 +1,24 @@
 import re
 
-from mistletoe.span_token import SpanToken
+from mistletoe.block_token import BlockToken
 
 
-class Include(SpanToken):
+class Include(BlockToken):
     """
-    Span token ("[include:ident]").
+    Block token ("[include:ident]").
     Includes raw html or javascript code from a file with the given identifier.
     """
 
-    parse_inner = False
-    pattern = re.compile(r'\[include:\s*([^\]]+)\]')
+    @staticmethod
+    def start(line):
+        return re.match(r"^\s*\[include:\s*[^\]]+\]", line)
+
+    @classmethod
+    def read(cls, lines):
+        re.compile(r'')
+        line = next(lines) # Consume the line with the include directive
+        ident = re.match(r"^\s*\[include:\s*([^\]]+)\]", line).group(1)
+        return ident
+
+    def __init__(self, match):
+        self.ident = match
