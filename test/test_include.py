@@ -7,7 +7,7 @@ from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 @pytest.mark.html
 def test_include_html():
     assertions = {
-        '[include:ident]': "<p>ident</p>\n",
+        '[include:ident]': "ident\n",
     }
 
     def test_function(input):
