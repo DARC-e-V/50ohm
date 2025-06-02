@@ -6,6 +6,7 @@ from mistletoe import Document, HtmlRenderer
 from .comment import BlockComment
 from .dash import Dash
 from .halfwidth_spaces import HalfwidthSpaces
+from .include import Include
 from .morse import Morse
 from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
 from .photo import Photo
@@ -28,7 +29,13 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     section_url = "section.html"
     ref_id = 0
 
-    def __init__(self, question_renderer=None, picture_handler=None, photo_handler=None):
+    def __init__(
+            self,
+            question_renderer=None, 
+            picture_handler=None,
+            photo_handler=None,
+            include_handler=None
+        ) :
         super().__init__(
             Dash,
             BlockComment,
@@ -46,10 +53,12 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             Photo,
             Table,
             Qso,
+            Include
         )
         self.question_renderer = question_renderer
         self.picture_handler = picture_handler
         self.photo_handler = photo_handler
+        self.include_handler = include_handler
 
     def render_dash(self, token):
         return " &ndash; "
@@ -227,3 +236,6 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         table += "</table>"
 
         return table
+
+    def render_include(self, token):
+        return self.include_handler(token.ident)
