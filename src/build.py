@@ -89,9 +89,9 @@ class Build:
             )
 
     # cached
-    def __build_page(self, content) :
+    def __build_page(self, content, course_wrapper=False) :
         page_template = self.env.get_template("page.html")
-        return page_template.render(content=content)
+        return page_template.render(content=content, course_wrapper=course_wrapper)
     
     def __picture_handler(self, id):
         os.makedirs("build/pictures", exist_ok=True)
@@ -123,8 +123,7 @@ class Build:
                     title=next_chapter["title"],
                 )
 
-
-            result = self.__build_page('<div class="course">'+result+'</div>')
+            result = self.__build_page(result, course_wrapper=True)
             file.write(result)
 
     # cached
@@ -155,7 +154,7 @@ class Build:
                         title=next_chapter["title"],
                     )
 
-                result = self.__build_page('<div class="course">'+result+'</div>')
+                result = self.__build_page(result, course_wrapper=True)
                 file.write(result)
 
     def __build_book_index(self, book):
