@@ -89,9 +89,13 @@ class Build:
             )
 
     # cached
-    def __build_page(self, content, course_wrapper=False) :
+    def __build_page(self, content, course_wrapper=False, sidebar=None) :
         page_template = self.env.get_template("page.html")
-        return page_template.render(content=content, course_wrapper=course_wrapper)
+        return page_template.render(
+            content=content,
+            course_wrapper=course_wrapper,
+            sidebar=sidebar
+        )
     
     def __picture_handler(self, id):
         os.makedirs("build/pictures", exist_ok=True)
@@ -220,11 +224,12 @@ class Build:
 
     def __build_html_page(self, contents, page):
         for content in contents:
-            template = self.env.get_template("html.html")
             if content["url_part"] == page:
-                result = template.render({"content": content})
                 with open(f"build/{page}.html", "w") as file:
-                    result = self.__build_page(result)
+                    result = self.__build_page(
+                        content=content["content"],
+                        sidebar=content["sidebar"]
+                    )
                     file.write(result)
 
     def build_website(self):
