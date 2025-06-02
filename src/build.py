@@ -221,18 +221,10 @@ class Build:
 
     def __build_html_page(self, contents, page):
         for content in contents:
+            template = self.env.get_template("html.html")
             if content["url_part"] == page:
-
-                if content["sidebar"] is None:
-                    result = content["content"]
-                else:
-                    result  = '<div class="fiftyohm-content-2cols">\n'
-                    result += f'<div>{content["content"]}</div>\n'
-                    result += f'<div>{content["sidebar"]}</div>\n'
-                    result += '</div>\n'
-
+                result = template.render({"content": content})
                 with open(f"build/{page}.html", "w") as file:
-
                     result = self.__build_page(result)
                     file.write(result)
 
