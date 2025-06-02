@@ -104,7 +104,13 @@
               </div>
             {% endif %}
        
+            {% if course_wrapper == True %}
+            <div class="course">
+            {% endif %}
             {{ content }}
+            {% if course_wrapper == True %}
+            </div>
+            {% endif %}
 
             <footer class="text-lg-start border-top border-dark mt-5 pt-3">
               <div class="d-flex flex-wrap justify-content-between gap-5 mb-5">
