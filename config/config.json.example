@@ -1,4 +1,7 @@
 {
-  "directus_base_url" : "https://fragenkatalog.darc.de/",
+  "directus_question_base_url" : "https://fragenkatalog.darc.de/",
+  "directus_question_api_key" : "",
+  "directus_content_base_url" : "https://redaktion.50ohm.de/",
+  "directus_content_api_key" : "",
   "no_latex": true
 }
