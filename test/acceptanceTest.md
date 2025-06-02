@@ -1,5 +1,7 @@
 % Kommentar: DARC-DOWN-TEST
 
+[include:test]
+
 Das ist eine Item-Liste: 
 
 * Erster Eintrag
