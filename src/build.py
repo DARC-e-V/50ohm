@@ -138,6 +138,11 @@ class Build:
             result = self.__build_page(result, course_wrapper=True)
             file.write(result)
 
+    def __include_handler(self, include):
+        with open("data/includes.json") as file:
+            includes = json.load(file)
+            return includes.get(include)
+
     # cached
     def __build_section(self, edition, edition_name, section, section_id, chapter, next_section=None, next_chapter=None):
         section_template = self.env.get_template("html/section.html")
@@ -148,7 +153,8 @@ class Build:
             with FiftyOhmHtmlRenderer(
                 question_renderer=self.__build_question,
                 picture_handler=self.__picture_handler,
-                photo_handler=self.__photo_handler
+                photo_handler=self.__photo_handler,
+                include_handler=self.__include_handler
             ) as renderer:
                 section["content"] = renderer.render(Document(section["content"]))
 
@@ -182,7 +188,8 @@ class Build:
             with FiftyOhmHtmlSlideRenderer(
                 question_renderer=self.__build_question_slide,
                 picture_handler=self.__picture_handler,
-                photo_handler=self.__photo_handler
+                photo_handler=self.__photo_handler,
+                include_handler=self.__include_handler
             ) as renderer:
                 result = "<section>\n"
                 result += f'<section data-background="#DAEEFA">\n<h1>{chapter["title"]}</h1>\n</section>\n'
@@ -259,7 +266,8 @@ class Build:
             with FiftyOhmHtmlRenderer(
                 question_renderer=self.__build_question,
                 picture_handler=self.__picture_handler,
-                photo_handler=self.__photo_handler
+                photo_handler=self.__photo_handler,
+                include_handler=self.__include_handler
             ) as renderer:
                 for key, value in snippets.items():
                     snippets[key] = renderer.render_inner(Document(value))
