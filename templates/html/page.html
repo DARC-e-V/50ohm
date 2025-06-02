@@ -103,10 +103,21 @@
                 <hr>
               </div>
             {% endif %}
-       
-            <div class="course"> 
-              {{ content }}
-            </div>
+
+            {% if sidebar == None %}
+                {% if course_wrapper == True %}
+                    <div class="course">
+                        {{ content }}
+                    </div>
+                {% else %}
+                    {{ content }}
+                {% endif %}
+            {% else %}
+                <div class="fiftyohm-content-2cols">
+                    <div>{{ content }}</div>
+                    <div>{{ sidebar }}</div>
+                </div>
+            {% endif %}
 
             <footer class="text-lg-start border-top border-dark mt-5 pt-3">
               <div class="d-flex flex-wrap justify-content-between gap-5 mb-5">

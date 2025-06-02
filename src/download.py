@@ -8,9 +8,10 @@ from tqdm import tqdm
 
 
 class Download:
-    def __init__(self, api, config):
+    def __init__(self, api, content_api, config):
         self.api = api
         self.config = config
+        self.content_api = content_api
 
     def download_edition(self, edition):
         in_edition = self.api.get_one("items/edition", {"filter": {"ident": {"_eq": edition}}})
@@ -141,3 +142,24 @@ class Download:
             
             with open("data/includes.json", "w") as f:
                 json.dump(result, f, indent=4)
+
+    def download_snippets(self):
+        snippets = {}
+        for snippet in tqdm(self.content_api.get("items/snippet"), desc="Downloading snippets"):
+            snippets[snippet["ident"]] = snippet["content"]
+        with open("data/snippets.json", "w", encoding="utf-8") as file:
+            json.dump(snippets, file, ensure_ascii=False, indent=4)
+
+    def download_content(self):
+        contents = []
+        for content in self.content_api.get("items/content"): #tqdm(self.content_api.get("items/content"), desc="Downloading content"):
+            contents.append(
+                {
+                    "url_part": content["url_part"],
+                    "content": content["content"],
+                    "sidebar": content["sidebar"],
+                }
+            )
+            
+        with open("data/content.json", "w", encoding="utf-8") as file:
+            json.dump(contents, file, ensure_ascii=False, indent=4)
