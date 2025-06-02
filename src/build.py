@@ -2,7 +2,6 @@ import json
 import os
 import shutil
 
-from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
 from joblib import Memory
 from mistletoe import Document
@@ -22,7 +21,7 @@ class Build:
         self.__build_chapter  = memory.cache(self.__build_chapter)
         self.__build_section  = memory.cache(self.__build_section)
         self.__build_page     = memory.cache(self.__build_page)
-
+    
     def __parse_katalog(self):
         with open("data/fragenkatalog3b.json") as fragenkatalog_file:
             fragenkatalog = json.load(fragenkatalog_file)
@@ -90,9 +89,13 @@ class Build:
             )
 
     # cached
-    def __build_page(self, content) :
+    def __build_page(self, content, course_wrapper=False, sidebar=None) :
         page_template = self.env.get_template("page.html")
-        return page_template.render(content=content)
+        return page_template.render(
+            content=content,
+            course_wrapper=course_wrapper,
+            sidebar=sidebar
+        )
     
     def __picture_handler(self, id):
         os.makedirs("build/pictures", exist_ok=True)
@@ -124,8 +127,7 @@ class Build:
                     title=next_chapter["title"],
                 )
 
-            result = self.__build_page(result)
-            result = BeautifulSoup(result, "html.parser").prettify()
+            result = self.__build_page(result, course_wrapper=True)
             file.write(result)
 
     # cached
@@ -156,8 +158,7 @@ class Build:
                         title=next_chapter["title"],
                     )
 
-                result = self.__build_page(result)
-                result = BeautifulSoup(result, "html.parser").prettify()
+                result = self.__build_page(result, course_wrapper=True)
                 file.write(result)
 
     def __build_book_index(self, book):
@@ -167,7 +168,6 @@ class Build:
                 book=book,
             )
             result = self.__build_page(result)
-            result = BeautifulSoup(result, "html.parser").prettify()
             file.write(result) 
 
     def build_edition(self, edition):
@@ -188,3 +188,56 @@ class Build:
 
     def build_assets(self):
         shutil.copytree("assets", "build/assets", dirs_exist_ok=True)
+
+    def __parse_snippets(self):
+        with open("data/snippets.json") as f:
+            snippets = json.load(f)
+
+            with FiftyOhmHtmlRenderer(self.__build_question, self.__picture_handler, self.__photo_handler) as renderer:
+                for key, value in snippets.items():
+                    snippets[key] = renderer.render_inner(Document(value))
+                    # Remove leading <p> and trailing </p>:
+                    snippets[key] = snippets[key][3:-4]
+        return snippets
+
+    def __parse_contents(self):
+        with open("data/content.json") as f:
+            contents = json.load(f)
+            return contents
+
+    def __build_index(self, snippets):
+        template = self.env.get_template("index.html")
+        result = template.render({"snippets": snippets})
+
+        with open("build/index.html", "w") as file:
+            result = self.__build_page(result)
+
+            file.write(result)
+
+    def __build_course_page(self, snippets, template, page):
+        template = self.env.get_template(f"{template}.html")
+        result=template.render({"snippets": snippets})
+
+        with open(f"build/{page}.html", "w") as file:
+            result = self.__build_page(result)
+            file.write(result)
+
+    def __build_html_page(self, contents, page):
+        for content in contents:
+            if content["url_part"] == page:
+                with open(f"build/{page}.html", "w") as file:
+                    result = self.__build_page(
+                        content=content["content"],
+                        sidebar=content["sidebar"]
+                    )
+                    file.write(result)
+
+    def build_website(self):
+        snippets = self.__parse_snippets()
+        contents = self.__parse_contents()
+        self.__build_index(snippets)
+        self.__build_course_page(snippets, "kurse-karte", "kurse_vor_ort_karte")
+        self.__build_course_page(snippets, "kurse-liste", "kurse_vor_ort_liste")
+        self.__build_course_page(snippets, "patenkarte", "patenkarte")
+        self.__build_html_page(contents, "pruefung")
+        self.__build_html_page(contents, "infos")

@@ -4,8 +4,9 @@ import requests
 
 
 class DirectusAPI:
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, base_url, access_token):
+        self.base_url = base_url
+        self.access_token = access_token
 
     def __get_raw(self, endpoint, params = None):
         if params is None:
@@ -13,12 +14,12 @@ class DirectusAPI:
         for k in params.keys():
             if type(params[k]) is dict:
                 params[k] = json.dumps(params[k])
-        url = self.config.base_url + endpoint
+        url = self.base_url + endpoint
         result = requests.get(
           url,
           params = params,
           headers = {
-            "Authorization": f"Bearer {self.config.access_token}",
+            "Authorization": f"Bearer {self.access_token}",
             "Cache-Control": "no-store"
           }
         )
