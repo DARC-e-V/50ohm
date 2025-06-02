@@ -103,13 +103,20 @@
                 <hr>
               </div>
             {% endif %}
-       
-            {% if course_wrapper == True %}
-            <div class="course">
-            {% endif %}
-            {{ content }}
-            {% if course_wrapper == True %}
-            </div>
+
+            {% if sidebar == None %}
+                {% if course_wrapper == True %}
+                    <div class="course">
+                        {{ content }}
+                    </div>
+                {% else %}
+                    {{ content }}
+                {% endif %}
+            {% else %}
+                <div class="fiftyohm-content-2cols">
+                    <div>{{ content }}</div>
+                    <div>{{ sidebar }}</div>
+                </div>
             {% endif %}
 
             <footer class="text-lg-start border-top border-dark mt-5 pt-3">
