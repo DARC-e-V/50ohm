@@ -256,7 +256,11 @@ class Build:
         with open("data/snippets.json") as f:
             snippets = json.load(f)
 
-            with FiftyOhmHtmlRenderer(self.__build_question, self.__picture_handler, self.__photo_handler) as renderer:
+            with FiftyOhmHtmlRenderer(
+                question_renderer=self.__build_question,
+                picture_handler=self.__picture_handler,
+                photo_handler=self.__photo_handler
+            ) as renderer:
                 for key, value in snippets.items():
                     snippets[key] = renderer.render_inner(Document(value))
                     # Remove leading <p> and trailing </p>:
@@ -269,7 +273,7 @@ class Build:
             return contents
 
     def __build_index(self, snippets):
-        template = self.env.get_template("index.html")
+        template = self.env.get_template("html/index.html")
         result = template.render({"snippets": snippets})
 
         with open("build/index.html", "w") as file:
@@ -278,7 +282,7 @@ class Build:
             file.write(result)
 
     def __build_course_page(self, snippets, template, page):
-        template = self.env.get_template(f"{template}.html")
+        template = self.env.get_template(f"html/{template}.html")
         result=template.render({"snippets": snippets})
 
         with open(f"build/{page}.html", "w") as file:
