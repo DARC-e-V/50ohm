@@ -13,8 +13,10 @@ class Config:
             with open("config/config.json") as file:
                 self.config = json.load(file)
 
-        self.access_token = self.get_config_value("directus_api_key")
-        self.base_url = self.get_config_value("directus_api_url", "https://fragenkatalog.darc.de/")
+        self.question_access_token = self.get_config_value("directus_question_api_key")
+        self.question_base_url = self.get_config_value("directus_question_base_url", "https://fragenkatalog.darc.de/")
+        self.content_access_token = self.get_config_value("directus_content_api_key")
+        self.content_base_url = self.get_config_value("directus_content_base_url", "https://redaktion.50ohm.de/")
         self.no_latex = self.get_config_value("no_latex", False)
 
     def get_config_value(self, key: str, default=None):
