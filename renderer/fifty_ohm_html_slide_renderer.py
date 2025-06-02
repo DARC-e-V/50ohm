@@ -1,4 +1,3 @@
-from jinja2 import Environment, FileSystemLoader
 from mistletoe import Document
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
@@ -10,7 +9,13 @@ from .tag import Tag
 
 class FiftyOhmHtmlSlideRenderer(FiftyOhmHtmlRenderer):
 
-    def __init__(self, question_renderer=None, picture_handler=None, photo_handler=None):
+    def __init__(
+            self,
+            question_renderer=None,
+            picture_handler=None,
+            photo_handler=None,
+            include_handler=None
+        ):
         super().__init__(
             SlideBreak,
             Qso,
@@ -18,8 +23,8 @@ class FiftyOhmHtmlSlideRenderer(FiftyOhmHtmlRenderer):
             question_renderer=question_renderer,
             picture_handler=picture_handler,
             photo_handler=photo_handler,
+            include_handler=include_handler,
         )
-        self.env = Environment(loader=FileSystemLoader("templates/slide"))
     
     def render_wrapper(self, content):
         content = "---\n" + content
