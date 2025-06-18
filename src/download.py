@@ -6,9 +6,12 @@ import shutil
 from joblib import Memory, Parallel, delayed
 from tqdm import tqdm
 
+from api.directus import DirectusAPI
+from src.config import Config
+
 
 class Download:
-    def __init__(self, api, content_api, config):
+    def __init__(self, api: DirectusAPI, content_api: DirectusAPI, config: Config):
         self.api = api
         self.config = config
         self.content_api = content_api
@@ -60,7 +63,7 @@ class Download:
                 "edition": edition,
             }
 
-            with open("data/book_" + edition + ".json", "w", encoding="utf-8") as file:
+            with (self.config.p_data / f"book_{edition}.json").open("w", encoding="utf-8") as file:
                 json.dump(out_edition, file, ensure_ascii=False, indent=4)
 
     def download_question_metadata(self):
@@ -82,26 +85,26 @@ class Download:
             }
 
         # Serializing json:
-        with open("data/metadata.json", "w") as f:
+        with (self.config.p_data / "metadata.json").open("w", encoding="utf-8") as f:
             json.dump(result, f, indent=4)
         f.close()
 
     def download_photos(self):
+        self.config.p_data_photos.mkdir(parents=True, exist_ok=True)
+
         photos = self.api.get("items/Fotos", params={"limit": -1})
 
         for photo in tqdm(photos, desc="Downloading photos"):
             data = self.api.get_file("assets/" + photo["photo"])
-            with open(f"./data/photos/{photo['id']}.jpg", "wb") as file:
+            with (self.config.p_data_photos / f"{photo['id']}.jpg").open("wb") as file:
                 file.write(data)
 
-    def __symlink_pictures(self):
-        os.chdir("./data/pictures")
-        if not os.path.islink("foto"):
-            os.system("ln -s ../photos foto")
-        os.chdir("../..")
-
     def download_pictures(self):
-        self.__symlink_pictures()
+        self.config.p_data_pictures.mkdir(parents=True, exist_ok=True)
+        # Symlink photos, so LaTeX can access these assets to render into graphics.
+        foto_link = self.config.p_data_pictures / "foto"
+        if not foto_link.is_symlink():
+            foto_link.symlink_to(self.config.p_data_photos)
 
         memory = Memory("./cache", verbose=0)
 
@@ -115,17 +118,22 @@ class Download:
                 return
 
             if self.config.no_latex:
-                shutil.copyfile("./assets/images/50ohm_gray.svg", f"./data/pictures/{pid}.svg")
+                shutil.copyfile("./assets/images/50ohm_gray.svg", self.config.p_data_pictures / f"{pid}.svg")
             else:
-                with open(f"./data/pictures/img/{pid}include.tex", "w") as file:
+                with (self.config.p_data_pictures / f"img/{pid}include.tex").open("w") as file:
                     file.write(picture["latex"])
-                with open(f"./data/pictures/{pid}.tex", "w", encoding="utf-8") as file:
+
+                aux_file = self.config.p_data_photos / f"{pid}.tex"
+                with aux_file.open("w", encoding="utf-8") as file:
                     # Write the auxilary LaTeX file:
                     file.write(f"\\documentclass{{BNetzA-Fragenkatalog}}\\DARCimageOnly{{9cm}}{{{pid}include}}")
                 # Build the picture:
-                os.system(f"latexmk -lualatex -f -interaction=nonstopmode ./data/pictures/{pid}.tex > /dev/null 2>&1")
+                os.system(f"latexmk -lualatex -f -interaction=nonstopmode {aux_file} > /dev/null 2>&1")
                 # Convert the PDF to SVG:
-                os.system(f"pdftocairo -svg data/pictures/{pid}.pdf - > data/pictures/{pid}.svg")
+                os.system(
+                    "pdftocairo -svg"
+                    f"{self.config.p_data_pictures / f'{pid}.pdf'} - > {self.config.p_data_pictures / f'{pid}.svg'}"
+                )
 
         pictures = self.api.get("items/pictures", params={"limit": -1})
 
@@ -139,20 +147,22 @@ class Download:
         result = {}
         for include in tqdm(includes, desc="Downloading includes"):
             result[include["ident"]] = include["content"]
-            
-            with open("data/includes.json", "w") as f:
-                json.dump(result, f, indent=4)
+
+            with (self.config.p_data / "includes.json").open("w", encoding="utf-8") as file:
+                json.dump(result, file, indent=4)
 
     def download_snippets(self):
         snippets = {}
         for snippet in tqdm(self.content_api.get("items/snippet"), desc="Downloading snippets"):
             snippets[snippet["ident"]] = snippet["content"]
-        with open("data/snippets.json", "w", encoding="utf-8") as file:
+        with (self.config.p_data / "snippets.json").open("w", encoding="utf-8") as file:
             json.dump(snippets, file, ensure_ascii=False, indent=4)
 
     def download_content(self):
         contents = []
-        for content in self.content_api.get("items/content"): #tqdm(self.content_api.get("items/content"), desc="Downloading content"):
+        for content in self.content_api.get(
+            "items/content"
+        ):  # tqdm(self.content_api.get("items/content"), desc="Downloading content"):
             contents.append(
                 {
                     "url_part": content["url_part"],
@@ -160,6 +170,6 @@ class Download:
                     "sidebar": content["sidebar"],
                 }
             )
-            
-        with open("data/content.json", "w", encoding="utf-8") as file:
+
+        with (self.config.p_data / "content.json").open("w", encoding="utf-8") as file:
             json.dump(contents, file, ensure_ascii=False, indent=4)
