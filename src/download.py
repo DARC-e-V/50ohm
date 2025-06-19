@@ -124,7 +124,7 @@ class Download:
                 with (self.config.p_data_pictures / f"img/{pid}include.tex").open("w") as file:
                     file.write(picture["latex"])
 
-                aux_file = self.config.p_data_photos / f"{pid}.tex"
+                aux_file = self.config.p_data_pictures / f"{pid}.tex"
                 with aux_file.open("w", encoding="utf-8") as file:
                     # Write the auxilary LaTeX file:
                     file.write(f"\\documentclass{{BNetzA-Fragenkatalog}}\\DARCimageOnly{{9cm}}{{{pid}include}}")
@@ -161,9 +161,7 @@ class Download:
 
     def download_content(self):
         contents = []
-        for content in self.content_api.get(
-            "items/content"
-        ):  # tqdm(self.content_api.get("items/content"), desc="Downloading content"):
+        for content in tqdm(self.content_api.get("items/content"), desc="Downloading content"):
             contents.append(
                 {
                     "url_part": content["url_part"],
