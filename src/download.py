@@ -7,7 +7,8 @@ from joblib import Memory, Parallel, delayed
 from tqdm import tqdm
 
 from api.directus import DirectusAPI
-from src.config import Config
+
+from .config import Config
 
 
 class Download:
