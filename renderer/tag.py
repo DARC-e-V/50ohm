@@ -3,6 +3,7 @@ import re
 from mistletoe.block_token import BlockToken, tokenize
 
 captures = [
+    # Website:
     "margin",
     "indepth",
     "webmargin",
@@ -18,6 +19,11 @@ captures = [
     "webonly",
     "latexonly",
     "wordorigin",
+    # Slides:
+    "note",
+    "fragment",
+    "left",
+    "right",
 ]
 
 

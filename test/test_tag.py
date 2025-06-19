@@ -2,6 +2,7 @@ import mistletoe
 import pytest
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
+from renderer.fifty_ohm_html_slide_renderer import FiftyOhmHtmlSlideRenderer
 from renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
 
 
@@ -29,7 +30,8 @@ def test_tag_html():
         + "\n",
         "<unit>\nFoo\n</unit>": FiftyOhmHtmlRenderer.render_tag_helper("unit", "<p>Foo</p>", 1, 0) + "\n",
         "<danger>\nFoo\n</danger>": FiftyOhmHtmlRenderer.render_tag_helper("danger", "<p>Foo</p>", 1, 0) + "\n",
-        "<wordorigin>\nFoo\n</wordorigin>": FiftyOhmHtmlRenderer.render_tag_helper("wordorigin", "<p>Foo</p>", 1, 0) + "\n",
+        "<wordorigin>\nFoo\n</wordorigin>": FiftyOhmHtmlRenderer.render_tag_helper("wordorigin", "<p>Foo</p>", 1, 0)
+        + "\n",
         "<webonly>\nFoo\n</webonly>": "<p>Foo</p>\n",
         "<latexonly>\nFoo\n</latexonly>": "",
     }
@@ -103,3 +105,30 @@ def test_thematic_break_and_tag_latex():
 
     for assertion in assertions:
         assert mistletoe.markdown(assertion, FiftyOhmLaTeXRenderer) == assertions[assertion]
+
+
+@pytest.mark.slide
+def test_tag_slide():
+    assertions = {
+        "<note>\nFoo\n</note>": '<aside class="notes">\n<p>Foo</p>\n</aside>\n\n',
+        "<fragment>\nFoo\n</fragment>": '<div class="fragment">\n<p>Foo</p>\n</div>\n\n',
+        "<left>\nFoo\n</left>": '<div id="left">\n<p>Foo</p>\n</div>\n\n',
+        "<right>\nFoo\n</right>": '<div id="right">\n<p>Foo</p>\n</div>\n\n',
+    }
+
+    for assertion in assertions:
+        assert mistletoe.markdown(assertion, FiftyOhmHtmlSlideRenderer) == assertions[assertion]
+
+
+@pytest.mark.slide
+def test_slide_break():
+    assertions = {
+        "---\na\n": "<section>\n<p>a</p>\n</section>\n\n",
+        "---\na\n---\nb\n": "<section>\n<p>a</p>\n</section>\n\n<section>\n<p>b</p>\n</section>\n\n",
+        "--- foo\na\n": "<section foo>\n<p>a</p>\n</section>\n\n",
+        "--- foo bar\na\n": "<section foo bar>\n<p>a</p>\n</section>\n\n",
+        "---   foo bar  \na\n": "<section foo bar>\n<p>a</p>\n</section>\n\n",
+    }
+
+    for assertion in assertions:
+        assert mistletoe.markdown(assertion, FiftyOhmHtmlSlideRenderer) == assertions[assertion]
