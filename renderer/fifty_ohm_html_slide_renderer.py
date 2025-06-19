@@ -20,15 +20,9 @@ class FiftyOhmHtmlSlideRenderer(FiftyOhmHtmlRenderer):
         inner = self.render_inner(token)
 
         if token.attribute is None:
-            return f'<section>\n{inner}\n</section>\n'
-        if token.attribute == "attention":
-            return f'<section data-background-color="#B8EAFF">\n{inner}\n</section>\n'
-        elif token.attribute == "danger":
-            return f'<section data-background-color="#FF756D">\n{inner}\n</section>\n'
-        elif token.attribute == "unit":
-            return f'<section data-background-color="#40C08C">\n{inner}\n</section>\n'
+            return f"<section>\n{inner}\n</section>\n"
         else:
-            return f'<section {token.attribute}>\n{inner}\n</section>\n'
+            return f"<section {token.attribute}>\n{inner}\n</section>\n"
 
     def render_qso(self, token):
         qso = '<div class="qso r-fit-text">\n'
