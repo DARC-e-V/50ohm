@@ -132,6 +132,10 @@ h1, h2, h3, h4, h5, h6 {
   height: 40px;
 }
 
+.darc-logo {
+  height: 50px;
+}
+
 .fiftyohm-darc-logo path.background {
   fill: #00ADEF;
 }
