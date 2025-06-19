@@ -30,7 +30,7 @@ class FiftyOhmHtmlSlideRenderer(FiftyOhmHtmlRenderer):
             direction = "other" if child.received else "own"
             fade = "fragment fade-left" if child.received else "fragment fade-right"
             qso += f'<div class="qso_{direction} {fade}">{self.render_inner(child)}</div>\n'
-        qso += '</div>\n'
+        qso += "</div>\n"
         return qso
 
     def render_tag(self, token):
@@ -42,6 +42,5 @@ class FiftyOhmHtmlSlideRenderer(FiftyOhmHtmlRenderer):
             return f'<div id="right">\n{self.render_inner(token)}\n</div>\n'
         elif token.tagtype == "note":
             return f'<aside class="notes">\n{self.render_inner(token)}\n</aside>\n'
-        
-        return "" # Ignore other tags in slide context anyway in tokenizer
 
+        return ""  # Ignore other tags in slide context anyway in tokenizer
