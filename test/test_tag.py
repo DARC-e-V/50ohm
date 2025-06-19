@@ -30,7 +30,8 @@ def test_tag_html():
         + "\n",
         "<unit>\nFoo\n</unit>": FiftyOhmHtmlRenderer.render_tag_helper("unit", "<p>Foo</p>", 1, 0) + "\n",
         "<danger>\nFoo\n</danger>": FiftyOhmHtmlRenderer.render_tag_helper("danger", "<p>Foo</p>", 1, 0) + "\n",
-        "<wordorigin>\nFoo\n</wordorigin>": FiftyOhmHtmlRenderer.render_tag_helper("wordorigin", "<p>Foo</p>", 1, 0) + "\n",
+        "<wordorigin>\nFoo\n</wordorigin>": FiftyOhmHtmlRenderer.render_tag_helper("wordorigin", "<p>Foo</p>", 1, 0)
+        + "\n",
         "<webonly>\nFoo\n</webonly>": "<p>Foo</p>\n",
         "<latexonly>\nFoo\n</latexonly>": "",
     }
@@ -118,15 +119,15 @@ def test_tag_slide():
     for assertion in assertions:
         assert mistletoe.markdown(assertion, FiftyOhmHtmlSlideRenderer) == assertions[assertion]
 
+
 @pytest.mark.slide
 def test_slide_break():
     assertions = {
-        "---\na\n" : "<section>\n<p>a</p>\n</section>\n\n",
-        "---\na\n---\nb\n" : "<section>\n<p>a</p>\n</section>\n\n<section>\n<p>b</p>\n</section>\n\n",
-        "--- attention\na\n" : "<section data-background-color=\"#B8EAFF\">\n<p>a</p>\n</section>\n\n",
-        "--- unit\na\n" : "<section data-background-color=\"#40C08C\">\n<p>a</p>\n</section>\n\n",
-        "--- danger\na\n" : "<section data-background-color=\"#FF756D\">\n<p>a</p>\n</section>\n\n",
-        "--- foo\na\n" : "<section foo>\n<p>a</p>\n</section>\n\n",
+        "---\na\n": "<section>\n<p>a</p>\n</section>\n\n",
+        "---\na\n---\nb\n": "<section>\n<p>a</p>\n</section>\n\n<section>\n<p>b</p>\n</section>\n\n",
+        "--- foo\na\n": "<section foo>\n<p>a</p>\n</section>\n\n",
+        "--- foo bar\na\n": "<section foo bar>\n<p>a</p>\n</section>\n\n",
+        "---   foo bar  \na\n": "<section foo bar>\n<p>a</p>\n</section>\n\n",
     }
 
     for assertion in assertions:
