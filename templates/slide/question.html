@@ -1,0 +1,24 @@
+{% set answer_label = ["A", "B", "C", "D"] -%}
+{% if picture_question or (answer_pictures[0] and layout in ["1", "9", None]) -%}
+{# OHM-13: Fix layout for 4x times picture in row to 2x2 field #}
+<div class="question r-fit-text layout-8">
+{% else -%}
+<div class="question r-fit-text layout-{{ layout }}">
+{% endif -%}
+<div class="question-text">{{ number }}: {{ question }}</div>
+  {% if picture_question -%}
+  <div class="question-picture"><img class="r-stretch" src="pictures/{{ picture_question }}.svg"></div>
+  {% endif -%}
+  <div class="answers">
+    {% if answers[0] -%}
+      {% for answer in answers|shuffle_answers -%}
+        <p{% if not answer.correct %} class="fragment semi-fade-out" data-fragment-index="1" {% endif -%}><b>{{ answer_label[loop.index - 1] }}:</b> {{ answer.content }}</p>
+      {% endfor -%}
+    {% endif -%}
+    {% if answer_pictures[0] -%}
+      {% for answer in answer_pictures|shuffle_answers -%}
+        <div class="question-picture{% if not answer.correct %} fragment semi-fade-out{% endif -%}" {% if not answer.correct -%} data-fragment-index="1" {% endif -%}><b>{{ answer_label[loop.index - 1] }}:</b><img class="r-stretch" src="pictures/{{ answer.content }}.svg"></div>
+      {% endfor -%}
+    {% endif -%}
+  </div>
+</div>
