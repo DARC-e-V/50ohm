@@ -9,7 +9,8 @@ from tqdm import tqdm
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 from renderer.fifty_ohm_html_slide_renderer import FiftyOhmHtmlSlideRenderer
-from src.config import Config
+
+from .config import Config
 
 
 class Build:
