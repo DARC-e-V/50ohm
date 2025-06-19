@@ -2,6 +2,7 @@ import json
 import random
 
 from jinja2 import Environment, FileSystemLoader
+from mistletoe import Document
 
 from renderer.fifty_ohm_html_slide_renderer import FiftyOhmHtmlSlideRenderer
 
@@ -24,6 +25,7 @@ def parse_katalog():
 
         return questions
 
+
 def filter_shuffle_answers(seq):
     try:
         answers = []
@@ -38,6 +40,7 @@ def filter_shuffle_answers(seq):
         return answers
     except Exception:
         return seq
+
 
 def question_stub(input):
     """Combines the original question dataset from BNetzA with our internal metadata"""
@@ -77,17 +80,19 @@ def question_stub(input):
             answer_pictures=answer_pictures,
         )
 
+
 env = Environment(loader=FileSystemLoader("templates/"))
 env.filters["shuffle_answers"] = filter_shuffle_answers
 question_template = env.get_template("slide/question.html")
 slide_template = env.get_template("slide/slide.html")
 questions = parse_katalog()
 
+
 def test_html_slides(capsys):
     with capsys.disabled():
         with open("test/acceptanceTestSlides.md") as file:
             content = file.read()
             with FiftyOhmHtmlSlideRenderer(question_renderer=question_stub) as renderer:
-                output = renderer.render_wrapper(content)
+                output = renderer.render(Document(content))
                 with open("test/acceptanceTestSlides.html", "w") as output_file:
                     output_file.write(output)

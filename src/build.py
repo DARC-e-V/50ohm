@@ -193,8 +193,10 @@ class Build:
                 result += help_template.render()
                 result += "</section>\n"
                 for section in sections:
+                    if not section["slide"].startswith("---"):
+                        section["slide"] = "---\n" + section["slide"]
                     tmp = f'<section data-background="#DAEEFA">\n<h1>{section["title"]}</h1>\n</section>\n'
-                    tmp += renderer.render_wrapper(section["slide"])
+                    tmp += renderer.render(Document(section["slide"]))
                     result += f"<section>{tmp}</section>\n"
                 result += next_template.render(
                     edition=edition,

@@ -1,5 +1,3 @@
-from mistletoe import Document
-
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 
 from .slide_break import SlideBreak
@@ -11,10 +9,6 @@ class FiftyOhmHtmlSlideRenderer(FiftyOhmHtmlRenderer):
             SlideBreak,
             **kwargs,
         )
-    
-    def render_wrapper(self, content):
-        content = "---\n" + content
-        return super().render(Document(content))
 
     def render_slide_break(self, token):
         inner = self.render_inner(token)
