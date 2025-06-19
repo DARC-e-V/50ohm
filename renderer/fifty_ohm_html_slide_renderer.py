@@ -6,20 +6,10 @@ from .slide_break import SlideBreak
 
 
 class FiftyOhmHtmlSlideRenderer(FiftyOhmHtmlRenderer):
-
-    def __init__(
-            self,
-            question_renderer=None,
-            picture_handler=None,
-            photo_handler=None,
-            include_handler=None
-        ):
+    def __init__(self, **kwargs):
         super().__init__(
             SlideBreak,
-            question_renderer=question_renderer,
-            picture_handler=picture_handler,
-            photo_handler=photo_handler,
-            include_handler=include_handler,
+            **kwargs,
         )
     
     def render_wrapper(self, content):
