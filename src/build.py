@@ -239,6 +239,8 @@ class Build:
             file.write(result)
 
     def build_edition(self, edition):
+        self.config.p_build.mkdir(exist_ok=True)
+
         edition = edition.upper()
 
         with (self.config.p_data / f"book_{edition}.json").open() as file:
