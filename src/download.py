@@ -102,6 +102,7 @@ class Download:
 
     def download_pictures(self):
         self.config.p_data_pictures.mkdir(parents=True, exist_ok=True)
+        (self.config.p_data_pictures / "img").mkdir(parents=True, exist_ok=True)
         # Symlink photos, so LaTeX can access these assets to render into graphics.
         foto_link = self.config.p_data_pictures / "foto"
         if not foto_link.is_symlink():
@@ -132,7 +133,7 @@ class Download:
                 os.system(f"latexmk -lualatex -f -interaction=nonstopmode {aux_file} > /dev/null 2>&1")
                 # Convert the PDF to SVG:
                 os.system(
-                    "pdftocairo -svg"
+                    "pdftocairo -svg "
                     f"{self.config.p_data_pictures / f'{pid}.pdf'} - > {self.config.p_data_pictures / f'{pid}.svg'}"
                 )
 
