@@ -13,7 +13,7 @@ pluggy==1.6.0
 pygments==2.19.1
 pytest==8.4.0
 pytest-cov==6.2.1
-requests==2.32.3
+requests==2.32.4
 soupsieve==2.7
 tqdm==4.67.1
 typing-extensions==4.14.0
