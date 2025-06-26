@@ -31,13 +31,15 @@ Dieses Projekt wurde mit [`uv`](https://docs.astral.sh/uv/) aufgesetzt, ist aber
 
 Wichtig ist, mit der richtigen Python-Version aus der `.python-version` zu arbeiten. Mit `uv` geht das ganz einfach:
 ```console
-[50ohm]$ uv venv
-[50ohm]$ source .venv/bin/activate
+$ uv venv
+Using CPython 3.12.7
+Creating virtual environment at .venv
+$ source .venv/bin/activate
 ```
 
 Die Dependencies müssen aus der `requirements.txt` installiert werden:
 ```console
-[50ohm]$ uv pip sync requirements.txt
+$ uv pip sync requirements.txt
 ```
 
 ### Ausführen
@@ -47,7 +49,7 @@ Um 50ohm ausführen zu können, wird in den meisten Fällen ein Zugang zu passen
 Die 50ohm.de-Website wird mit folgendem Befehl vollständig gebaut:
 
 ```console
-[50ohm]$ python3 ./build.py
+$ python3 ./build.py
 ```
 
 Anschließend ist der Einstiegspunkt in `build/index.html` zu finden.
