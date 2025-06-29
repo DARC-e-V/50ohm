@@ -331,6 +331,10 @@ ul.fiftyohm-navbar {
   --bs-link-color: #0068a5;
 }
 
+.text-primary {
+  color: #00adef !important;
+}
+
 .text-bg-primary {
   background-color: #00ADEF !important;
 }
