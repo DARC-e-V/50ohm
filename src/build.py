@@ -27,7 +27,6 @@ class Build:
         self.__build_question_slide = memory.cache(self.__build_question_slide)
         self.__build_chapter = memory.cache(self.__build_chapter)
         self.__build_section = memory.cache(self.__build_section)
-        self.__build_page = memory.cache(self.__build_page)
         self.__build_chapter_slidedeck = memory.cache(self.__build_chapter_slidedeck)
 
     def __parse_katalog(self):
@@ -259,6 +258,7 @@ class Build:
                     self.__build_section(edition, edition_name, section, i, chapter, next_section, next_chapter)
 
     def build_assets(self):
+        self.config.p_build.mkdir(exist_ok=True)
         shutil.copytree(self.config.p_assets, self.config.p_build_assets, dirs_exist_ok=True)
 
     def __parse_snippets(self):
@@ -307,6 +307,8 @@ class Build:
                     file.write(result)
 
     def build_website(self):
+        self.config.p_build.mkdir(exist_ok=True)
+
         snippets = self.__parse_snippets()
         contents = self.__parse_contents()
         self.__build_index(snippets)
