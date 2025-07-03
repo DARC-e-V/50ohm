@@ -4,13 +4,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  ruff:
+  pytest:
     runs-on: ubuntu-latest
     steps:
-      - name: Concurrency Group
-        env:
-          GROUP: ${{ github.workflow }}-${{ github.ref }}
-        run: echo "$GROUP"
       - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
