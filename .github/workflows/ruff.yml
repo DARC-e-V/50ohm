@@ -8,6 +8,6 @@ jobs:
       - uses: astral-sh/ruff-action@v3
         with:
           args: check --output-format=github
-      - uses: astral-sh/ruff-action
+      - uses: astral-sh/ruff-action@v3
         with:
           args: format --diff
