@@ -25,6 +25,7 @@ class Qso(BlockToken):
     def __init__(self, match):
         self.children = match
 
+
 class QsoLine(BlockToken):
     @classmethod
     def parse_line(cls, line):

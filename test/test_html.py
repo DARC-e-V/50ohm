@@ -69,10 +69,12 @@ def question_stub(input):
             answer_pictures=answer_pictures,
         )
 
+
 def include_stub(include):
     with open("data/includes.json") as file:
         includes = json.load(file)
         return includes.get(include)
+
 
 def test_html(capsys):
     with capsys.disabled():

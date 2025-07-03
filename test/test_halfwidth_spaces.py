@@ -17,6 +17,6 @@ def test_halfwidth_space_html():
 @pytest.mark.latex
 def test_halfwidth_space_latex():
     input = "Dies ist z.B. ein Test. D.h. hier sollten d.h. Spaces ersetzt worden sein."
-    target = "\nDies ist z.\,B. ein Test. D.\,h. hier sollten d.\,h. Spaces ersetzt worden sein.\n"
+    target = "\nDies ist z.\\,B. ein Test. D.\\,h. hier sollten d.\\,h. Spaces ersetzt worden sein.\n"
 
     assert mistletoe.markdown(input, FiftyOhmLaTeXRenderer) == target
