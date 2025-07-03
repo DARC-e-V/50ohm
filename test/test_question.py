@@ -25,6 +25,7 @@ def test_question_html():
             assert renderer.render(Document(assertion)) == assertions[assertion]
 
 
+@pytest.mark.skip("Requires special files")
 @pytest.mark.html
 def test_question_translation_html():
     assertions = {
