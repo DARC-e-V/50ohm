@@ -23,11 +23,11 @@ def test_qso_html():
     for assertion in assertions:
         assert mistletoe.markdown(assertion, FiftyOhmHtmlRenderer) == assertions[assertion]
 
+
 @pytest.mark.slide
 def test_qso_slide():
     assertions = {
-        "<qso>\nfoo\n> bar\n</qso>":
-            '<div class="qso r-fit-text">\n<div class="qso_own fragment fade-right">foo</div>\n<div class="qso_other fragment fade-left">bar</div>\n</div>\n\n',
+        "<qso>\nfoo\n> bar\n</qso>": '<div class="qso r-fit-text">\n<div class="qso_own fragment fade-right">foo</div>\n<div class="qso_other fragment fade-left">bar</div>\n</div>\n\n',  # noqa: E501
     }
 
     for assertion in assertions:

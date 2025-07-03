@@ -87,7 +87,7 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
         return rf"\{tagtype}{{{self.render_inner(token)}}}"
 
     def render_halfwidth_spaces(self, token):
-        return f"{token.first}.\,{token.second}."
+        return rf"{token.first}.\,{token.second}."
 
     def render_nonbreaking_spaces(self, token):
         return f"{token.first}~{token.second}"
@@ -124,7 +124,7 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
             align += alignment
 
         table = f"\\begin{{DARCtabular}}{{{align}}}\n"
-        
+
         for row in token.children:
             for j, cell in enumerate(row.children):
                 table += self.render_inner(cell)

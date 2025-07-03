@@ -172,7 +172,10 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return f"{lookup[token.first]}{token.second}{lookup[token.third]}"
 
     def render_references(self, token):
-        return f'<a href="{self.section_url}#ref_{token.first}" onclick="highlightRef(\'{token.first}\');">{self.ref_id}</a>'
+        return (
+            f'<a href="{self.section_url}#ref_{token.first}"'
+            f" onclick=\"highlightRef('{token.first}');\">{self.ref_id}</a>"
+        )
 
     def render_question(self, token):
         return self.question_renderer(token.question_number)

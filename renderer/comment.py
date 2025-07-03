@@ -1,7 +1,6 @@
 import re
 
 from mistletoe.block_token import BlockToken
-from mistletoe.span_token import SpanToken
 
 
 class BlockComment(BlockToken):

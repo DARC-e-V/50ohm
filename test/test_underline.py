@@ -23,7 +23,7 @@ def test_underline_latex():
     assertions = {
         "<u>Text</u>": "\n\\underline{Text}\n",
         "<u> Text Text </u>": "\n\\underline{ Text Text }\n",
-        "<u> Text *Text* </u>": "\n\\underline{ Text \emph{Text} }\n",
+        "<u> Text *Text* </u>": "\n\\underline{ Text \\emph{Text} }\n",
     }
 
     for assertion in assertions:

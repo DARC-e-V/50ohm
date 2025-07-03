@@ -18,7 +18,7 @@ def test_paragraph_html():
 def test_three_points_html():
     assertions = {
         "Heute hatte ich ... zum Mittagessen.": "Heute hatte ich&#160;...&#160;zum Mittagessen.",
-        "Niemals hätte ich gedacht, dass...ich ...nicht kann.": "Niemals hätte ich gedacht, dass...ich&#160;...nicht kann.",
+        "Niemals hätte ich gedacht, dass...ich ...nicht kann.": "Niemals hätte ich gedacht, dass...ich&#160;...nicht kann.",  # noqa: E501
         "Oh nein ...ein Pinguin.": "Oh nein&#160;...ein Pinguin.",
         "Haha .. . Hahaha": "Haha .. . Hahaha",
     }
@@ -55,7 +55,7 @@ def test_paragraph_latex():
 def test_three_points_latex():
     assertions = {
         "Heute hatte ich ... zum Mittagessen.": "\nHeute hatte ich~...~zum Mittagessen.\n",
-        "Niemals hätte ich gedacht, dass...ich ...nicht kann.": "\nNiemals hätte ich gedacht, dass...ich~...nicht kann.\n",
+        "Niemals hätte ich gedacht, dass...ich ...nicht kann.": "\nNiemals hätte ich gedacht, dass...ich~...nicht kann.\n",  # noqa: E501
         "Oh nein ...ein Pinguin.": "\nOh nein~...ein Pinguin.\n",
         "Haha .. . Hahaha": "\nHaha .. . Hahaha\n",
     }
