@@ -39,7 +39,7 @@ class DirectusAPI:
             print(f"Error: {e}")
             return None
         return data
-    
+
     def get_one(self, endpoint, params = None):
         if params is None:
             params = {}
@@ -50,7 +50,7 @@ class DirectusAPI:
             return None
         else:
             raise Exception("One result expected, but got more than one result")
-            
+
     def get_file(self, endpoint, params = None):
         if params is None:
             params = {}
