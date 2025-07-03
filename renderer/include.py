@@ -15,8 +15,8 @@ class Include(BlockToken):
 
     @classmethod
     def read(cls, lines):
-        re.compile(r'')
-        line = next(lines) # Consume the line with the include directive
+        re.compile(r"")
+        line = next(lines)  # Consume the line with the include directive
         ident = re.match(r"^\s*\[include:\s*([^\]]+)\]", line).group(1)
         return ident
 

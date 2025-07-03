@@ -8,7 +8,7 @@ class DirectusAPI:
         self.base_url = base_url
         self.access_token = access_token
 
-    def __get_raw(self, endpoint, params = None):
+    def __get_raw(self, endpoint, params=None):
         if params is None:
             params = {}
         for k in params.keys():
@@ -16,16 +16,11 @@ class DirectusAPI:
                 params[k] = json.dumps(params[k])
         url = self.base_url + endpoint
         result = requests.get(
-          url,
-          params = params,
-          headers = {
-            "Authorization": f"Bearer {self.access_token}",
-            "Cache-Control": "no-store"
-          }
+            url, params=params, headers={"Authorization": f"Bearer {self.access_token}", "Cache-Control": "no-store"}
         )
         return result
 
-    def get(self, endpoint, params = None):
+    def get(self, endpoint, params=None):
         if params is None:
             params = {}
         result = self.__get_raw(endpoint, params)
@@ -40,7 +35,7 @@ class DirectusAPI:
             return None
         return data
 
-    def get_one(self, endpoint, params = None):
+    def get_one(self, endpoint, params=None):
         if params is None:
             params = {}
         results = self.get(endpoint, params)
@@ -51,7 +46,7 @@ class DirectusAPI:
         else:
             raise Exception("One result expected, but got more than one result")
 
-    def get_file(self, endpoint, params = None):
+    def get_file(self, endpoint, params=None):
         if params is None:
             params = {}
         result = self.__get_raw(endpoint, params)
