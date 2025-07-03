@@ -24,6 +24,7 @@ def test_question_html():
         for assertion in assertions:
             assert renderer.render(Document(assertion)) == assertions[assertion]
 
+
 @pytest.mark.html
 def test_question_translation_html():
     assertions = {
@@ -34,7 +35,7 @@ def test_question_translation_html():
     }
 
     def test_function(input):
-        with open('data/metadata.json') as file:
+        with open("data/metadata.json") as file:
             metadata = json.load(file)
         return metadata[f"{input}"].get("number")
 
@@ -46,14 +47,14 @@ def test_question_translation_html():
 @pytest.mark.latex
 def test_question_latex():
     assertions = {
-        "[question:123]": "\question{123}",
-        "\n[question:123]\n": "\question{123}",
-        "\n[question:123]\n[question:123]": "\question{123}\question{123}",
-        "Foo\n[question:123]\nBar": "\nFoo\n\question{123}\nBar\n",
+        "[question:123]": r"\question{123}",
+        "\n[question:123]\n": r"\question{123}",
+        "\n[question:123]\n[question:123]": r"\question{123}\question{123}",
+        "Foo\n[question:123]\nBar": "\nFoo\n\\question{123}\nBar\n",
     }
 
     def test_function(input):
-        return "\\question{"+input+"}"
+        return "\\question{" + input + "}"
 
     with FiftyOhmLaTeXRenderer(test_function) as renderer:
         for assertion in assertions:

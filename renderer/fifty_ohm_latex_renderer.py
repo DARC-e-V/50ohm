@@ -27,7 +27,7 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
             Question,
             Picture,
             Photo,
-            Table
+            Table,
         )
         self.question_renderer = question_renderer
 
@@ -87,7 +87,7 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
         return rf"\{tagtype}{{{self.render_inner(token)}}}"
 
     def render_halfwidth_spaces(self, token):
-        return f"{token.first}.\,{token.second}."
+        return rf"{token.first}.\,{token.second}."
 
     def render_nonbreaking_spaces(self, token):
         return f"{token.first}~{token.second}"
@@ -105,7 +105,7 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
 \captionof{{figure}}{{{text}}}
 \label{{{ref}}}"""
 
-    def render_picture(self, token) :
+    def render_picture(self, token):
         return self.render_picture_helper(token.id, token.ref, token.text, token.number)
 
     @staticmethod
@@ -114,26 +114,26 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
 \captionof{{figure}}{{{text}}}
 \label{{{ref}}}"""
 
-    def render_photo(self, token) :
+    def render_photo(self, token):
         return self.render_photo_helper(token.id, token.ref, token.text, token.number)
 
     def render_table(self, token):
         alignments = token.alignment
         align = ""
-        for alignment in alignments :
+        for alignment in alignments:
             align += alignment
 
         table = f"\\begin{{DARCtabular}}{{{align}}}\n"
-        
+
         for row in token.children:
             for j, cell in enumerate(row.children):
                 table += self.render_inner(cell)
                 if j < len(row.children) - 1:
                     table += " & "
-            table += r"\\"+ "\n"
+            table += r"\\" + "\n"
 
         table += "\\end{DARCtabular}"
-        if token.caption != "" :
+        if token.caption != "":
             table += f"\\captionof{{figure}}{{{token.caption}}}\n"
             table += f"\\label{{{token.name}}}\n"
 

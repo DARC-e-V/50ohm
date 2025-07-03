@@ -24,11 +24,11 @@ def test_quote_html():
 @pytest.mark.latex
 def test_quote_latex():
     assertions = {
-        '"quote"': "\n\enquote{quote}\n",
-        '" quote "': "\n\enquote{ quote }\n",
-        '"quote" "': '\n\enquote{quote} "\n',
-        '"quo te1" filltext "qu ot e2"': "\n\enquote{quo te1} filltext \enquote{qu ot e2}\n",
-        '"quo *te1*" filltext "qu ot e2"': "\n\enquote{quo \emph{te1}} filltext \enquote{qu ot e2}\n",
+        '"quote"': "\n\\enquote{quote}\n",
+        '" quote "': "\n\\enquote{ quote }\n",
+        '"quote" "': '\n\\enquote{quote} "\n',
+        '"quo te1" filltext "qu ot e2"': "\n\\enquote{quo te1} filltext \\enquote{qu ot e2}\n",
+        '"quo *te1*" filltext "qu ot e2"': "\n\\enquote{quo \\emph{te1}} filltext \\enquote{qu ot e2}\n",
         '""': '\n""\n',
     }
 
