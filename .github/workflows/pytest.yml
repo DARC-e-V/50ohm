@@ -21,9 +21,12 @@ jobs:
       - name: Install failure annotation plugin
         run: pip install pytest-github-actions-annotate-failures
       - name: Test with pytest
-        run: pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov-report=html --cov | tee pytest-coverage.txt
+        run: |
+          set -o pipefail
+          pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov-report=html --cov | tee pytest-coverage.txt
       - name: Comment pytest code coverage
         uses: MishaKav/pytest-coverage-comment@main
+        if: ${{ always() }}
         with:
           pytest-coverage-path: ./pytest-coverage.txt
           junitxml-path: ./pytest.xml
