@@ -90,7 +90,7 @@ questions = parse_katalog()
 
 
 @pytest.mark.skip("Requires special files")
-@pytest.mark.slides
+@pytest.mark.slide
 def test_html_slides(capsys):
     with capsys.disabled():
         with open("test/acceptanceTestSlides.md") as file:
