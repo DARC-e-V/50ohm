@@ -1,6 +1,7 @@
 import json
 import random
 
+import pytest
 from jinja2 import Environment, FileSystemLoader
 from mistletoe import Document
 
@@ -88,6 +89,8 @@ slide_template = env.get_template("slide/slide.html")
 questions = parse_katalog()
 
 
+@pytest.mark.skip("Requires special files")
+@pytest.mark.slide
 def test_html_slides(capsys):
     with capsys.disabled():
         with open("test/acceptanceTestSlides.md") as file:

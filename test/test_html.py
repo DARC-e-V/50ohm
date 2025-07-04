@@ -1,5 +1,6 @@
 import json
 
+import pytest
 from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
 from mistletoe import Document
@@ -76,6 +77,8 @@ def include_stub(include):
         return includes.get(include)
 
 
+@pytest.mark.skip("Requires special files")
+@pytest.mark.html
 def test_html(capsys):
     with capsys.disabled():
         with open("test/acceptanceTest.md") as file:

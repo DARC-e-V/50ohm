@@ -1,0 +1,32 @@
+name: Pytest
+on: pull_request
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          cache: "pip"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Install failure annotation plugin
+        run: pip install pytest-github-actions-annotate-failures
+      - name: Test with pytest
+        run: |
+          set -o pipefail
+          pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov-report=html --cov | tee pytest-coverage.txt
+      - name: Comment pytest code coverage
+        uses: MishaKav/pytest-coverage-comment@main
+        if: ${{ always() }}
+        with:
+          pytest-coverage-path: ./pytest-coverage.txt
+          junitxml-path: ./pytest.xml
