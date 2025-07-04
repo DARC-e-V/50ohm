@@ -4,7 +4,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  pytest:
+  Test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,5 +14,12 @@ jobs:
           cache: "pip"
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: Install failure annotation plugin
+        run: pip install pytest-github-actions-annotate-failures
       - name: Test with pytest
-        run: pytest ./test --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+        run: pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov-report=html --cov | tee pytest-coverage.txt
+      - name: Comment pytest code coverage
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-coverage-path: ./pytest-coverage.txt
+          junitxml-path: ./pytest.xml
