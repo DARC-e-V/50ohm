@@ -11,7 +11,7 @@ def test_table_html():
         "| l: a |": '<table>\n<tr>\n<th style="text-align: left;">a</th>\n</tr>\n</table>\n',
         "| r: a |": '<table>\n<tr>\n<th style="text-align: right;">a</th>\n</tr>\n</table>\n',
         "| c: a |": '<table>\n<tr>\n<th style="text-align: center;">a</th>\n</tr>\n</table>\n',
-        "| l: a |\n| b |": '<table>\n<tr>\n<th style="text-align: left;">a</th>\n</tr>\n<tr>\n<td style="text-align: left;">b</td>\n</tr>\n</table>\n',
+        "| l: a |\n| b |": '<table>\n<tr>\n<th style="text-align: left;">a</th>\n</tr>\n<tr>\n<td style="text-align: left;">b</td>\n</tr>\n</table>\n',  # noqa: E501
         "| l: a |\n| b |\n| c |": '<table>\n<tr>\n<th style="text-align: left;">a</th>\n</tr>\n<tr>\n<td style="text-align: left;">b</td>\n</tr>\n<tr>\n<td style="text-align: left;">c</td>\n</tr>\n</table>\n',  # noqa: E501
         "| a |\n| b |\n| c |": "<table>\n<tr>\n<th>a</th>\n</tr>\n<tr>\n<td>b</td>\n</tr>\n<tr>\n<td>c</td>\n</tr>\n</table>\n",  # noqa: E501
         "| l: a |\n| *b* |": '<table>\n<tr>\n<th style="text-align: left;">a</th>\n</tr>\n<tr>\n<td style="text-align: left;"><em>b</em></td>\n</tr>\n</table>\n',  # noqa: E501

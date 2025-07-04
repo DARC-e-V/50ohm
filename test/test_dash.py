@@ -9,7 +9,7 @@ from test.util import paragraph
 @pytest.mark.html
 def test_dash_html():
     assertions = {
-        "Foo - Bar": "Foo &ndash; Ba",
+        "Foo - Bar": "Foo &ndash; Bar",
     }
 
     for assertion in assertions:

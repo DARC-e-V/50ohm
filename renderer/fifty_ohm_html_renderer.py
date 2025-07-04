@@ -155,7 +155,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
     def render_qso(self, token):
         self.margin_id += 1
-        qso = ''
+        qso = ""
         for child in token.children:
             direction = "other" if child.received else "own"
             qso += f'<div class="qso_{direction}">{self.render_inner(child)}</div>\n'
