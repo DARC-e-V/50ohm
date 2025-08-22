@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function() {
     "\\mega": "M",
     "\\kilo": "k",
     "\\milli": "m",
+    "\\centi": "c",
     "\\micro": "\\text{μ}",
     "\\nano": "n",
     "\\kilogram": "\\text{kg}",
