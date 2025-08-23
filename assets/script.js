@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function() {
   var macros = {
     ",": (context) => context.future()?.text === " " ? "{\\char`,}" : "\\char`,",
     "\\qty": "{#1\\,\\mathrm{#2}}",
+    "\\qtyrange": "{#1-#2\\,\\mathrm{#3}}",
     "\\squared": "{^{2}}",
     "\\cubed": "{^{3}}",
     "\\per": "/",
@@ -9,8 +10,9 @@ document.addEventListener("DOMContentLoaded", function() {
     "\\giga": "G",
     "\\mega": "M",
     "\\kilo": "k",
-    "\\milli": "m",
+    "\\dezi": "d",
     "\\centi": "c",
+    "\\milli": "m",
     "\\micro": "\\text{μ}",
     "\\nano": "n",
     "\\kilogram": "\\text{kg}",
