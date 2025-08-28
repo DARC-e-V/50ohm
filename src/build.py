@@ -55,7 +55,6 @@ class Build:
 
         with (self.config.p_data / "metadata.json").open() as file:
             metadata = json.load(file)
-            number = metadata[f"{input}"]["number"]  # Fragennummer z.B. AB123
 
             if f"{input}" in metadata:
                 metadata = metadata[f"{input}"]
@@ -200,6 +199,9 @@ class Build:
                 result += help_template.render()
                 result += "</section>\n"
                 for section in sections:
+                    if section["slide"] is None:
+                        continue
+
                     if not section["slide"].startswith("---"):
                         section["slide"] = "---\n" + section["slide"]
                     tmp = f'<section data-background="#DAEEFA">\n<h1>{section["title"]}</h1>\n</section>\n'
