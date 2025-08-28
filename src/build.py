@@ -57,8 +57,15 @@ class Build:
             metadata = json.load(file)
             number = metadata[f"{input}"]["number"]  # Fragennummer z.B. AB123
 
-            question = self.questions[number]
-            metadata = metadata[f"{input}"]
+            if f"{input}" in metadata:
+                metadata = metadata[f"{input}"]
+                number = metadata["number"]  # Fragennummer z.B. AB123
+                question = self.questions[number]
+            else:
+                tqdm.write(f"\033[31mQuestion {input} is missing\033[0m")
+                metadata = {"layout": "not-found", "picture_a": ""}
+                number = 404
+                question = {"question": f"Frage {input} nicht gefunden"}
 
             if "answer_a" in question:
                 answers = [question["answer_a"], question["answer_b"], question["answer_c"], question["answer_d"]]
