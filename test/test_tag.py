@@ -4,6 +4,7 @@ import pytest
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 from renderer.fifty_ohm_html_slide_renderer import FiftyOhmHtmlSlideRenderer
 from renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
+from test.util import paragraph
 
 
 @pytest.mark.html
@@ -34,6 +35,7 @@ def test_tag_html():
         + "\n",
         "<webonly>\nFoo\n</webonly>": "<p>Foo</p>\n",
         "<latexonly>\nFoo\n</latexonly>": "",
+        "<margin>Foo</margin>": paragraph("<margin>Foo</margin>"),
     }
 
     for assertion in assertions:
