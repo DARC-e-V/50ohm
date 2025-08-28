@@ -1,7 +1,6 @@
 import json
 
 import pytest
-from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
 from mistletoe import Document
 
@@ -89,5 +88,4 @@ def test_html(capsys):
             ) as renderer:
                 output = renderer.render(Document(content))
                 with open("test/acceptanceTest.html", "w") as output_file:
-                    pretty = BeautifulSoup(output, "html.parser").prettify()
-                    output_file.write(pretty)
+                    output_file.write(output)
