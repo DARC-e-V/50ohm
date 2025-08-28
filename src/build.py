@@ -261,6 +261,7 @@ class Build:
                 self.__build_chapter_slidedeck(edition, chapter, chapter["sections"], next_chapter)
 
                 for i, section in enumerate(chapter["sections"], 1):
+                    tqdm.write(f"Rendering section {section['title']}")
                     next_section = chapter["sections"][i] if i < len(chapter["sections"]) else None
                     self.__build_section(edition, edition_name, section, i, chapter, next_section, next_chapter)
 
