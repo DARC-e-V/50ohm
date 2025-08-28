@@ -87,7 +87,7 @@ class Build:
             else:
                 answer_pictures = []
 
-            if "picture_question" in question:
+            if "picture_question" in question and metadata["picture_question"] != "":
                 picture_question = metadata["picture_question"]
                 self.__picture_handler(picture_question)
             else:
