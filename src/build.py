@@ -120,12 +120,18 @@ class Build:
     def __picture_handler(self, id):
         self.config.p_build_pictures.mkdir(parents=True, exist_ok=True)
         file = f"{id}.svg"
-        shutil.copyfile(self.config.p_data_pictures / file, self.config.p_build_pictures / file)
+        try:
+            shutil.copyfile(self.config.p_data_pictures / file, self.config.p_build_pictures / file)
+        except FileNotFoundError:
+            tqdm.write(f"\033[31mPicture #{id} not found\033[0m")
 
     def __photo_handler(self, id):
         self.config.p_build_photos.mkdir(parents=True, exist_ok=True)
         file = f"{id}.jpg"
-        shutil.copyfile(self.config.p_data_photos / file, self.config.p_build_photos / file)
+        try:
+            shutil.copyfile(self.config.p_data_photos / file, self.config.p_build_photos / file)
+        except FileNotFoundError:
+            tqdm.write(f"\033[31mPhoto #{id} not found\033[0m")
 
     # cached
     def __build_chapter(self, edition, edition_name, number, chapter, next_chapter=None):
