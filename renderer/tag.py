@@ -30,7 +30,7 @@ captures = [
 class Tag(BlockToken):
     @staticmethod
     def start(line):
-        return re.match(r"^\s*<(" + "|".join(captures) + r")+>", line)
+        return re.match(r"^\s*<(" + "|".join(captures) + r")+>$", line)
 
     @classmethod
     def read(cls, lines):

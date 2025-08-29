@@ -55,10 +55,24 @@ class Build:
 
         with (self.config.p_data / "metadata.json").open() as file:
             metadata = json.load(file)
-            number = metadata[f"{input}"]["number"]  # Fragennummer z.B. AB123
 
-            question = self.questions[number]
-            metadata = metadata[f"{input}"]
+            question = None
+            number = None
+            if f"{input}" in metadata:
+                metadata = metadata[f"{input}"]
+                number = metadata["number"]  # Fragennummer z.B. AB123
+                if number in self.questions:
+                    question = self.questions[number]
+
+            if question is None:
+                tqdm.write(
+                    f"\033[31mQuestion #{input} is missing"
+                    + (f" (but found number: {number})" if number is not None else "")
+                    + "\033[0m"
+                )
+                metadata = {"layout": "not-found", "picture_a": ""}
+                number = 404
+                question = {"question": f"Frage {input} nicht gefunden"}
 
             if "answer_a" in question:
                 answers = [question["answer_a"], question["answer_b"], question["answer_c"], question["answer_d"]]
@@ -80,7 +94,7 @@ class Build:
             else:
                 answer_pictures = []
 
-            if "picture_question" in question:
+            if "picture_question" in question and metadata["picture_question"] != "":
                 picture_question = metadata["picture_question"]
                 self.__picture_handler(picture_question)
             else:
@@ -106,12 +120,18 @@ class Build:
     def __picture_handler(self, id):
         self.config.p_build_pictures.mkdir(parents=True, exist_ok=True)
         file = f"{id}.svg"
-        shutil.copyfile(self.config.p_data_pictures / file, self.config.p_build_pictures / file)
+        try:
+            shutil.copyfile(self.config.p_data_pictures / file, self.config.p_build_pictures / file)
+        except FileNotFoundError:
+            tqdm.write(f"\033[31mPicture #{id} not found\033[0m")
 
     def __photo_handler(self, id):
         self.config.p_build_photos.mkdir(parents=True, exist_ok=True)
         file = f"{id}.jpg"
-        shutil.copyfile(self.config.p_data_photos / file, self.config.p_build_photos / file)
+        try:
+            shutil.copyfile(self.config.p_data_photos / file, self.config.p_build_photos / file)
+        except FileNotFoundError:
+            tqdm.write(f"\033[31mPhoto #{id} not found\033[0m")
 
     # cached
     def __build_chapter(self, edition, edition_name, number, chapter, next_chapter=None):
@@ -193,6 +213,9 @@ class Build:
                 result += help_template.render()
                 result += "</section>\n"
                 for section in sections:
+                    if section["slide"] is None:
+                        continue
+
                     if not section["slide"].startswith("---"):
                         section["slide"] = "---\n" + section["slide"]
                     tmp = f'<section data-background="#DAEEFA">\n<h1>{section["title"]}</h1>\n</section>\n'
@@ -254,6 +277,7 @@ class Build:
                 self.__build_chapter_slidedeck(edition, chapter, chapter["sections"], next_chapter)
 
                 for i, section in enumerate(chapter["sections"], 1):
+                    tqdm.write(f"Rendering section {section['title']}")
                     next_section = chapter["sections"][i] if i < len(chapter["sections"]) else None
                     self.__build_section(edition, edition_name, section, i, chapter, next_section, next_chapter)
 
