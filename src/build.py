@@ -56,12 +56,20 @@ class Build:
         with (self.config.p_data / "metadata.json").open() as file:
             metadata = json.load(file)
 
+            question = None
+            number = None
             if f"{input}" in metadata:
                 metadata = metadata[f"{input}"]
                 number = metadata["number"]  # Fragennummer z.B. AB123
-                question = self.questions[number]
-            else:
-                tqdm.write(f"\033[31mQuestion {input} is missing\033[0m")
+                if number in self.questions:
+                    question = self.questions[number]
+
+            if question is None:
+                tqdm.write(
+                    f"\033[31mQuestion #{input} is missing"
+                    + (f" (but found number: {number})" if number is not None else "")
+                    + "\033[0m"
+                )
                 metadata = {"layout": "not-found", "picture_a": ""}
                 number = 404
                 question = {"question": f"Frage {input} nicht gefunden"}
