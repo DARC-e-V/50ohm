@@ -182,9 +182,12 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
     def render_document(self, token: Document) -> str:
         self.footnotes.update(token.footnotes)
-        # Filter out None values, so block tokens can return None to not be rendered.
-        inner = "\n".join(filter(lambda x: x is not None, [self.render(child) for child in token.children]))
+        inner = self.render_inner(token, "\n")
         return f"{inner}\n" if inner else ""
+
+    def render_inner(self, token, base="") -> str:
+        # Filter out None values, so block tokens can return None to not be rendered.
+        return base.join(filter(lambda x: x is not None, [self.render(child) for child in token.children]))
 
     @staticmethod
     def render_picture_helper(id, ref, text, number):
