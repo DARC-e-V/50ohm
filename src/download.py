@@ -106,6 +106,11 @@ class Download:
             with (self.config.p_data_pictures / f"{picture['id']}include.tex").open("w") as file:
                 file.write(picture["latex"])
 
+            # Save Alt-Text to file
+            if picture["alt_text_reviewed"] is not None:
+                with (self.config.p_data_pictures / f"{picture['id']}.txt").open("w") as file:
+                    file.write(picture["alt_text"])
+
             # Download SVG
             data = self.api.get_file(f"assets/{picture['picture']}")
             with (self.config.p_data_pictures / f"{picture['id']}.svg").open("wb") as file:
