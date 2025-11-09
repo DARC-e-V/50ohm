@@ -9,7 +9,9 @@ from test.util import paragraph
 @pytest.mark.html
 def test_picture_html():
     assertions = {
-        "[picture:123:abc:Text]": FiftyOhmHtmlRenderer.render_picture_helper("123", "abc", "Text", "TODO"),
+        "[picture:0:abc:Text]": FiftyOhmHtmlRenderer.render_picture_helper(
+            "0", "abc", "Text", "TODO", "Alt-Text noch nicht verfügbar"
+        ),
     }
 
     for assertion in assertions:
@@ -19,7 +21,7 @@ def test_picture_html():
 @pytest.mark.latex
 def test_picture_latex():
     assertions = {
-        "[picture:123:abc:Text]": FiftyOhmLaTeXRenderer.render_picture_helper("123", "abc", "Text", "TODO"),
+        "[picture:0:abc:Text]": FiftyOhmLaTeXRenderer.render_picture_helper("0", "abc", "Text", "TODO"),
     }
 
     for assertion in assertions:
