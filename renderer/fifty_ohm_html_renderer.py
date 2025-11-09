@@ -245,8 +245,11 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return f"<{type}{style}>{self.render_inner(token)}</{type}>\n"
 
     def render_table_body(self, token: TableBody):
-        type = "thead" if token.header else "tbody"
-        return f"<{type}>\n{self.render_inner(token)}</{type}>\n"
+        if token.children is None or len(token.children) == 0:
+            return None
+        else:
+            type = "thead" if token.header else "tbody"
+            return f"<{type}>\n{self.render_inner(token)}</{type}>\n"
 
     def render_include(self, token):
         return self.include_handler(token.ident)
