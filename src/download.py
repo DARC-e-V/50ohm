@@ -1,9 +1,5 @@
 import json
-import multiprocessing
-import os
-import shutil
 
-from joblib import Memory, Parallel, delayed
 from tqdm import tqdm
 
 from api.directus import DirectusAPI
@@ -102,45 +98,18 @@ class Download:
 
     def download_pictures(self):
         self.config.p_data_pictures.mkdir(parents=True, exist_ok=True)
-        # Symlink photos, so LaTeX can access these assets to render into graphics.
-        foto_link = self.config.p_data_pictures / "foto"
-        if not foto_link.is_symlink():
-            foto_link.symlink_to(self.config.p_data_photos)
 
-        memory = Memory("./cache", verbose=0)
+        pictures = self.api.get("items/pictures", {"limit": -1})
 
-        @memory.cache
-        def build_picture(picture):
-            pid = picture["id"]
+        for picture in tqdm(pictures, desc="Downloading pictures"):
+            # Save LaTeX sources to file
+            with (self.config.p_data_pictures / f"{picture['id']}include.tex").open("w") as file:
+                file.write(picture["latex"])
 
-            if (
-                "\\begin{document}" in picture["latex"] or "\\begin{table}" in picture["latex"]
-            ):  # Workaround, if the picture contains a document class it should be ignored!
-                return
-
-            if self.config.no_latex:
-                shutil.copyfile("./assets/images/50ohm_gray.svg", self.config.p_data_pictures / f"{pid}.svg")
-            else:
-                with (self.config.p_data_pictures / f"img/{pid}include.tex").open("w") as file:
-                    file.write(picture["latex"])
-
-                aux_file = self.config.p_data_photos / f"{pid}.tex"
-                with aux_file.open("w", encoding="utf-8") as file:
-                    # Write the auxilary LaTeX file:
-                    file.write(f"\\documentclass{{BNetzA-Fragenkatalog}}\\DARCimageOnly{{9cm}}{{{pid}include}}")
-                # Build the picture:
-                os.system(f"latexmk -lualatex -f -interaction=nonstopmode {aux_file} > /dev/null 2>&1")
-                # Convert the PDF to SVG:
-                os.system(
-                    "pdftocairo -svg"
-                    f"{self.config.p_data_pictures / f'{pid}.pdf'} - > {self.config.p_data_pictures / f'{pid}.svg'}"
-                )
-
-        pictures = self.api.get("items/pictures", params={"limit": -1})
-
-        Parallel(n_jobs=multiprocessing.cpu_count())(
-            delayed(build_picture)(picture) for picture in tqdm(pictures, desc="Build All Pictures")
-        )
+            # Download SVG
+            data = self.api.get_file(f"assets/{picture['picture']}")
+            with (self.config.p_data_pictures / f"{picture['id']}.svg").open("wb") as file:
+                file.write(data)
 
     def download_includes(self):
         includes = self.api.get("items/include", params={"limit": -1})
