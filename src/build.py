@@ -80,10 +80,10 @@ class Build:
                 answers = []
 
             if metadata["picture_a"] != "":
-                self.__picture_handler(metadata["picture_a"])
-                self.__picture_handler(metadata["picture_b"])
-                self.__picture_handler(metadata["picture_c"])
-                self.__picture_handler(metadata["picture_d"])
+                alt_text_a = self.__picture_handler(metadata["picture_a"])
+                alt_text_b = self.__picture_handler(metadata["picture_b"])
+                alt_text_c = self.__picture_handler(metadata["picture_c"])
+                alt_text_d = self.__picture_handler(metadata["picture_d"])
 
                 answer_pictures = [
                     metadata["picture_a"],
@@ -91,14 +91,24 @@ class Build:
                     metadata["picture_c"],
                     metadata["picture_d"],
                 ]
+
+                alt_text_answers = [
+                    alt_text_a,
+                    alt_text_b,
+                    alt_text_c,
+                    alt_text_d,
+                ]
+
             else:
                 answer_pictures = []
+                alt_text_answers = []
 
             if "picture_question" in question and metadata["picture_question"] != "":
                 picture_question = metadata["picture_question"]
-                self.__picture_handler(picture_question)
+                alt_text_question = self.__picture_handler(picture_question)
             else:
                 picture_question = ""
+                alt_text_question = ""
 
             return question_template.render(
                 question=question["question"],
@@ -107,6 +117,8 @@ class Build:
                 picture_question=picture_question,
                 answers=answers,
                 answer_pictures=answer_pictures,
+                alt_text_answers=alt_text_answers,
+                alt_text_question=alt_text_question,
             )
 
     def __build_question_slide(self, input):
@@ -122,6 +134,8 @@ class Build:
         file = f"{id}.svg"
         try:
             shutil.copyfile(self.config.p_data_pictures / file, self.config.p_build_pictures / file)
+            if (self.config.p_data_pictures / f"{id}.txt").exists():
+                return (self.config.p_data_pictures / f"{id}.txt").read_text()
         except FileNotFoundError:
             tqdm.write(f"\033[31mPicture #{id} not found\033[0m")
 
