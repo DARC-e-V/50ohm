@@ -2,11 +2,6 @@
   margin-bottom: 2ex;
 }
 
-.table_inner {
-  padding: 1ex;
-  background: #ddd;
-}
-
 .table tr {
   border-bottom: 1px solid #aaa;
 }
