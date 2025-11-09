@@ -199,11 +199,9 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             """
 
     def render_picture(self, token):
+        alt_text = "Alt-Text noch nicht verfügbar"
         if self.picture_handler is not None:
-            alt_text = self.picture_handler(token.id)
-
-            if alt_text is None:
-                alt_text = "Alt-Text noch nicht verfügbar"
+            alt_text = self.picture_handler(token.id) or alt_text
 
         return self.render_picture_helper(token.id, token.ref, token.text, token.number, alt_text)
 
