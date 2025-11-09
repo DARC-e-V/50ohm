@@ -144,6 +144,8 @@ class Build:
         file = f"{id}.jpg"
         try:
             shutil.copyfile(self.config.p_data_photos / file, self.config.p_build_photos / file)
+            if (self.config.p_data_photos / f"{id}.txt").exists():
+                return (self.config.p_data_photos / f"{id}.txt").read_text()
         except FileNotFoundError:
             tqdm.write(f"\033[31mPhoto #{id} not found\033[0m")
 

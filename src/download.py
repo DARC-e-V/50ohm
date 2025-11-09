@@ -92,9 +92,18 @@ class Download:
         photos = self.api.get("items/Fotos", params={"limit": -1})
 
         for photo in tqdm(photos, desc="Downloading photos"):
+            # Save Photo to file
             data = self.api.get_file("assets/" + photo["photo"])
             with (self.config.p_data_photos / f"{photo['id']}.jpg").open("wb") as file:
                 file.write(data)
+
+            # Save Alt-Text to file
+            prefix = ""
+            if photo["alt_text"] is not None:
+                if photo["alt_text_reviewed"] is None:
+                    prefix = "Der folgende Alt-Text wurde noch nicht geprüft: "
+                with (self.config.p_data_photos / f"{photo['id']}.txt").open("w") as file:
+                    file.write(prefix + photo["alt_text"])
 
     def download_pictures(self):
         self.config.p_data_pictures.mkdir(parents=True, exist_ok=True)
