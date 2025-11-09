@@ -93,23 +93,22 @@ class Download:
 
         for photo in tqdm(photos, desc="Downloading photos"):
             data = self.api.get_file("assets/" + photo["photo"])
-            with (self.config.p_data_photos / f"{photo["id"]}.jpg").open("wb") as file:
+            with (self.config.p_data_photos / f"{photo['id']}.jpg").open("wb") as file:
                 file.write(data)
 
     def download_pictures(self):
         self.config.p_data_pictures.mkdir(parents=True, exist_ok=True)
 
-        pictures = self.api.get("items/pictures", { "limit": -1 })
+        pictures = self.api.get("items/pictures", {"limit": -1})
 
-        for picture in tqdm(pictures, desc="Downloading pictures") :
-
+        for picture in tqdm(pictures, desc="Downloading pictures"):
             # Download LaTeX Sources:
-            with (self.config.p_data_pictures / f"{picture["id"]}include.tex").open("w") as file:
+            with (self.config.p_data_pictures / f"{picture['id']}include.tex").open("w") as file:
                 file.write(picture["latex"])
 
             # Download SVGs:
-            data = self.api.get_file(f"assets/{picture["picture"]}")
-            with (self.config.p_data_pictures / f"{picture["id"]}.svg").open("wb") as file:
+            data = self.api.get_file(f"assets/{picture['picture']}")
+            with (self.config.p_data_pictures / f"{picture['id']}.svg").open("wb") as file:
                 file.write(data)
 
     def download_includes(self):
