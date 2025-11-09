@@ -206,18 +206,19 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return self.render_picture_helper(token.id, token.ref, token.text, token.number, alt_text)
 
     @staticmethod
-    def render_photo_helper(id, ref, text, number):
+    def render_photo_helper(id, ref, text, number, alt_text):
         return f"""
                 <figure class="photo" id="ref_{ref}" name="{ref}">
-                    <img src="photos/{id}.jpg">
+                    <img src="photos/{id}.jpg" alt="{alt_text}">
                     <figcaption>Abbildung {number}: {text}</figcaption>
                 </figure>
             """
 
     def render_photo(self, token):
+        alt_text = "Alt-Text noch nicht verfügbar"
         if self.photo_handler is not None:
-            self.photo_handler(token.id)
-        return self.render_photo_helper(token.id, token.ref, token.text, token.number)
+            alt_text = self.photo_handler(token.id) or alt_text
+        return self.render_photo_helper(token.id, token.ref, token.text, token.number, alt_text)
 
     @staticmethod
     def render_cell_helper(cell, alignment, type):
