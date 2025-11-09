@@ -13,7 +13,7 @@ from .qso import Qso
 from .question import Question
 from .quote import Quote
 from .references import References
-from .table import Table
+from .table import Table, TableBody, TableCell, TableHeader, TableRow
 from .tag import Tag
 from .underline import Underline
 from .unit import Unit
@@ -46,6 +46,10 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             Picture,
             Photo,
             Table,
+            TableHeader,
+            TableRow,
+            TableCell,
+            TableBody,
             Qso,
             Include,
             *extras,
@@ -104,7 +108,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         for char in morse_code:
             result += '<span class="morse_char">\n'
             for symbol in char:
-                result += '<span class="morse_char">\n'
+                result += '<span class="morse_symbol">\n'
                 if symbol == 1:
                     result += "▄"
                 elif symbol == 2:
@@ -217,28 +221,32 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             self.photo_handler(token.id)
         return self.render_photo_helper(token.id, token.ref, token.text, token.number)
 
-    @staticmethod
-    def render_cell_helper(cell, alignment, type):
-        style = ""
-        if alignment in table_alignment:
-            style = f' style="text-align: {table_alignment[alignment]};"'
-        return f"<{type}{style}>{cell}</{type}>\n"
-
-    def render_table(self, token):
-        alignment = token.alignment
-        table = "<table>\n"
-
-        for i, row in enumerate(token.children):
-            content = ""
-            for j, cell in enumerate(row.children):
-                content += self.render_cell_helper(self.render_inner(cell), alignment[j], ("th" if i == 0 else "td"))
-            table += f"<tr>\n{content}</tr>\n"
+    def render_table(self, token: Table):
+        table = f'<table class="table table-hover">\n{self.render_inner(token)}'
 
         if token.caption != "":
-            table += f"<caption>{token.caption}</caption>"
+            table += f"<caption>{token.caption}</caption>\n"
+
         table += "</table>"
 
         return table
+
+    def render_table_row(self, token: TableRow):
+        return f"<tr>\n{self.render_inner(token)}</tr>\n"
+
+    def render_table_header(self, token: TableHeader):
+        return self.render_table_row(token)
+
+    def render_table_cell(self, token: TableCell):
+        type = "th" if token.header else "td"
+        style = ""
+        if token.alignment in table_alignment:
+            style = f' style="text-align: {table_alignment[token.alignment]};"'
+        return f"<{type}{style}>{self.render_inner(token)}</{type}>\n"
+
+    def render_table_body(self, token: TableBody):
+        type = "thead" if token.header else "tbody"
+        return f"<{type}>\n{self.render_inner(token)}</{type}>\n"
 
     def render_include(self, token):
         return self.include_handler(token.ident)
