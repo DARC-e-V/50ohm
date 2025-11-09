@@ -102,11 +102,11 @@ class Download:
         pictures = self.api.get("items/pictures", {"limit": -1})
 
         for picture in tqdm(pictures, desc="Downloading pictures"):
-            # Download LaTeX Sources:
+            # Save LaTeX sources to file
             with (self.config.p_data_pictures / f"{picture['id']}include.tex").open("w") as file:
                 file.write(picture["latex"])
 
-            # Download SVGs:
+            # Download SVG
             data = self.api.get_file(f"assets/{picture['picture']}")
             with (self.config.p_data_pictures / f"{picture['id']}.svg").open("wb") as file:
                 file.write(data)
