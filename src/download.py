@@ -107,9 +107,12 @@ class Download:
                 file.write(picture["latex"])
 
             # Save Alt-Text to file
-            if picture["alt_text_reviewed"] is not None:
+            prefix = ""
+            if picture["alt_text"] is not None:
+                if picture["alt_text_reviewed"] is None:
+                    prefix = "Der folgende Alt-Text wurde noch nicht geprüft: "
                 with (self.config.p_data_pictures / f"{picture['id']}.txt").open("w") as file:
-                    file.write(picture["alt_text"])
+                    file.write(prefix + picture["alt_text"])
 
             # Download SVG
             data = self.api.get_file(f"assets/{picture['picture']}")
