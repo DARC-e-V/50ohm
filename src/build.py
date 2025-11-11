@@ -5,6 +5,7 @@ import shutil
 from jinja2 import Environment, FileSystemLoader
 from joblib import Memory
 from mistletoe import Document
+from rich.progress import BarColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
 from tqdm import tqdm
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
@@ -271,15 +272,36 @@ class Build:
             edition_name = book["title"]
             self.__build_book_index(book)
             self.__build_slide_index(book)
-            for number, chapter in enumerate(tqdm(chapters, desc=f"Build Edition: {edition}"), 1):
-                next_chapter = chapters[number] if number < len(chapters) else None
-                self.__build_chapter(edition, edition_name, number, chapter, next_chapter)
-                self.__build_chapter_slidedeck(edition, chapter, chapter["sections"], next_chapter)
 
-                for i, section in enumerate(chapter["sections"], 1):
-                    tqdm.write(f"Rendering section {section['title']}")
-                    next_section = chapter["sections"][i] if i < len(chapter["sections"]) else None
-                    self.__build_section(edition, edition_name, section, i, chapter, next_section, next_chapter)
+            with Progress(
+                TaskProgressColumn(),
+                BarColumn(),
+                TimeRemainingColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                transient=True,
+            ) as progress:
+                for number, chapter in enumerate(
+                    progress.track(chapters, description=f"Building edition {edition}"), 1
+                ):
+                    next_chapter = chapters[number] if number < len(chapters) else None
+                    self.__build_chapter(edition, edition_name, number, chapter, next_chapter)
+                    self.__build_chapter_slidedeck(edition, chapter, chapter["sections"], next_chapter)
+
+                    with Progress(
+                        TaskProgressColumn(),
+                        BarColumn(),
+                        TimeRemainingColumn(),
+                        TextColumn("[progress.description]{task.description}"),
+                        transient=True,
+                    ) as section_progress:
+                        for i, section in enumerate(
+                            section_progress.track(
+                                chapter["sections"], description=f"Rendering chapter {chapter['title']}"
+                            ),
+                            1,
+                        ):
+                            next_section = chapter["sections"][i] if i < len(chapter["sections"]) else None
+                            self.__build_section(edition, edition_name, section, i, chapter, next_section, next_chapter)
 
     def build_assets(self):
         self.config.p_build.mkdir(exist_ok=True)
