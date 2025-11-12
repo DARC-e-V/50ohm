@@ -2,11 +2,6 @@
   margin-bottom: 2ex;
 }
 
-.table_inner {
-  padding: 1ex;
-  background: #ddd;
-}
-
 .table tr {
   border-bottom: 1px solid #aaa;
 }
@@ -175,16 +170,8 @@ td {
   text-align: justify;
 }
 
-ul.list {
-  list-style: none; /* Remove default bullets */
-}
-
-ul.list li::before {
-  content: "▪";
+ul li::marker {
   color: #2aa6da;
-  display: inline-block;
-  width: 1em;
-  margin-left: -1em;
 }
 
 ol li {
@@ -209,7 +196,17 @@ span.morse {
   bottom: 1.7ex;
   display: inline-block;
 }
+
 span.morse_char {
+  padding-right: 3ex;
+  white-space: nowrap;
+}
+
+span.morse_char:last-child {
+  padding-right: 0;
+}
+
+span.morse_symbol {
   padding-right: 1.6ex;
   letter-spacing: -0.05ex;
 }
@@ -242,10 +239,10 @@ span.formula {
 
 @media (min-width: 800px) {
   .course p,
+  .course ul,
+  .course ol,
   .course .question,
-  .course .table,
-  .course ul.list,
-  .course ol.list {
+  .course .table {
     width: 59.3%;
   }
 
@@ -262,8 +259,8 @@ span.formula {
   }
 
   .course .margin p,
-  .course .margin ul.list,
-  .course .margin ol.list {
+  .course .margin ul,
+  .course .margin ol {
     width: auto;
   }
 
