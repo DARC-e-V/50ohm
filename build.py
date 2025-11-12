@@ -14,8 +14,8 @@ dl.download_edition("N")
 
 # Download additional files:
 dl.download_question_metadata()
-dl.download_pictures()
 dl.download_photos()
+dl.download_pictures()
 dl.download_includes()
 dl.download_snippets()
 dl.download_content()
