@@ -196,7 +196,17 @@ span.morse {
   bottom: 1.7ex;
   display: inline-block;
 }
+
 span.morse_char {
+  padding-right: 3ex;
+  white-space: nowrap;
+}
+
+span.morse_char:last-child {
+  padding-right: 0;
+}
+
+span.morse_symbol {
   padding-right: 1.6ex;
   letter-spacing: -0.05ex;
 }
