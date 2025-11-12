@@ -280,28 +280,20 @@ class Build:
                 TextColumn("[progress.description]{task.description}"),
                 transient=True,
             ) as progress:
-                for number, chapter in enumerate(
-                    progress.track(chapters, description=f"Building edition {edition}"), 1
-                ):
+                chapter_task = progress.add_task(f"Building edition {edition} ...")
+                for number, chapter in enumerate(progress.track(chapters, task_id=chapter_task), 1):
+                    progress.update(chapter_task, description=f"Buildign edition {edition}: Chapter {chapter['title']}")
                     next_chapter = chapters[number] if number < len(chapters) else None
                     self.__build_chapter(edition, edition_name, number, chapter, next_chapter)
                     self.__build_chapter_slidedeck(edition, chapter, chapter["sections"], next_chapter)
 
-                    with Progress(
-                        TaskProgressColumn(),
-                        BarColumn(),
-                        TimeRemainingColumn(),
-                        TextColumn("[progress.description]{task.description}"),
-                        transient=True,
-                    ) as section_progress:
-                        for i, section in enumerate(
-                            section_progress.track(
-                                chapter["sections"], description=f"Rendering chapter {chapter['title']}"
-                            ),
-                            1,
-                        ):
-                            next_section = chapter["sections"][i] if i < len(chapter["sections"]) else None
-                            self.__build_section(edition, edition_name, section, i, chapter, next_section, next_chapter)
+                    section_task = progress.add_task(description="Rendering sections ...")
+                    for i, section in enumerate(progress.track(chapter["sections"], task_id=section_task), 1):
+                        progress.update(section_task, description=f"Rendering section {section['title']}")
+                        next_section = chapter["sections"][i] if i < len(chapter["sections"]) else None
+                        self.__build_section(edition, edition_name, section, i, chapter, next_section, next_chapter)
+                    progress.remove_task(section_task)
+                progress.remove_task(chapter_task)
 
     def build_assets(self):
         self.config.p_build.mkdir(exist_ok=True)
