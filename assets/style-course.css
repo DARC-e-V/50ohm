@@ -2,11 +2,6 @@
   margin-bottom: 2ex;
 }
 
-.table_inner {
-  padding: 1ex;
-  background: #ddd;
-}
-
 .table tr {
   border-bottom: 1px solid #aaa;
 }
@@ -175,16 +170,8 @@ td {
   text-align: justify;
 }
 
-ul.list {
-  list-style: none; /* Remove default bullets */
-}
-
-ul.list li::before {
-  content: "▪";
+ul li::marker {
   color: #2aa6da;
-  display: inline-block;
-  width: 1em;
-  margin-left: -1em;
 }
 
 ol li {
@@ -252,10 +239,10 @@ span.formula {
 
 @media (min-width: 800px) {
   .course p,
+  .course ul,
+  .course ol,
   .course .question,
-  .course .table,
-  .course ul.list,
-  .course ol.list {
+  .course .table {
     width: 59.3%;
   }
 
@@ -272,8 +259,8 @@ span.formula {
   }
 
   .course .margin p,
-  .course .margin ul.list,
-  .course .margin ol.list {
+  .course .margin ul,
+  .course .margin ol {
     width: auto;
   }
 
