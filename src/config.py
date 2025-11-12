@@ -10,6 +10,8 @@ class Config:
         if os.path.isfile("config/config.json"):
             with open("config/config.json") as file:
                 self.config = json.load(file)
+        else:
+            self.config = {}
 
         self.question_access_token = self.get_config_value("directus_question_api_key")
         self.question_base_url = self.get_config_value("directus_question_base_url", "https://fragenkatalog.darc.de/")
