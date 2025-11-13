@@ -92,9 +92,18 @@ class Download:
         photos = self.api.get("items/Fotos", params={"limit": -1})
 
         for photo in tqdm(photos, desc="Downloading photos"):
+            # Save Photo to file
             data = self.api.get_file("assets/" + photo["photo"])
             with (self.config.p_data_photos / f"{photo['id']}.jpg").open("wb") as file:
                 file.write(data)
+
+            # Save Alt-Text to file
+            prefix = ""
+            if photo["alt_text"] is not None:
+                if photo["alt_text_reviewed"] is None:
+                    prefix = "Der folgende Alt-Text wurde noch nicht geprüft: "
+                with (self.config.p_data_photos / f"{photo['id']}.txt").open("w") as file:
+                    file.write(prefix + photo["alt_text"])
 
     def download_pictures(self):
         self.config.p_data_pictures.mkdir(parents=True, exist_ok=True)
@@ -105,6 +114,14 @@ class Download:
             # Save LaTeX sources to file
             with (self.config.p_data_pictures / f"{picture['id']}include.tex").open("w") as file:
                 file.write(picture["latex"])
+
+            # Save Alt-Text to file
+            prefix = ""
+            if picture["alt_text"] is not None:
+                if picture["alt_text_reviewed"] is None:
+                    prefix = "Der folgende Alt-Text wurde noch nicht geprüft: "
+                with (self.config.p_data_pictures / f"{picture['id']}.txt").open("w") as file:
+                    file.write(prefix + picture["alt_text"])
 
             # Download SVG
             data = self.api.get_file(f"assets/{picture['picture']}")
