@@ -28,7 +28,14 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     ref_id = 0
 
     def __init__(
-        self, *extras, question_renderer=None, picture_handler=None, photo_handler=None, include_handler=None, **kwargs
+        self,
+        *extras,
+        question_renderer=None,
+        picture_handler=None,
+        photo_handler=None,
+        include_handler=None,
+        figure_number=None,
+        **kwargs,
     ):
         super().__init__(
             Dash,
@@ -60,6 +67,8 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         self.picture_handler = picture_handler
         self.photo_handler = photo_handler
         self.include_handler = include_handler
+        # Store reference to mutable list for shared counter across renderer instances
+        self.figure_number = figure_number if figure_number is not None else [0]
 
     def render_dash(self, token):
         return " &ndash; "
@@ -205,7 +214,8 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     def render_picture(self, token):
         if self.picture_handler is not None:
             self.picture_handler(token.id)
-        return self.render_picture_helper(token.id, token.ref, token.text, token.number)
+        self.figure_number[0] += 1
+        return self.render_picture_helper(token.id, token.ref, token.text, self.figure_number[0])
 
     @staticmethod
     def render_photo_helper(id, ref, text, number):
@@ -219,7 +229,8 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     def render_photo(self, token):
         if self.photo_handler is not None:
             self.photo_handler(token.id)
-        return self.render_photo_helper(token.id, token.ref, token.text, token.number)
+        self.figure_number[0] += 1
+        return self.render_photo_helper(token.id, token.ref, token.text, self.figure_number[0])
 
     def render_table(self, token: Table):
         table = f'<table class="table table-hover">\n{self.render_inner(token)}'

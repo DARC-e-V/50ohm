@@ -9,18 +9,26 @@ from test.util import paragraph
 @pytest.mark.html
 def test_picture_html():
     assertions = {
-        "[picture:123:abc:Text]": FiftyOhmHtmlRenderer.render_picture_helper("123", "abc", "Text", "TODO"),
+        "[picture:123:abc:Text]": FiftyOhmHtmlRenderer.render_picture_helper("123", "abc", "Text", 1),
     }
 
     for assertion in assertions:
-        assert mistletoe.markdown(assertion, FiftyOhmHtmlRenderer) == paragraph(assertions[assertion])
+        # Pass figure_number as a list for proper counter management
+        with FiftyOhmHtmlRenderer(figure_number=[0]) as renderer:
+            from mistletoe import Document
+
+            result = renderer.render(Document(assertion))
+            assert result == paragraph(assertions[assertion])
 
 
 @pytest.mark.latex
 def test_picture_latex():
     assertions = {
-        "[picture:123:abc:Text]": FiftyOhmLaTeXRenderer.render_picture_helper("123", "abc", "Text", "TODO"),
+        "[picture:123:abc:Text]": FiftyOhmLaTeXRenderer.render_picture_helper("123", "abc", "Text", 1),
     }
 
     for assertion in assertions:
-        assert mistletoe.markdown(assertion, FiftyOhmLaTeXRenderer) == "\n" + assertions[assertion] + "\n"
+        # Pass figure_number as a list for proper counter management
+        with FiftyOhmLaTeXRenderer(figure_number=[0]) as renderer:
+            result = renderer.render_document(mistletoe.Document(assertion))
+            assert result == "\n" + assertions[assertion] + "\n"
