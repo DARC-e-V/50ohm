@@ -57,7 +57,7 @@ class Build:
 
         question_template = self.env.get_template(template_file)
 
-        with (self.config.p_data / "metadata.json").open() as file:
+        with (self.config.p_data / "metadata3b.json").open() as file:
             metadata = json.load(file)
 
             question = None
