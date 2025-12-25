@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function() {
   var macros = {
     ",": (context) => context.future()?.text === " " ? "{\\char`,}" : "\\char`,",
     "\\qty": "{#1\\,\\mathrm{#2}}",
+    "\\unit": "{\\mathrm{#1}}",
     "\\squared": "{^{2}}",
     "\\cubed": "{^{3}}",
     "\\per": "/",
