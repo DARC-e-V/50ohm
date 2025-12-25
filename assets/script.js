@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", function() {
     "\\giga": "G",
     "\\mega": "M",
     "\\kilo": "k",
+    "\\dezi": "d",
+    "\\centi": "c",
     "\\milli": "m",
     "\\micro": "\\text{μ}",
     "\\nano": "n",
