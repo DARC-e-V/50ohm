@@ -16,6 +16,10 @@ from .config import Config
 class Build:
     def __init__(self, config: Config):
         self.config = config
+        # Separate figure counters for each output format (list for mutability)
+        self.figure_number_html = [0]  # Counter for HTML webpages
+        self.figure_number_slide = [0]  # Counter for slides
+        self.figure_number_latex = [0]  # Counter for LaTeX (if used)
 
         memory = Memory("./cache", verbose=0)
         self.env = Environment(loader=FileSystemLoader("templates/"))
@@ -172,6 +176,7 @@ class Build:
                 picture_handler=self.__picture_handler,
                 photo_handler=self.__photo_handler,
                 include_handler=self.__include_handler,
+                figure_number=self.figure_number_html,
             ) as renderer:
                 section["content"] = renderer.render(Document(section["content"]))
 
@@ -207,6 +212,7 @@ class Build:
                 picture_handler=self.__picture_handler,
                 photo_handler=self.__photo_handler,
                 include_handler=self.__include_handler,
+                figure_number=self.figure_number_slide,
             ) as renderer:
                 result = "<section>\n"
                 result += f'<section data-background="#DAEEFA">\n<h1>{chapter["title"]}</h1>\n</section>\n'
@@ -262,6 +268,11 @@ class Build:
 
     def build_edition(self, edition):
         self.config.p_build.mkdir(exist_ok=True)
+
+        # Reset figure counters for each edition
+        self.figure_number_html = [0]
+        self.figure_number_slide = [0]
+        self.figure_number_latex = [0]
 
         edition = edition.upper()
 
