@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
     "\\milli": "m",
     "\\micro": "\\text{μ}",
     "\\nano": "n",
+    "\\pico": "p",
     "\\kilogram": "\\text{kg}",
     "\\meter": "\\text{m}",
     "\\second": "\\text{s}",
