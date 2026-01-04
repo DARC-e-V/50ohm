@@ -14,7 +14,7 @@ from .underline import Underline
 
 
 class FiftyOhmLaTeXRenderer(LaTeXRenderer):
-    def __init__(self, question_renderer=None, figure_number=None):
+    def __init__(self, question_renderer=None):
         super().__init__(
             Dash,
             BlockComment,
@@ -34,8 +34,6 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
             TableCell,
         )
         self.question_renderer = question_renderer
-        # Store reference to mutable list for shared counter across renderer instances
-        self.figure_number = figure_number if figure_number is not None else [0]
 
     def render_inner(self, token, base="") -> str:
         # Filter out None values, so block tokens can return None to not be rendered.
@@ -116,8 +114,7 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
 \label{{{ref}}}"""
 
     def render_picture(self, token):
-        self.figure_number[0] += 1
-        return self.render_picture_helper(token.id, token.ref, token.text, self.figure_number[0])
+        return self.render_picture_helper(token.id, token.ref, token.text, token.number)
 
     @staticmethod
     def render_photo_helper(id, ref, text, number):
@@ -126,8 +123,7 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
 \label{{{ref}}}"""
 
     def render_photo(self, token):
-        self.figure_number[0] += 1
-        return self.render_photo_helper(token.id, token.ref, token.text, self.figure_number[0])
+        return self.render_photo_helper(token.id, token.ref, token.text, token.number)
 
     def render_table(self, token):
         table = "\\begin{DARCtabular}" + f"{self.render_inner(token)}" + "\\end{DARCtabular}"

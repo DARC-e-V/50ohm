@@ -34,7 +34,9 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         picture_handler=None,
         photo_handler=None,
         include_handler=None,
-        figure_number=None,
+        edition=None,
+        chapter_number=None,
+        section_number=None,
         **kwargs,
     ):
         super().__init__(
@@ -67,8 +69,14 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         self.picture_handler = picture_handler
         self.photo_handler = photo_handler
         self.include_handler = include_handler
-        # Store reference to mutable list for shared counter across renderer instances
-        self.figure_number = figure_number if figure_number is not None else [0]
+        # Simple integer counter for this renderer instance
+        self.figure_number = 0
+        # Store context for figure numbering
+        self.edition = edition
+        self.chapter_number = chapter_number
+        self.section_number = section_number
+        # Map reference IDs to figure numbers
+        self.figure_references = {}
 
     def render_dash(self, token):
         return " &ndash; "
@@ -185,16 +193,42 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return f"{lookup[token.first]}{token.second}{lookup[token.third]}"
 
     def render_references(self, token):
+        # Look up the figure number for this reference
+        fig_num = self.figure_references.get(token.first, "?")
         return (
-            f'<a href="{self.section_url}#ref_{token.first}"'
-            f" onclick=\"highlightRef('{token.first}');\">{self.ref_id}</a>"
+            f'<a href="{self.section_url}#ref_{token.first}" onclick="highlightRef(\'{token.first}\');">{fig_num}</a>'
         )
 
     def render_question(self, token):
         return self.question_renderer(token.question_number)
 
+    def _collect_figure_references(self, token):
+        """Pre-scan document to collect all figure references before rendering"""
+        from .photo import Photo
+        from .picture import Picture
+
+        # If this is a Picture or Photo token, record it
+        if isinstance(token, (Picture, Photo)):
+            self.figure_number += 1
+            # Format figure number
+            if self.edition and self.chapter_number and self.section_number:
+                fig_num = f"{self.edition}-{self.chapter_number}.{self.section_number}.{self.figure_number}"
+            else:
+                fig_num = str(self.figure_number)
+            self.figure_references[token.ref] = fig_num
+
+        # Recursively process children if they exist
+        if hasattr(token, "children") and token.children is not None:
+            for child in token.children:
+                self._collect_figure_references(child)
+
     def render_document(self, token: Document) -> str:
         self.footnotes.update(token.footnotes)
+        # First pass: collect all figure references
+        self._collect_figure_references(token)
+        # Reset counter for actual rendering
+        self.figure_number = 0
+        # Second pass: render with complete reference mapping
         inner = self.render_inner(token, "\n")
         return f"{inner}\n" if inner else ""
 
@@ -214,8 +248,14 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     def render_picture(self, token):
         if self.picture_handler is not None:
             self.picture_handler(token.id)
-        self.figure_number[0] += 1
-        return self.render_picture_helper(token.id, token.ref, token.text, self.figure_number[0])
+        self.figure_number += 1
+        # Format figure number as edition-chapter.section.image
+        if self.edition and self.chapter_number and self.section_number:
+            fig_num = f"{self.edition}-{self.chapter_number}.{self.section_number}.{self.figure_number}"
+        else:
+            fig_num = str(self.figure_number)
+        # Note: reference mapping is done in first pass by _collect_figure_references
+        return self.render_picture_helper(token.id, token.ref, token.text, fig_num)
 
     @staticmethod
     def render_photo_helper(id, ref, text, number):
@@ -229,8 +269,14 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     def render_photo(self, token):
         if self.photo_handler is not None:
             self.photo_handler(token.id)
-        self.figure_number[0] += 1
-        return self.render_photo_helper(token.id, token.ref, token.text, self.figure_number[0])
+        self.figure_number += 1
+        # Format figure number as edition-chapter.section.image
+        if self.edition and self.chapter_number and self.section_number:
+            fig_num = f"{self.edition}-{self.chapter_number}.{self.section_number}.{self.figure_number}"
+        else:
+            fig_num = str(self.figure_number)
+        # Note: reference mapping is done in first pass by _collect_figure_references
+        return self.render_photo_helper(token.id, token.ref, token.text, fig_num)
 
     def render_table(self, token: Table):
         table = f'<table class="table table-hover">\n{self.render_inner(token)}'

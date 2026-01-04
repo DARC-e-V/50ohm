@@ -9,6 +9,9 @@ class FiftyOhmHtmlSlideRenderer(FiftyOhmHtmlRenderer):
             SlideBreak,
             **kwargs,
         )
+        # Add "S" suffix to edition for slides
+        if self.edition:
+            self.edition = f"{self.edition}S"
 
     def render_slide_break(self, token):
         inner = self.render_inner(token)

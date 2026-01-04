@@ -16,3 +16,4 @@ class Picture(SpanToken):
         self.id = match_object.group(1)
         self.ref = match_object.group(2)
         self.text = match_object.group(3)
+        self.number = "TODO"
