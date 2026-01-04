@@ -294,14 +294,6 @@ span.formula {
   color: #2aa6da;
 }
 
-.course .tip p,
-.course .unit p,
-.course .indepth p,
-.course .attention p,
-.course .danger p {
-  margin-block-end: 0;
-}
-
 .course .margin.tip:before,
 .course .margin.unit:before,
 .course .margin.indepth:before,
