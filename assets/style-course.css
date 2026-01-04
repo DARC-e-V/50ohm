@@ -286,6 +286,13 @@ span.formula {
     margin-top: 4ex;
     margin-bottom: 4ex;
   }
+
+  figure img {
+    min-width: min(100%, 800px);
+    max-width: min(100%, 800px);
+    max-height: 50vh;
+    object-fit: contain;
+  }
 }
 
 .course .margin em {
