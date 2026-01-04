@@ -208,7 +208,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         from .picture import Picture
 
         # If this is a Picture or Photo token, record it
-        if isinstance(token, (Picture, Photo)):
+        if isinstance(token, Picture | Photo):
             self.figure_number += 1
             # Format figure number
             if self.edition and self.chapter_number and self.section_number:
