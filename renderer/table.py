@@ -84,7 +84,7 @@ class Table(BlockToken):
 
     @staticmethod
     def start(line):
-        return "|" in line
+        return line.lstrip().startswith("|")
 
     @classmethod
     def read(cls, lines):
