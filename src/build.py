@@ -337,7 +337,9 @@ class Build:
 
     def build_assets(self):
         self.config.p_build.mkdir(exist_ok=True)
-        shutil.copytree(self.config.p_assets, self.config.p_build_assets, dirs_exist_ok=True)
+        shutil.copytree(
+            self.config.p_assets, self.config.p_build_assets, dirs_exist_ok=True, ignore=shutil.ignore_patterns(".git")
+        )
 
     def __parse_snippets(self):
         with (self.config.p_data / "snippets.json").open() as file:
