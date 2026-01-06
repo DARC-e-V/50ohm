@@ -246,7 +246,8 @@ span.formula {
   .course ul,
   .course ol,
   .course .question,
-  .course .table {
+  .course .table,
+  .course .katex-display {
     width: 59.3%;
   }
 
