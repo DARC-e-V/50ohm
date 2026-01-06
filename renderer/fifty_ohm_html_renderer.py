@@ -212,7 +212,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         if hasattr(token, "children") and token.children is not None:
             for child in token.children:
                 # Check if this is a Picture, Photo, or Table token
-                if isinstance(child, (Picture, Photo, Table)):
+                if isinstance(child, Picture | Photo | Table):
                     # Get the reference ID (ref for Picture/Photo, name for Table)
                     ref_id = getattr(child, "ref", None) or getattr(child, "name", None)
 
