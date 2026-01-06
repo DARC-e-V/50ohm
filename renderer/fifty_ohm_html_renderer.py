@@ -37,6 +37,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         edition=None,
         chapter=None,
         section=None,
+        section_url=None,
         **kwargs,
     ):
         super().__init__(
@@ -74,6 +75,10 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         self.edition = edition
         self.chapter = chapter
         self.section = section
+
+        # Set section URL if provided, otherwise use default
+        if section_url is not None:
+            self.section_url = section_url
 
         # Figure map: stores ref -> hierarchical number mapping
         self.figure_map = {}

@@ -179,6 +179,9 @@ class Build:
             chapter_num = str(chapter_number) if chapter_number is not None else chapter.get("number", "0")
             section_num = str(section_id)
 
+            # Set the section URL for references
+            section_filename = f"{edition}_{section['ident']}.html"
+
             with FiftyOhmHtmlRenderer(
                 question_renderer=self.__build_question,
                 picture_handler=self.__picture_handler,
@@ -187,6 +190,7 @@ class Build:
                 edition=edition,
                 chapter=chapter_num,
                 section=section_num,
+                section_url=section_filename,
             ) as renderer:
                 # First pass: collect all figures and assign hierarchical numbers
                 doc = Document(section["content"])
@@ -223,8 +227,12 @@ class Build:
             help_template = self.env.get_template("slide/help.html")
             next_template = self.env.get_template("slide/next.html")
 
-            # Parse chapter number
-            chapter_num = chapter.get("number", "0")
+            # Use provided chapter_number or fall back to chapter dict
+            chapter_num = str(chapter_number) if chapter_number is not None else chapter.get("number", "0")
+
+            # Set the slide URL for references (all sections in one file)
+            # Note: filename uses original edition (e.g., "N"), not modified edition with "S" (e.g., "NS")
+            slide_filename = f"{edition}_slide_{chapter['ident']}.html"
 
             with FiftyOhmHtmlSlideRenderer(
                 question_renderer=self.__build_question_slide,
@@ -234,6 +242,7 @@ class Build:
                 edition=edition,
                 chapter=chapter_num,
                 section="0",  # Will be updated per section
+                section_url=slide_filename,
             ) as renderer:
                 result = "<section>\n"
                 result += f'<section data-background="#DAEEFA">\n<h1>{chapter["title"]}</h1>\n</section>\n'
