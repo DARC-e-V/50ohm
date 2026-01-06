@@ -176,11 +176,11 @@ section.has-dark-background h6 {
 }
 
 .reveal ul {
-    list-style-type: disc;
+    list-style-type: square;
 }
 
 .reveal ul ul {
-    list-style-type: square;
+    list-style-type: "- ";
 }
 
 .reveal ul ul ul {
@@ -193,6 +193,10 @@ section.has-dark-background h6 {
 .reveal ol ul {
     display: block;
     margin-left: 40px;
+}
+
+.reveal ul li::marker {
+  color: #2aa6da;
 }
 
 .reveal dt {
