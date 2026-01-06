@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
+
   var macros = {
     ",": (context) => context.future()?.text === " " ? "{\\char`,}" : "\\char`,",
     "\\qty": "{#1\\,\\mathrm{#2}}",
@@ -8,16 +9,16 @@ document.addEventListener("DOMContentLoaded", function() {
     "\\cubed": "{^{3}}",
     "\\per": "/",
     "\\percent": "\\%",
-    "\\tera": "T",
-    "\\giga": "G",
-    "\\mega": "M",
-    "\\kilo": "k",
-    "\\dezi": "d",
-    "\\centi": "c",
-    "\\milli": "m",
+    "\\tera": "\\text{T}",
+    "\\giga": "\\text{G}",
+    "\\mega": "\\text{M}",
+    "\\kilo": "\\text{k}",
+    "\\dezi": "\\text{d}",
+    "\\centi": "\\text{c}",
+    "\\milli": "\\text{m}",
     "\\micro": "\\text{μ}",
-    "\\nano": "n",
-    "\\pico": "p",
+    "\\nano": "\\text{n}",
+    "\\pico": "\\text{p}",
     "\\kilogram": "\\text{kg}",
     "\\meter": "\\text{m}",
     "\\second": "\\text{s}",
@@ -46,14 +47,16 @@ document.addEventListener("DOMContentLoaded", function() {
     "\\weber": "\\text{Wb}",
     "\\tesla": "\\text{T}",
   };
+
   renderMathInElement(document.body, {
-    delimiters: [{left: '$', right: '$', display: false}],
+    delimiters: [
+        {left: '$$', right: '$$', display: true}, // Note: $$ has to come before $
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: "\\(", right: "\\)", display: false},
+    ],
     throwOnError : false,
     macros: macros
-  });
-  renderMathInElement(document.body, {
-    delimiters: [{left: '\\[', right: '\\]', display: false}],
-    throwOnError : false
   });
 });
 
