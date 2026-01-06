@@ -211,24 +211,15 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         """Recursively traverse the document tree to collect figures."""
         if hasattr(token, "children") and token.children is not None:
             for child in token.children:
-                # Check if this is a Picture token
-                if isinstance(child, Picture):
-                    self.figure_counter += 1
-                    hierarchical_num = self._format_figure_number(self.figure_counter)
-                    self.figure_map[child.ref] = hierarchical_num
-                    child.number = hierarchical_num
-                # Check if this is a Photo token
-                elif isinstance(child, Photo):
-                    self.figure_counter += 1
-                    hierarchical_num = self._format_figure_number(self.figure_counter)
-                    self.figure_map[child.ref] = hierarchical_num
-                    child.number = hierarchical_num
-                # Check if this is a Table token
-                elif isinstance(child, Table):
-                    if child.name:  # Only number tables with names
+                # Check if this is a Picture, Photo, or Table token
+                if isinstance(child, (Picture, Photo, Table)):
+                    # Get the reference ID (ref for Picture/Photo, name for Table)
+                    ref_id = getattr(child, "ref", None) or getattr(child, "name", None)
+
+                    if ref_id:  # Only number figures with a reference ID
                         self.figure_counter += 1
                         hierarchical_num = self._format_figure_number(self.figure_counter)
-                        self.figure_map[child.name] = hierarchical_num
+                        self.figure_map[ref_id] = hierarchical_num
                         child.number = hierarchical_num
                     else:
                         child.number = ""
