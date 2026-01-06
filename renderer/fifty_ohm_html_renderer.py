@@ -3,6 +3,7 @@ from mistletoe import Document, HtmlRenderer
 
 from .comment import BlockComment
 from .dash import Dash
+from .formula import Formula
 from .halfwidth_spaces import HalfwidthSpaces
 from .include import Include
 from .morse import Morse
@@ -62,6 +63,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             TableBody,
             Qso,
             Include,
+            Formula,
             *extras,
             **kwargs,
         )
@@ -324,3 +326,6 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
     def render_include(self, token):
         return self.include_handler(token.ident)
+
+    def render_formula(self, token):
+        return f"\n$${token.formula}$$\n"
