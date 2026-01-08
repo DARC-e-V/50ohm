@@ -416,3 +416,18 @@ span.formula {
 .answers button:nth-child(4):before {
   content: "D:";
 }
+
+/* Enable Line Breaks in Equations ... */
+.course .katex-display > .katex {
+    white-space: normal
+}
+
+/* Add space between broken lines: */
+.course .katex-display .base {
+    margin: 0.5em 0em
+}
+
+/* Compensate by reducing space around display math */
+.course .katex-display {
+    margin: 1em 0em;
+}
