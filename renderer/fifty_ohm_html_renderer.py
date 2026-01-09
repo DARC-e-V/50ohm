@@ -258,32 +258,35 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return base.join(filter(lambda x: x is not None, [self.render(child) for child in token.children]))
 
     @staticmethod
-    def render_picture_helper(id, ref, text, number):
+    def render_picture_helper(id, ref, text, number, alt_text):
         return f"""
                 <figure class="picture" id="ref_{ref}" name="{ref}">
-                    <img src="pictures/{id}.svg">
+                    <img src="pictures/{id}.svg" alt="{alt_text}">
                     <figcaption>Abbildung {number}: {text}</figcaption>
                 </figure>
             """
 
     def render_picture(self, token):
+        alt_text = ""
         if self.picture_handler is not None:
-            self.picture_handler(token.id)
-        return self.render_picture_helper(token.id, token.ref, token.text, token.number)
+            alt_text = self.picture_handler(token.id)
+
+        return self.render_picture_helper(token.id, token.ref, token.text, token.number, alt_text)
 
     @staticmethod
-    def render_photo_helper(id, ref, text, number):
+    def render_photo_helper(id, ref, text, number, alt_text):
         return f"""
                 <figure class="photo" id="ref_{ref}" name="{ref}">
-                    <img src="photos/{id}.jpg">
+                    <img src="photos/{id}.jpg" alt="{alt_text}">
                     <figcaption>Abbildung {number}: {text}</figcaption>
                 </figure>
             """
 
     def render_photo(self, token):
+        alt_text = ""
         if self.photo_handler is not None:
-            self.photo_handler(token.id)
-        return self.render_photo_helper(token.id, token.ref, token.text, token.number)
+            alt_text = self.photo_handler(token.id) or alt_text
+        return self.render_photo_helper(token.id, token.ref, token.text, token.number, alt_text)
 
     def render_table(self, token: Table):
         # Add id and name attributes if table has a name
