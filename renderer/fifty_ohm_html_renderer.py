@@ -199,9 +199,9 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             """
 
     def render_picture(self, token):
-        alt_text = "Alt-Text noch nicht verfügbar"
+        alt_text = ""
         if self.picture_handler is not None:
-            alt_text = self.picture_handler(token.id) or alt_text
+            alt_text = self.picture_handler(token.id)
 
         return self.render_picture_helper(token.id, token.ref, token.text, token.number, alt_text)
 
@@ -215,7 +215,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             """
 
     def render_photo(self, token):
-        alt_text = "Alt-Text noch nicht verfügbar"
+        alt_text = ""
         if self.photo_handler is not None:
             alt_text = self.photo_handler(token.id) or alt_text
         return self.render_photo_helper(token.id, token.ref, token.text, token.number, alt_text)

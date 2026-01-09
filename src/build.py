@@ -136,6 +136,8 @@ class Build:
             shutil.copyfile(self.config.p_data_pictures / file, self.config.p_build_pictures / file)
             if (self.config.p_data_pictures / f"{id}.txt").exists():
                 return (self.config.p_data_pictures / f"{id}.txt").read_text()
+            else:
+                return "Bildbeschreibung noch nicht verfügbar"
         except FileNotFoundError:
             tqdm.write(f"\033[31mPicture #{id} not found\033[0m")
 
@@ -146,6 +148,8 @@ class Build:
             shutil.copyfile(self.config.p_data_photos / file, self.config.p_build_photos / file)
             if (self.config.p_data_photos / f"{id}.txt").exists():
                 return (self.config.p_data_photos / f"{id}.txt").read_text()
+            else:
+                return "Bildbeschreibung noch nicht verfügbar"
         except FileNotFoundError:
             tqdm.write(f"\033[31mPhoto #{id} not found\033[0m")
 
