@@ -2,11 +2,6 @@
   margin-bottom: 2ex;
 }
 
-.table_inner {
-  padding: 1ex;
-  background: #ddd;
-}
-
 .table tr {
   border-bottom: 1px solid #aaa;
 }
@@ -175,16 +170,12 @@ td {
   text-align: justify;
 }
 
-ul.list {
-  list-style: none; /* Remove default bullets */
+ul {
+    list-style-type: square;
 }
 
-ul.list li::before {
-  content: "▪";
+ul li::marker {
   color: #2aa6da;
-  display: inline-block;
-  width: 1em;
-  margin-left: -1em;
 }
 
 ol li {
@@ -209,7 +200,17 @@ span.morse {
   bottom: 1.7ex;
   display: inline-block;
 }
+
 span.morse_char {
+  padding-right: 3ex;
+  white-space: nowrap;
+}
+
+span.morse_char:last-child {
+  padding-right: 0;
+}
+
+span.morse_symbol {
   padding-right: 1.6ex;
   letter-spacing: -0.05ex;
 }
@@ -242,10 +243,11 @@ span.formula {
 
 @media (min-width: 800px) {
   .course p,
+  .course ul,
+  .course ol,
   .course .question,
   .course .table,
-  .course ul.list,
-  .course ol.list {
+  .course .katex-display {
     width: 59.3%;
   }
 
@@ -262,8 +264,8 @@ span.formula {
   }
 
   .course .margin p,
-  .course .margin ul.list,
-  .course .margin ol.list {
+  .course .margin ul,
+  .course .margin ol {
     width: auto;
   }
 
@@ -285,20 +287,19 @@ span.formula {
     margin-top: 4ex;
     margin-bottom: 4ex;
   }
+
+  figure img {
+    min-width: min(100%, 800px);
+    max-width: min(100%, 800px);
+    max-height: 50vh;
+    object-fit: contain;
+  }
 }
 
 .course .margin em {
   font-style: normal;
   font-weight: 600;
   color: #2aa6da;
-}
-
-.course .tip p,
-.course .unit p,
-.course .indepth p,
-.course .attention p,
-.course .danger p {
-  margin-block-end: 0;
 }
 
 .course .margin.tip:before,
@@ -414,4 +415,19 @@ span.formula {
 
 .answers button:nth-child(4):before {
   content: "D:";
+}
+
+/* Enable Line Breaks in Equations ... */
+.course .katex-display > .katex {
+    white-space: normal
+}
+
+/* Add space between broken lines: */
+.course .katex-display .base {
+    margin: 0.5em 0em
+}
+
+/* Compensate by reducing space around display math */
+.course .katex-display {
+    margin: 1em 0em;
 }

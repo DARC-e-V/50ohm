@@ -36,7 +36,7 @@ def test_question_translation_html():
     }
 
     def test_function(input):
-        with open("data/metadata.json") as file:
+        with open("data/metadata3b.json") as file:
             metadata = json.load(file)
         return metadata[f"{input}"].get("number")
 
