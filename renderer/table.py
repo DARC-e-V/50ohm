@@ -1,37 +1,99 @@
 import re
+from enum import Enum
 
 from mistletoe import span_token
 from mistletoe.block_token import BlockToken
 
 
-class Table(BlockToken):
+class CellAlignment(Enum):
+    LEFT = "l"
+    CENTER = "c"
+    RIGHT = "r"
+    EXPAND = "X"
+
+
+class TableCell(BlockToken):
+    alignment: CellAlignment
+    header: bool
+
     @staticmethod
-    def start(line):
-        return "|" in line
+    def start(_):
+        return False
+
+    def __init__(self, match, alignment: CellAlignment, header=False):
+        super().__init__(match, span_token.tokenize_inner)
+        self.alignment, self.header = alignment, header
+
+
+class TableRow(BlockToken):
+    @staticmethod
+    def start(_):
+        return False
 
     @classmethod
-    def parse_header(cls, line):
-        # Parse header, extract alignment and make an ordinary row out of it
-        line = line.strip().strip("|")  # Remove leading/trailing whitespace and pipes
-        columns = [col.strip() for col in line.split("|")]  # Split by pipe |
+    def parse(cls, line) -> list[str]:
+        line = line.strip().strip("|")
+        return [col.strip() for col in line.split("|")]
 
-        alignment = []
-        header = "| "
+    def __init__(self, match, alignment: list[CellAlignment]):
+        self.children = [TableCell(cell, alignment[i]) for i, cell in enumerate(self.parse(match))]
 
-        for column in columns:
-            attr, val = re.match(r"^ ?(?:([lcrX]):)?(.*)", column).group(1, 2)
+
+class TableHeader(TableRow):
+    alignment: list[CellAlignment]
+
+    @staticmethod
+    def start(_):
+        return False
+
+    @classmethod
+    def parse(cls, line) -> list[str]:
+        alignment: list[CellAlignment] = []
+        columns: list[str] = []
+        for column in super().parse(line):
+            attr: CellAlignment
+            value: str
+            attr, value = re.match(r"^ ?(?:([lcrX]):)? ?(.*)", column).group(1, 2)
+
             alignment.append(attr)
-            header += val + " | "
+            columns.append(value)
 
-        return header, alignment
+        return columns, alignment
+
+    def __init__(self, match):
+        columns, self.alignment = self.parse(match)
+        self.children = [TableCell(cell, self.alignment[i], True) for i, cell in enumerate(columns)]
+
+
+class TableBody(BlockToken):
+    header: bool
+
+    @staticmethod
+    def start(_):
+        return False
+
+    def __init__(self, rows: TableRow, header=False):
+        self.children, self.header = rows, header
+
+
+class Table(BlockToken):
+    name: str
+    caption: str
+    header: list[TableHeader]
+    rows: list[TableRow]
+
+    @staticmethod
+    def start(line):
+        return line.lstrip().startswith("|")
 
     @classmethod
     def read(cls, lines):
-        header = next(lines)
-        header, alignment = cls.parse_header(header)
+        header = TableHeader(next(lines))
+        alignment = header.alignment
+
         name = ""
         caption = ""
-        rows = [TableRow(header)]
+        children = [TableBody([header], True)]
 
         # Read table until the end: No more column definitions, caption, or empty line.
         line_buffer = []
@@ -48,31 +110,9 @@ class Table(BlockToken):
                 line_buffer.append(next(lines))
                 next_line = lines.peek()
 
-        rows.extend([TableRow(line) for line in line_buffer])
+        children.append(TableBody([TableRow(line, alignment) for line in line_buffer]))
 
-        return alignment, rows, name, caption
-
-    def __init__(self, match):
-        self.alignment, self.children, self.name, self.caption = match
-
-
-class TableRow(BlockToken):
-    @classmethod
-    def parse_row(cls, line):
-        line = line.strip().strip("|")
-        columns = [col.strip() for col in line.split("|")]
-
-        data = []
-
-        for column in columns:
-            data.append(TableCell(column))
-
-        return data
+        return children, name, caption
 
     def __init__(self, match):
-        self.children = self.parse_row(match)
-
-
-class TableCell(BlockToken):
-    def __init__(self, match):
-        super().__init__(match, span_token.tokenize_inner)
+        self.children, self.name, self.caption = match

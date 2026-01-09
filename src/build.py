@@ -53,7 +53,7 @@ class Build:
 
         question_template = self.env.get_template(template_file)
 
-        with (self.config.p_data / "metadata.json").open() as file:
+        with (self.config.p_data / "metadata3b.json").open() as file:
             metadata = json.load(file)
 
             question = None
@@ -181,19 +181,43 @@ class Build:
 
     # cached
     def __build_section(
-        self, edition, edition_name, section, section_id, chapter, next_section=None, next_chapter=None
+        self,
+        edition,
+        edition_name,
+        section,
+        section_id,
+        chapter,
+        next_section=None,
+        next_chapter=None,
+        chapter_number=None,
     ):
         section_template = self.env.get_template("html/section.html")
         next_section_template = self.env.get_template("html/next_section.html")
         next_chapter_template = self.env.get_template("html/next_chapter.html")
         with (self.config.p_build / f"{edition}_{section['ident']}.html").open("w") as file:
+            # Use provided chapter_number or fall back to chapter dict
+            chapter_num = str(chapter_number) if chapter_number is not None else chapter.get("number", "0")
+            section_num = str(section_id)
+
+            # Set the section URL for references
+            section_filename = f"{edition}_{section['ident']}.html"
+
             with FiftyOhmHtmlRenderer(
                 question_renderer=self.__build_question,
                 picture_handler=self.__picture_handler,
                 photo_handler=self.__photo_handler,
                 include_handler=self.__include_handler,
+                edition=edition,
+                chapter=chapter_num,
+                section=section_num,
+                section_url=section_filename,
             ) as renderer:
-                section["content"] = renderer.render(Document(section["content"]))
+                # First pass: collect all figures and assign hierarchical numbers
+                doc = Document(section["content"])
+                renderer.collect_figures(doc)
+
+                # Second pass: render with hierarchical numbers
+                section["content"] = renderer.render(doc)
 
                 result = section_template.render(
                     edition=edition,
@@ -217,30 +241,58 @@ class Build:
                 result = self.__build_page(result, course_wrapper=True)
                 file.write(result)
 
-    def __build_chapter_slidedeck(self, edition, chapter, sections, next_chapter):
+    def __build_chapter_slidedeck(self, edition, chapter, sections, next_chapter, chapter_number=None):
         with (self.config.p_build / f"{edition}_slide_{chapter['ident']}.html").open("w") as file:
             slide_template = self.env.get_template("slide/slide.html")
             help_template = self.env.get_template("slide/help.html")
             next_template = self.env.get_template("slide/next.html")
+
+            # Use provided chapter_number or fall back to chapter dict
+            chapter_num = str(chapter_number) if chapter_number is not None else chapter.get("number", "0")
+
+            # Set the slide URL for references (all sections in one file)
+            # Note: filename uses original edition (e.g., "N"), not modified edition with "S" (e.g., "NS")
+            slide_filename = f"{edition}_slide_{chapter['ident']}.html"
+
             with FiftyOhmHtmlSlideRenderer(
                 question_renderer=self.__build_question_slide,
                 picture_handler=self.__picture_handler,
                 photo_handler=self.__photo_handler,
                 include_handler=self.__include_handler,
+                edition=edition,
+                chapter=chapter_num,
+                section="0",  # Will be updated per section
+                section_url=slide_filename,
             ) as renderer:
                 result = "<section>\n"
                 result += f'<section data-background="#DAEEFA">\n<h1>{chapter["title"]}</h1>\n</section>\n'
                 result += help_template.render()
                 result += "</section>\n"
+
+                section_counter = 0
                 for section in sections:
                     if section["slide"] is None:
                         continue
 
+                    section_counter += 1
+                    # Update section number for this section
+                    renderer.section = str(section_counter)
+                    # Reset figure counter for each section
+                    renderer.figure_counter = 0
+                    renderer.figure_map = {}
+
                     if not section["slide"].startswith("---"):
                         section["slide"] = "---\n" + section["slide"]
+
+                    # First pass: collect figures
+                    doc = Document(section["slide"])
+                    renderer.collect_figures(doc)
+
+                    # Second pass: render with hierarchical numbers
                     tmp = f'<section data-background="#DAEEFA">\n<h1>{section["title"]}</h1>\n</section>\n'
-                    tmp += renderer.render(Document(section["slide"]))
+                    tmp += renderer.render(doc)
                     result += f"<section>{tmp}</section>\n"
+
                 result += next_template.render(
                     edition=edition,
                     next_chapter=next_chapter,
@@ -291,19 +343,32 @@ class Build:
             edition_name = book["title"]
             self.__build_book_index(book)
             self.__build_slide_index(book)
-            for number, chapter in enumerate(tqdm(chapters, desc=f"Build Edition: {edition}"), 1):
-                next_chapter = chapters[number] if number < len(chapters) else None
-                self.__build_chapter(edition, edition_name, number, chapter, next_chapter)
-                self.__build_chapter_slidedeck(edition, chapter, chapter["sections"], next_chapter)
+            for chapter_number, chapter in enumerate(tqdm(chapters, desc=f"Build Edition: {edition}"), 1):
+                next_chapter = chapters[chapter_number] if chapter_number < len(chapters) else None
+                self.__build_chapter(edition, edition_name, chapter_number, chapter, next_chapter)
+                self.__build_chapter_slidedeck(edition, chapter, chapter["sections"], next_chapter, chapter_number)
 
-                for i, section in enumerate(chapter["sections"], 1):
+                for section_number, section in enumerate(chapter["sections"], 1):
                     tqdm.write(f"Rendering section {section['title']}")
-                    next_section = chapter["sections"][i] if i < len(chapter["sections"]) else None
-                    self.__build_section(edition, edition_name, section, i, chapter, next_section, next_chapter)
+                    next_section = (
+                        chapter["sections"][section_number] if section_number < len(chapter["sections"]) else None
+                    )
+                    self.__build_section(
+                        edition,
+                        edition_name,
+                        section,
+                        section_number,
+                        chapter,
+                        next_section,
+                        next_chapter,
+                        chapter_number,
+                    )
 
     def build_assets(self):
         self.config.p_build.mkdir(exist_ok=True)
-        shutil.copytree(self.config.p_assets, self.config.p_build_assets, dirs_exist_ok=True)
+        shutil.copytree(
+            self.config.p_assets, self.config.p_build_assets, dirs_exist_ok=True, ignore=shutil.ignore_patterns(".git")
+        )
 
     def __parse_snippets(self):
         with (self.config.p_data / "snippets.json").open() as file:

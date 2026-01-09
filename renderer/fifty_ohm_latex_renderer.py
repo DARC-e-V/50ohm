@@ -8,7 +8,7 @@ from .photo import Photo
 from .picture import Picture
 from .question import Question
 from .quote import Quote
-from .table import Table
+from .table import Table, TableBody, TableCell, TableHeader, TableRow
 from .tag import Tag
 from .underline import Underline
 
@@ -28,8 +28,16 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
             Picture,
             Photo,
             Table,
+            TableBody,
+            TableRow,
+            TableHeader,
+            TableCell,
         )
         self.question_renderer = question_renderer
+
+    def render_inner(self, token, base="") -> str:
+        # Filter out None values, so block tokens can return None to not be rendered.
+        return base.join(filter(lambda x: x is not None, [self.render(child) for child in token.children]))
 
     def render_document(self, token):
         self.footnotes.update(token.footnotes)
@@ -118,23 +126,25 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
         return self.render_photo_helper(token.id, token.ref, token.text, token.number)
 
     def render_table(self, token):
-        alignments = token.alignment
-        align = ""
-        for alignment in alignments:
-            align += alignment
-
-        table = f"\\begin{{DARCtabular}}{{{align}}}\n"
-
-        for row in token.children:
-            for j, cell in enumerate(row.children):
-                table += self.render_inner(cell)
-                if j < len(row.children) - 1:
-                    table += " & "
-            table += r"\\" + "\n"
-
-        table += "\\end{DARCtabular}"
+        table = "\\begin{DARCtabular}" + f"{self.render_inner(token)}" + "\\end{DARCtabular}"
         if token.caption != "":
             table += f"\\captionof{{figure}}{{{token.caption}}}\n"
             table += f"\\label{{{token.name}}}\n"
 
         return table
+
+    def render_table_body(self, token: TableBody):
+        return self.render_inner(token)
+
+    def render_table_row(self, token: TableRow):
+        return rf"{self.render_inner(token, ' & ')}\\" + "\n"
+
+    def render_table_header(self, token: TableHeader):
+        align = ""
+        for alignment in token.alignment:
+            align += alignment
+
+        return f"{{{align}}}\n{self.render_table_row(token)}"
+
+    def render_table_cell(self, token: TableCell):
+        return self.render_inner(token)
