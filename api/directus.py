@@ -24,16 +24,11 @@ class DirectusAPI:
         if params is None:
             params = {}
         result = self.__get_raw(endpoint, params)
-        try:
-            result_json = result.json()
-            if "errors" in result_json.keys():
-                print(result_json["errors"])
-                raise Exception("Error communicating with API")
-            data = result_json["data"]
-        except Exception as e:
-            print(f"Error: {e}")
-            return None
-        return data
+        result_json = result.json()
+        if "errors" in result_json.keys():
+            print(result_json["errors"])
+            raise Exception("Error communicating with API")
+        return result_json["data"]
 
     def get_one(self, endpoint, params=None):
         if params is None:
