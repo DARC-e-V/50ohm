@@ -1,19 +1,33 @@
 import re
 
-from mistletoe.span_token import SpanToken
+from mistletoe.block_tokenizer import FileWrapper
+
+from renderer.referenced_token import ReferencedToken
 
 
-class Picture(SpanToken):
+class Picture(ReferencedToken):
     """
     Span token for pictures.
     Example: [picture:727:amplitude_periode_halbwellen:Positive und negative Halbwellen einer Sinusschwingung]
     """
 
-    parse_inner = False
-    pattern = re.compile(r"\[picture:(\d+):(.+):(.+)\]")
+    pattern = re.compile(r"^\[picture:(?P<id>\d+):(?P<marker>[^:\]]+):(?P<text>[^:\]]+)\]$")
 
-    def __init__(self, match_object):
-        self.id = match_object.group(1)
-        self.ref = match_object.group(2)
-        self.text = match_object.group(3)
-        self.number = "TODO"
+    @classmethod
+    def start(cls, line: str):
+        return cls.pattern.match(line.strip()) is not None
+
+    @classmethod
+    def check_interrupts_paragraph(cls, lines: FileWrapper):
+        return cls.pattern.match(lines.peek())
+
+    @classmethod
+    def read(cls, lines: FileWrapper):
+        match = cls.pattern.match(next(lines))
+        return match.group("id"), match.group("marker"), match.group("text")
+
+    def __init__(self, match):
+        id, marker, text = match
+        super().__init__(marker)
+        self.id = id
+        self.text = text
