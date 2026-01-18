@@ -33,7 +33,7 @@ questions = parse_katalog()
 
 def question_stub(input):
     """Combines the original question dataset from BNetzA with our internal metadata"""
-    with open("data/metadata.json") as metadata_file:
+    with open("data/metadata3b.json") as metadata_file:
         metadata = json.load(metadata_file)
         number = metadata[f"{input}"]["number"]  # Fragennummer z.B. AB123
 
