@@ -26,7 +26,7 @@
       }
       function highlightRef(ref) {
         console.log(ref)
-        document.getElementById('ref_' + ref).style.background='red';
+        document.getElementById('ref_' + ref).style.background='#2aa6da';
         setTimeout(() => {
           document.getElementById('ref_' + ref).style.background='none';
         }, 500);
@@ -45,7 +45,7 @@
         <div class="fiftyohm-layout-main">
           <a class="fiftyohm-brand" href="index.html">
             <img class="fiftyohm-logo" src="assets/images/50ohm.svg">
-            <span class="fiftyohm-logo-beta">BETA</span><br>
+            <br>
             <span>Lernplattform für Amateurfunk</span>
           </a>
           <div class="fiftyohm-nav-button" id="nav-button" onclick="toggleNavBar();">

@@ -1,23 +1,38 @@
 document.addEventListener("DOMContentLoaded", function() {
+
   var macros = {
     ",": (context) => context.future()?.text === " " ? "{\\char`,}" : "\\char`,",
     "\\qty": "{#1\\,\\mathrm{#2}}",
+    "\\qtyrange": "{#1\\text{--}#2\\,\\mathrm{#3}}",
+    "\\unit": "{\\mathrm{#1}}",
     "\\squared": "{^{2}}",
     "\\cubed": "{^{3}}",
     "\\per": "/",
-    "\\tera": "T",
-    "\\giga": "G",
-    "\\mega": "M",
-    "\\kilo": "k",
-    "\\milli": "m",
+    "\\percent": "\\%",
+    "\\tera": "\\text{T}",
+    "\\giga": "\\text{G}",
+    "\\mega": "\\text{M}",
+    "\\kilo": "\\text{k}",
+    "\\dezi": "\\text{d}",
+    "\\centi": "\\text{c}",
+    "\\milli": "\\text{m}",
     "\\micro": "\\text{μ}",
-    "\\nano": "n",
+    "\\nano": "\\text{n}",
+    "\\pico": "\\text{p}",
     "\\kilogram": "\\text{kg}",
     "\\meter": "\\text{m}",
     "\\second": "\\text{s}",
     "\\ampere": "\\text{A}",
     "\\kelvin": "\\text{K}",
     "\\mol": "\\text{mol}",
+    "\\bel": "\\text{B}",
+    "\\dezibel": "\\text{dB}",
+    "\\dB": "\\text{dB}",
+    "\\dBm": "\\text{dBm}",
+    "\\dBu": "\\text{dBu}",
+    "\\dBW": "\\text{dBW}",
+    "\\dBi": "\\text{dBi}",
+    "\\dBd": "\\text{dBd}",
     "\\candela": "\\text{cd}",
     "\\newton": "\\text{N}",
     "\\hertz": "\\text{Hz}",
@@ -32,14 +47,16 @@ document.addEventListener("DOMContentLoaded", function() {
     "\\weber": "\\text{Wb}",
     "\\tesla": "\\text{T}",
   };
+
   renderMathInElement(document.body, {
-    delimiters: [{left: '$', right: '$', display: false}],
+    delimiters: [
+        {left: '$$', right: '$$', display: true}, // Note: $$ has to come before $
+        {left: '$', right: '$', display: false},
+        {left: '\\[', right: '\\]', display: true},
+        {left: "\\(", right: "\\)", display: false},
+    ],
     throwOnError : false,
     macros: macros
-  });
-  renderMathInElement(document.body, {
-    delimiters: [{left: '\\[', right: '\\]', display: false}],
-    throwOnError : false
   });
 });
 

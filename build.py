@@ -11,9 +11,14 @@ bd = build.Build(conf)
 
 # Download the text files:
 dl.download_edition("N")
+dl.download_edition("E")
+dl.download_edition("A")
+dl.download_edition("NE")
+dl.download_edition("EA")
+dl.download_edition("NEA")
 
 # Download additional files:
-dl.download_question_metadata()
+# dl.download_question_metadata() # (now constant file metadata3b.json)
 dl.download_photos()
 dl.download_pictures()
 dl.download_includes()
@@ -23,4 +28,9 @@ dl.download_content()
 # Build Everything:
 bd.build_website()
 bd.build_edition("N")
+bd.build_edition("E")
+bd.build_edition("A")
+bd.build_edition("NE")
+bd.build_edition("EA")
+bd.build_edition("NEA")
 bd.build_assets()
