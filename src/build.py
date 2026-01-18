@@ -354,7 +354,7 @@ class Build:
             ) as progress:
                 chapter_task = progress.add_task(f"Building edition {edition} ...")
                 for chapter_number, chapter in enumerate(progress.track(chapters, task_id=chapter_task), 1):
-                    progress.update(chapter_task, description=f"Buildign edition {edition}: Chapter {chapter['title']}")
+                    progress.update(chapter_task, description=f"Building edition {edition}: Chapter {chapter['title']}")
                     next_chapter = chapters[chapter_number] if chapter_number < len(chapters) else None
                     self.__build_chapter(edition, edition_name, chapter_number, chapter, next_chapter)
                     self.__build_chapter_slidedeck(edition, chapter, chapter["sections"], next_chapter, chapter_number)
