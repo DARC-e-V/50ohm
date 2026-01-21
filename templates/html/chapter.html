@@ -16,7 +16,7 @@
 </nav>
 
 <h1>{{ chapter["title"] }}</h1>
-<p>{{ chapter["abstract"] }}</p>
+{% if chapter["abstract"] %}<p>{{ chapter["abstract"] }}</p>{% endif %}
 <div class="chapter-toc d-grid gap-2">
     {% for section in chapter["sections"] %}
         <a class="btn btn-outline-primary btn-labeled" href="{{ edition }}_{{ section["ident"] }}.html">
