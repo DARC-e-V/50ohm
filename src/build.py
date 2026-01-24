@@ -1,5 +1,6 @@
 import json
 import random
+import re
 import shutil
 
 from jinja2 import Environment, FileSystemLoader
@@ -129,8 +130,7 @@ class Build:
         page_template = self.env.get_template("html/page.html")
         return page_template.render(content=content, course_wrapper=course_wrapper, sidebar=sidebar)
 
-    def __picture_handler(self, id):
-        self.config.p_build_pictures.mkdir(parents=True, exist_ok=True)
+    def __copy_picture(self, id):
         file = f"{id}.svg"
         try:
             shutil.copyfile(self.config.p_data_pictures / file, self.config.p_build_pictures / file)
@@ -140,6 +140,10 @@ class Build:
                 return "Bildbeschreibung noch nicht verfügbar"
         except FileNotFoundError:
             tqdm.write(f"\033[31mPicture #{id} not found\033[0m")
+
+    def __picture_handler(self, id):
+        self.config.p_build_pictures.mkdir(parents=True, exist_ok=True)
+        return self.__copy_picture(id)
 
     def __photo_handler(self, id):
         self.config.p_build_photos.mkdir(parents=True, exist_ok=True)
@@ -177,7 +181,11 @@ class Build:
     def __include_handler(self, include):
         with (self.config.p_data / "includes.json").open() as file:
             includes = json.load(file)
-            return includes.get(include)
+            code = includes.get(include)
+            svg_list = re.findall(r"(\d+)\.svg", code or "")
+            for id in svg_list:
+                self.__copy_picture(id)
+            return code
 
     # cached
     def __build_section(
