@@ -13,7 +13,7 @@ class Config:
         else:
             self.config = {}
 
-        self.git_url = self.get_config_value("git_url", "https://github.com/DARC-e-V/50ohm-contents-dl.git")
+        self.git_url = self.get_config_value("git_url", "git@github.com:DARC-e-V/50ohm-contents-dl.git")
 
         self.p_fragenkatalog = Path(
             self.get_config_value("path_fragenkatalog", "./data/git_content/contents/questions/fragenkatalog3b.json")
