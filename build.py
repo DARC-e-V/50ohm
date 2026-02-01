@@ -10,11 +10,7 @@ dl = download.Download(content_api, conf)
 # Download the content files:
 dl.download_git_content()
 
-# Download additional files:
-dl.download_snippets()
-dl.download_content()
-
-## Build Everything:
+# Build Everything:
 bd = build.Build(conf)
 bd.build_website()
 bd.build_edition("N")
