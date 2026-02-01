@@ -15,7 +15,7 @@ class Config:
 
         self.content_access_token = self.get_config_value("directus_content_api_key")
         self.content_base_url = self.get_config_value("directus_content_base_url", "https://redaktion.50ohm.de/")
-        self.git_url = self.get_config_value("git_url", "git@github.com:DARC-e-V/50ohm-contents-dl.git")
+        self.git_url = self.get_config_value("git_url", "https://github.com/DARC-e-V/50ohm-contents-dl.git")
 
         self.p_fragenkatalog = Path(
             self.get_config_value("path_fragenkatalog", "./data/git_content/contents/questions/fragenkatalog3b.json")

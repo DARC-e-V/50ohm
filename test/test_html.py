@@ -4,6 +4,7 @@ import pytest
 from jinja2 import Environment, FileSystemLoader
 from mistletoe import Document
 
+import src.download as download
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 
 
@@ -76,6 +77,8 @@ def include_stub(include):
 @pytest.mark.skip("Requires special files")
 @pytest.mark.html
 def test_html(capsys):
+    dl = download.Download()
+    dl.download_git_content()
     with capsys.disabled():
         with open("test/acceptanceTest.md") as file:
             content = file.read()
