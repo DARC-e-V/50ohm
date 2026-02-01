@@ -7,6 +7,9 @@ from mistletoe import Document
 import src.download as download
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 
+dl = download.Download()
+dl.download_git_content()
+
 
 def parse_katalog():
     with open("data/git_content/contents/questions/fragenkatalog3b.json") as fragenkatalog_file:
@@ -77,8 +80,6 @@ def include_stub(include):
 @pytest.mark.skip("Requires special files")
 @pytest.mark.html
 def test_html(capsys):
-    dl = download.Download()
-    dl.download_git_content()
     with capsys.disabled():
         with open("test/acceptanceTest.md") as file:
             content = file.read()
