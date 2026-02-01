@@ -8,6 +8,9 @@ from mistletoe import Document
 import src.download as download
 from renderer.fifty_ohm_html_slide_renderer import FiftyOhmHtmlSlideRenderer
 
+dl = download.Download()
+dl.download_git_content()
+
 
 def parse_katalog():
     with open("data/git_content/contents/questions/fragenkatalog3b.json") as fragenkatalog_file:
@@ -91,8 +94,6 @@ questions = parse_katalog()
 @pytest.mark.skip("Requires special files")
 @pytest.mark.slide
 def test_html_slides(capsys):
-    dl = download.Download()
-    dl.download_git_content()
     with capsys.disabled():
         with open("test/acceptanceTestSlides.md") as file:
             content = file.read()
