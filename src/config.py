@@ -13,17 +13,17 @@ class Config:
         else:
             self.config = {}
 
-        self.question_access_token = self.get_config_value("directus_question_api_key")
-        self.question_base_url = self.get_config_value("directus_question_base_url", "https://fragenkatalog.darc.de/")
         self.content_access_token = self.get_config_value("directus_content_api_key")
         self.content_base_url = self.get_config_value("directus_content_base_url", "https://redaktion.50ohm.de/")
-        self.no_latex = self.get_config_value("no_latex", False)
+        self.git_url = self.get_config_value("git_url", "git@github.com:DARC-e-V/50ohm-contents-dl.git")
 
-        self.p_fragenkatalog = Path(self.get_config_value("path_fragenkatalog", "./data/fragenkatalog3b.json"))
+        self.p_fragenkatalog = Path(
+            self.get_config_value("path_fragenkatalog", "./data/git_content/contents/questions/fragenkatalog3b.json")
+        )
 
         self.p_data = Path("./data")
-        self.p_data_photos = self.p_data / "photos"
-        self.p_data_pictures = self.p_data / "pictures"
+        self.p_data_photos = self.p_data / "git_content" / "photos"
+        self.p_data_pictures = self.p_data / "git_content" / "pictures"
 
         self.p_build = Path("./build")
         self.p_build_photos = self.p_build / "photos"
