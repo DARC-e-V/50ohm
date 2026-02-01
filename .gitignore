@@ -169,5 +169,3 @@ test/acceptanceTestSlides.html
 config/config.json
 
 data/*
-!data/fragenkatalog3b.json
-!data/README.txt
