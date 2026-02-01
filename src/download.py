@@ -1,14 +1,11 @@
 from git import Repo
 
-from api.directus import DirectusAPI
-
 from .config import Config
 
 
 class Download:
-    def __init__(self, content_api: DirectusAPI, config: Config):
+    def __init__(self, config: Config):
         self.config = config
-        self.content_api = content_api
 
     def download_git_content(self):
         repo_path = self.config.p_data / "git_content"

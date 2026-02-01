@@ -1,11 +1,9 @@
-import api.directus as directus
 import src.build as build
 import src.config as config
 import src.download as download
 
 conf = config.Config()
-content_api = directus.DirectusAPI(conf.content_base_url, conf.content_access_token)
-dl = download.Download(content_api, conf)
+dl = download.Download(conf)
 
 # Download the content files:
 dl.download_git_content()
