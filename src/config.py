@@ -22,8 +22,8 @@ class Config:
         )
 
         self.p_data = Path("./data")
-        self.p_data_photos = self.p_data / "git_content" / "photos"
-        self.p_data_pictures = self.p_data / "git_content" / "pictures"
+        self.p_data_photos = self.p_data / "git_content" / "contents" / "photos"
+        self.p_data_pictures = self.p_data / "git_content" / "contents" / "drawings"
 
         self.p_build = Path("./build")
         self.p_build_photos = self.p_build / "photos"

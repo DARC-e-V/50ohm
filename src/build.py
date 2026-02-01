@@ -48,26 +48,28 @@ class Build:
             return questions
 
     # cached
-    def __build_question(self, input, template_file="html/question.html"):
+    def __build_question(self, number, template_file="html/question.html"):
         """Combines the original question dataset from BNetzA with our internal metadata"""
 
         question_template = self.env.get_template(template_file)
 
-        with (self.config.p_data / "metadata3b.json").open() as file:
-            metadata = json.load(file)
+        with (self.config.p_data / "git_content/contents/questions/metadata3b.json").open() as file:
+            metadata_json = json.load(file)
 
             question = None
-            number = None
-            if f"{input}" in metadata:
-                metadata = metadata[f"{input}"]
-                number = metadata["number"]  # Fragennummer z.B. AB123
-                if number in self.questions:
-                    question = self.questions[number]
+            metadata = None
 
-            if question is None:
+            if number in self.questions:
+                question = self.questions[number]
+
+            if number in metadata_json:
+                metadata = metadata_json[number]
+
+            if question is None or metadata is None:
                 tqdm.write(
-                    f"\033[31mQuestion #{input} is missing"
-                    + (f" (but found number: {number})" if number is not None else "")
+                    f"\033[31mQuestion #{number} is missing"
+                    + (" (Question not in question pool)" if question is None else "")
+                    + (" (Question not in metadata)" if metadata is None else "")
                     + "\033[0m"
                 )
                 metadata = {"layout": "not-found", "picture_a": ""}
@@ -143,7 +145,7 @@ class Build:
 
     def __photo_handler(self, id):
         self.config.p_build_photos.mkdir(parents=True, exist_ok=True)
-        file = f"{id}.jpg"
+        file = f"{id}.png"
         try:
             shutil.copyfile(self.config.p_data_photos / file, self.config.p_build_photos / file)
             if (self.config.p_data_photos / f"{id}.txt").exists():
@@ -175,9 +177,8 @@ class Build:
             file.write(result)
 
     def __include_handler(self, include):
-        with (self.config.p_data / "includes.json").open() as file:
-            includes = json.load(file)
-            return includes.get(include)
+        with (self.config.p_data / f"git_content/contents/html/{include}.html").open() as file:
+            return file.read()
 
     # cached
     def __build_section(
@@ -337,9 +338,22 @@ class Build:
 
         edition = edition.upper()
 
-        with (self.config.p_data / f"book_{edition}.json").open() as file:
+        with (self.config.p_data / f"git_content/toc/{edition}.json").open() as file:
             book = json.load(file)
             chapters = book["chapters"]
+
+            for chapter in chapters:
+                for section in chapter["sections"]:
+                    ident = section["ident"]
+                    section["content"] = None
+                    section["slide"] = None
+                    with (self.config.p_data / f"git_content/contents/sections/{ident}.md").open() as sfile:
+                        section_content = sfile.read()
+                        section["content"] = section_content
+                    with (self.config.p_data / f"git_content/contents/slides/{ident}.md").open() as sfile:
+                        section_content = sfile.read()
+                        section["slide"] = section_content
+
             edition_name = book["title"]
             self.__build_book_index(book)
             self.__build_slide_index(book)
