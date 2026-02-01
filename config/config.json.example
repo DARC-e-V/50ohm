@@ -1,5 +1,3 @@
 {
-  "directus_content_base_url" : "https://redaktion.50ohm.de/",
-  "directus_content_api_key" : "",
   "git_url" : "git@github.com:DARC-e-V/50ohm-contents-dl.git",
 }

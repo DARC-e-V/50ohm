@@ -1,6 +1,7 @@
 import json
 import random
 import shutil
+from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 from joblib import Memory
@@ -385,25 +386,49 @@ class Build:
         )
 
     def __parse_snippets(self):
-        with (self.config.p_data / "snippets.json").open() as file:
-            snippets = json.load(file)
+        snippets_dir = self.config.p_data / "git_content/contents/snippets/"
+        snippets = {}
 
-            with FiftyOhmHtmlRenderer(
-                question_renderer=self.__build_question,
-                picture_handler=self.__picture_handler,
-                photo_handler=self.__photo_handler,
-                include_handler=self.__include_handler,
-            ) as renderer:
-                for key, value in snippets.items():
-                    snippets[key] = renderer.render_inner(Document(value))
-                    # Remove leading <p> and trailing </p>:
-                    snippets[key] = snippets[key][3:-4]
+        for md_file in Path(snippets_dir).glob("*.md"):
+            with md_file.open() as file:
+                snippets[md_file.stem] = file.read()
+
+        with FiftyOhmHtmlRenderer(
+            question_renderer=self.__build_question,
+            picture_handler=self.__picture_handler,
+            photo_handler=self.__photo_handler,
+            include_handler=self.__include_handler,
+        ) as renderer:
+            for key, value in snippets.items():
+                snippets[key] = renderer.render_inner(Document(value))
+                # Remove leading <p> and trailing </p>:
+                snippets[key] = snippets[key][3:-4]
+
         return snippets
 
     def __parse_contents(self):
-        with (self.config.p_data / "content.json").open() as file:
-            contents = json.load(file)
-            return contents
+        static_dir = self.config.p_data / "git_content/contents/static/"
+        static = []
+
+        for static_file in Path(static_dir).glob("*.html"):
+            if "sidebar" not in static_file.stem:
+                with static_file.open() as file:
+                    content = file.read()
+                sidebar_file = static_dir / f"{static_file.stem}_sidebar.html"
+                if not sidebar_file.exists():
+                    sidebar = ""
+                else:
+                    with sidebar_file.open() as file:
+                        sidebar = file.read()
+
+                static.append(
+                    {
+                        "url_part": static_file.stem,
+                        "content": content,
+                        "sidebar": sidebar if sidebar != "" else None,
+                    }
+                )
+        return static
 
     def __build_index(self, snippets):
         template = self.env.get_template("html/index.html")
