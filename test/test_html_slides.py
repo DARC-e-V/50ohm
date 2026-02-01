@@ -5,6 +5,7 @@ import pytest
 from jinja2 import Environment, FileSystemLoader
 from mistletoe import Document
 
+import src.download as download
 from renderer.fifty_ohm_html_slide_renderer import FiftyOhmHtmlSlideRenderer
 
 
@@ -90,6 +91,8 @@ questions = parse_katalog()
 @pytest.mark.skip("Requires special files")
 @pytest.mark.slide
 def test_html_slides(capsys):
+    dl = download.Download()
+    dl.download_git_content()
     with capsys.disabled():
         with open("test/acceptanceTestSlides.md") as file:
             content = file.read()
