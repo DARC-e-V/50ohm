@@ -13,8 +13,6 @@ class Config:
         else:
             self.config = {}
 
-        self.content_access_token = self.get_config_value("directus_content_api_key")
-        self.content_base_url = self.get_config_value("directus_content_base_url", "https://redaktion.50ohm.de/")
         self.git_url = self.get_config_value("git_url", "https://github.com/DARC-e-V/50ohm-contents-dl.git")
 
         self.p_fragenkatalog = Path(
