@@ -9,7 +9,7 @@ from renderer.fifty_ohm_html_slide_renderer import FiftyOhmHtmlSlideRenderer
 
 
 def parse_katalog():
-    with open("data/fragenkatalog3b.json") as fragenkatalog_file:
+    with open("data/git_content/contents/questions/fragenkatalog3b.json") as fragenkatalog_file:
         fragenkatalog = json.load(fragenkatalog_file)
 
         questions = {}
@@ -43,14 +43,12 @@ def filter_shuffle_answers(seq):
         return seq
 
 
-def question_stub(input):
+def question_stub(number):
     """Combines the original question dataset from BNetzA with our internal metadata"""
-    with open("data/metadata3b.json") as metadata_file:
+    with open("data/git_content/contents/questions/metadata3b.json") as metadata_file:
         metadata = json.load(metadata_file)
-        number = metadata[f"{input}"]["number"]  # Fragennummer z.B. AB123
-
         question = questions[number]
-        metadata = metadata[f"{input}"]
+        metadata = metadata[f"{number}"]
 
         if "answer_a" in question:
             answers = [question["answer_a"], question["answer_b"], question["answer_c"], question["answer_d"]]
