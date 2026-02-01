@@ -4,10 +4,12 @@ import pytest
 from jinja2 import Environment, FileSystemLoader
 from mistletoe import Document
 
+import src.config as config
 import src.download as download
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 
-dl = download.Download()
+conf = config.Config()
+dl = download.Download(conf)
 dl.download_git_content()
 
 
