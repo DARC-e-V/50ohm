@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download Test Report
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v6
         with:
           name: pytest-report
           run-id: ${{ github.event.workflow_run.id }}
