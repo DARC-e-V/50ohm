@@ -9,12 +9,13 @@ from test.util import paragraph
 @pytest.mark.html
 def test_dash_html():
     assertions = {
-        "Foo - Bar": "Foo &ndash; Bar",
-        "Foo-Bar": "Foo-Bar",
+        "Foo - Bar": paragraph("Foo &ndash; Bar"),
+        "Foo-Bar": paragraph("Foo-Bar"),
+        "$1 - 2$": "\n$$1 - 2$$\n\n",
     }
 
     for assertion in assertions:
-        assert mistletoe.markdown(assertion, FiftyOhmHtmlRenderer) == paragraph(assertions[assertion])
+        assert mistletoe.markdown(assertion, FiftyOhmHtmlRenderer) == assertions[assertion]
 
 
 @pytest.mark.latex
