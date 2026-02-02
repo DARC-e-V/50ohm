@@ -44,8 +44,10 @@ document.addEventListener("DOMContentLoaded", function() {
     "\\farad": "\\text{F}",
     "\\coulomb": "\\text{C}",
     "\\ohm": "\\Omega",
+    "\\Ohm": "\\Omega",
     "\\weber": "\\text{Wb}",
     "\\tesla": "\\text{T}",
+    "\\bit": "\\text{b}",
   };
 
   renderMathInElement(document.body, {
