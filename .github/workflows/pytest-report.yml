@@ -13,6 +13,7 @@ jobs:
         uses: actions/download-artifact@v6
         with:
           name: pytest-report
+          github-token: ${{ secrets.GH_PAT }}
           run-id: ${{ github.event.workflow_run.id }}
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v6
