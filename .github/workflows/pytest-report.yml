@@ -4,7 +4,9 @@ on:
     workflows: [Pytest]
     types: [completed]
 permissions:
+    actions: read
     checks: write
+    pull-requests: write
 jobs:
   checks:
     runs-on: ubuntu-latest
@@ -13,7 +15,7 @@ jobs:
         uses: actions/download-artifact@v6
         with:
           name: pytest-report
-          github-token: ${{ secrets.GH_PAT }}
+          github-token: ${{ github.token }}
           run-id: ${{ github.event.workflow_run.id }}
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v6
