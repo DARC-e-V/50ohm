@@ -2,8 +2,6 @@ name: Pytest
 on: pull_request
 permissions:
   contents: read
-  checks: write
-  pull-requests: write
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -21,12 +19,10 @@ jobs:
       - name: Install failure annotation plugin
         run: pip install pytest-github-actions-annotate-failures
       - name: Test with pytest
-        run: |
-          set -o pipefail
-          pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov-report=html --cov | tee pytest-coverage.txt
-      - name: Comment pytest code coverage
-        uses: MishaKav/pytest-coverage-comment@main
-        if: ${{ always() }}
+        run: pytest --junitxml=pytest.xml
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v6
         with:
-          pytest-coverage-path: ./pytest-coverage.txt
-          junitxml-path: ./pytest.xml
+          name: pytest-report
+          path: pytest.xml
+          retention-days: 1
