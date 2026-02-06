@@ -31,7 +31,7 @@ class Build:
         self.__build_chapter_slidedeck = memory.cache(self.__build_chapter_slidedeck)
 
     def __parse_katalog(self):
-        with self.config.p_fragenkatalog.open() as file:
+        with self.config.p_data_fragenkatalog.open() as file:
             fragenkatalog = json.load(file)
 
             questions = {}
@@ -54,7 +54,7 @@ class Build:
 
         question_template = self.env.get_template(template_file)
 
-        with (self.config.p_data / "git_content/contents/questions/metadata3b.json").open() as file:
+        with (self.config.p_data_metadata).open() as file:
             metadata_json = json.load(file)
 
             question = None
@@ -178,7 +178,7 @@ class Build:
             file.write(result)
 
     def __include_handler(self, include):
-        with (self.config.p_data / f"git_content/contents/html/{include}.html").open() as file:
+        with (self.config.p_data_html / f"{include}.html").open() as file:
             return file.read()
 
     # cached
@@ -339,7 +339,7 @@ class Build:
 
         edition = edition.upper()
 
-        with (self.config.p_data / f"git_content/toc/{edition}.json").open() as file:
+        with (self.config.p_data_toc / f"{edition}.json").open() as file:
             book = json.load(file)
             chapters = book["chapters"]
 
@@ -348,10 +348,10 @@ class Build:
                     ident = section["ident"]
                     section["content"] = None
                     section["slide"] = None
-                    with (self.config.p_data / f"git_content/contents/sections/{ident}.md").open() as sfile:
+                    with (self.config.p_data_sections / f"{ident}.md").open() as sfile:
                         section_content = sfile.read()
                         section["content"] = section_content
-                    with (self.config.p_data / f"git_content/contents/slides/{ident}.md").open() as sfile:
+                    with (self.config.p_data_slides / f"{ident}.md").open() as sfile:
                         section_content = sfile.read()
                         section["slide"] = section_content
 
@@ -386,10 +386,9 @@ class Build:
         )
 
     def __parse_snippets(self):
-        snippets_dir = self.config.p_data / "git_content/contents/snippets/"
         snippets = {}
 
-        for md_file in Path(snippets_dir).glob("*.md"):
+        for md_file in Path(self.config.p_data_snippets).glob("*.md"):
             with md_file.open() as file:
                 snippets[md_file.stem] = file.read()
 
@@ -407,14 +406,13 @@ class Build:
         return snippets
 
     def __parse_contents(self):
-        static_dir = self.config.p_data / "git_content/contents/static/"
         static = []
 
-        for static_file in Path(static_dir).glob("*.html"):
+        for static_file in Path(self.config.p_data_static).glob("*.html"):
             if "sidebar" not in static_file.stem:
                 with static_file.open() as file:
                     content = file.read()
-                sidebar_file = static_dir / f"{static_file.stem}_sidebar.html"
+                sidebar_file = self.config.p_data_static / f"{static_file.stem}_sidebar.html"
                 if not sidebar_file.exists():
                     sidebar = ""
                 else:

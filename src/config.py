@@ -13,15 +13,22 @@ class Config:
         else:
             self.config = {}
 
-        self.git_url = self.get_config_value("git_url", "git@github.com:DARC-e-V/50ohm-contents-dl.git")
+        self.p_data = Path(self.get_config_value("content_path", "/var/www/content"))
 
-        self.p_fragenkatalog = Path(
-            self.get_config_value("path_fragenkatalog", "./data/git_content/contents/questions/fragenkatalog3b.json")
-        )
+        self.p_data_toc = self.p_data / "toc"
 
-        self.p_data = Path("./data")
-        self.p_data_photos = self.p_data / "git_content" / "contents" / "photos"
-        self.p_data_pictures = self.p_data / "git_content" / "contents" / "drawings"
+        self.p_data_contents = self.p_data / "contents"
+        self.p_data_questions = self.p_data_contents / "questions"
+        self.p_data_html = self.p_data_contents / "html"
+        self.p_data_photos = self.p_data_contents / "photos"
+        self.p_data_pictures = self.p_data_contents / "drawings"
+        self.p_data_sections = self.p_data_contents / "sections"
+        self.p_data_slides = self.p_data_contents / "slides"
+        self.p_data_snippets = self.p_data_contents / "snippets"
+        self.p_data_static = self.p_data_contents / "static"
+
+        self.p_data_fragenkatalog = self.p_data_questions / "fragenkatalog3b.json"
+        self.p_data_metadata = self.p_data_questions / "metadata3b.json"
 
         self.p_build = Path("./build")
         self.p_build_photos = self.p_build / "photos"

@@ -1,12 +1,7 @@
 import src.build as build
 import src.config as config
-import src.download as download
 
 conf = config.Config()
-dl = download.Download(conf)
-
-# Download the content files:
-dl.download_git_content()
 
 # Build Everything:
 bd = build.Build(conf)
