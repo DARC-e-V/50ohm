@@ -31,10 +31,10 @@ def parse_katalog():
 
 env = Environment(loader=FileSystemLoader("templates/html"))
 question_template = env.get_template("question.html")
-questions = parse_katalog()
 
 
 def question_stub(number):
+    questions = parse_katalog()
     """Combines the original question dataset from BNetzA with our internal metadata"""
     with open(conf.p_data_metadata) as metadata_file:
         metadata = json.load(metadata_file)
@@ -72,7 +72,7 @@ def question_stub(number):
 
 
 def include_stub(include):
-    with open(f"data/git_content/contents/html/{include}.html") as file:
+    with open(conf.p_data_html / f"{include}.html") as file:
         return file.read()
 
 
