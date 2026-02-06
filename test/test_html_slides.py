@@ -47,6 +47,7 @@ def filter_shuffle_answers(seq):
 
 
 def question_stub(number):
+    questions = parse_katalog()
     """Combines the original question dataset from BNetzA with our internal metadata"""
     with open(conf.p_data_metadata) as metadata_file:
         metadata = json.load(metadata_file)
@@ -87,7 +88,6 @@ env = Environment(loader=FileSystemLoader("templates/"))
 env.filters["shuffle_answers"] = filter_shuffle_answers
 question_template = env.get_template("slide/question.html")
 slide_template = env.get_template("slide/slide.html")
-questions = parse_katalog()
 
 
 @pytest.mark.skip("Requires special files")
