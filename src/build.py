@@ -4,7 +4,6 @@ import shutil
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
-from joblib import Memory
 from mistletoe import Document
 from tqdm import tqdm
 
@@ -18,17 +17,9 @@ class Build:
     def __init__(self, config: Config):
         self.config = config
 
-        memory = Memory("./cache", verbose=0)
         self.env = Environment(loader=FileSystemLoader("templates/"))
         self.env.filters["shuffle_answers"] = self.__filter_shuffle_answers
         self.questions = self.__parse_katalog()
-
-        # Decorate the method with memory.cache
-        self.__build_question = memory.cache(self.__build_question)
-        self.__build_question_slide = memory.cache(self.__build_question_slide)
-        self.__build_chapter = memory.cache(self.__build_chapter)
-        self.__build_section = memory.cache(self.__build_section)
-        self.__build_chapter_slidedeck = memory.cache(self.__build_chapter_slidedeck)
 
     def __parse_katalog(self):
         with self.config.p_data_fragenkatalog.open() as file:
@@ -48,7 +39,6 @@ class Build:
 
             return questions
 
-    # cached
     def __build_question(self, number, template_file="html/question.html"):
         """Combines the original question dataset from BNetzA with our internal metadata"""
 
@@ -127,7 +117,6 @@ class Build:
     def __build_question_slide(self, input):
         return self.__build_question(input, template_file="slide/question.html")
 
-    # cached
     def __build_page(self, content, course_wrapper=False, sidebar=None):
         page_template = self.env.get_template("html/page.html")
         return page_template.render(content=content, course_wrapper=course_wrapper, sidebar=sidebar)
@@ -156,7 +145,6 @@ class Build:
         except FileNotFoundError:
             tqdm.write(f"\033[31mPhoto #{id} not found\033[0m")
 
-    # cached
     def __build_chapter(self, edition, edition_name, number, chapter, next_chapter=None):
         chapter_template = self.env.get_template("html/chapter.html")
         next_chapter_template = self.env.get_template("html/next_chapter.html")
@@ -181,7 +169,6 @@ class Build:
         with (self.config.p_data_html / f"{include}.html").open() as file:
             return file.read()
 
-    # cached
     def __build_section(
         self,
         edition,
