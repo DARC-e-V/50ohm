@@ -45,7 +45,7 @@ $ uv pip sync requirements.txt
 
 ### Ausführen
 
-Um 50ohm ausführen zu können, wird in den meisten Fällen ein Zugang zu passenden Directus-Instanzen benötigt. Diese können über eine `config/config.json` konfiguriert werden.
+Um 50ohm ausführen zu können, muss der Pfad zu einem lokal ausgechecktem Content-Repository in die `config/config.json` eingetragen werden. Ein Beispiel-Content-Repository für deutsche Inhalte findet sich hier: [50ohm-contents-dl](https://github.com/DARC-e-V/50ohm-contents-dl).
 
 Die 50ohm.de-Website wird mit folgendem Befehl vollständig gebaut:
 
