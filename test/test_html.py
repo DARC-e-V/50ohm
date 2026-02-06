@@ -4,11 +4,14 @@ import pytest
 from jinja2 import Environment, FileSystemLoader
 from mistletoe import Document
 
+import src.config as config
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
+
+conf = config.Config()
 
 
 def parse_katalog():
-    with open("data/fragenkatalog3b.json") as fragenkatalog_file:
+    with open(conf.p_data_fragenkatalog) as fragenkatalog_file:
         fragenkatalog = json.load(fragenkatalog_file)
 
         questions = {}
@@ -28,17 +31,15 @@ def parse_katalog():
 
 env = Environment(loader=FileSystemLoader("templates/html"))
 question_template = env.get_template("question.html")
-questions = parse_katalog()
 
 
-def question_stub(input):
+def question_stub(number):
+    questions = parse_katalog()
     """Combines the original question dataset from BNetzA with our internal metadata"""
-    with open("data/metadata3b.json") as metadata_file:
+    with open(conf.p_data_metadata) as metadata_file:
         metadata = json.load(metadata_file)
-        number = metadata[f"{input}"]["number"]  # Fragennummer z.B. AB123
-
         question = questions[number]
-        metadata = metadata[f"{input}"]
+        metadata = metadata[f"{number}"]
 
         if "answer_a" in question:
             answers = [question["answer_a"], question["answer_b"], question["answer_c"], question["answer_d"]]
@@ -71,9 +72,8 @@ def question_stub(input):
 
 
 def include_stub(include):
-    with open("data/includes.json") as file:
-        includes = json.load(file)
-        return includes.get(include)
+    with open(conf.p_data_html / f"{include}.html") as file:
+        return file.read()
 
 
 @pytest.mark.skip("Requires special files")

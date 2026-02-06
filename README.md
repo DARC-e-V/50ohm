@@ -19,11 +19,12 @@ Hier werden alle Inhalte aus der Datenbank heruntergeladen und strukturiert in v
 
 In der `build.py` finden sich außerdem weitere Begleitfunktionen zum Renderprozess, z.B. das Übersetzen von Fragennummern in Fragen oder das Kopieren von Assets.
 
-## Mitmachen
+## Mitmachen und Kontakt
 
 Aktuell wird 50ohm durch ein kleines ehrenamtliches Entwicklerteam beim DARC e.V. betreut und weiterentwickelt. Falls du einen Fehler oder einen Funktionswunsch hast, schreibe gerne ein Issue. Auch über einen PR freuen wir uns!
+Wenn du inhaltliche Beiträge hast, kannst du diese über dieses [Repository](https://github.com/DARC-e-V/50ohm-contents-dl) einreichen. 
 
-Wenn du inhaltliche Beiträge hast, wende dich bitte an das 50ohm-Autorenteam.
+Bei Anfragen bitte die Email-Adresse [50ohm@darc.de](mailto:50ohm@darc.de) nutzen. Weiterhin findet man viele der Beitragenden im Matrix-Kanal [50ohm Contribution](https://matrix.to/#/#50ohm-contribution:darc.de).
 
 ### Python einrichten und Abhängigkeiten installieren
 
@@ -44,7 +45,7 @@ $ uv pip sync requirements.txt
 
 ### Ausführen
 
-Um 50ohm ausführen zu können, wird in den meisten Fällen ein Zugang zu passenden Directus-Instanzen benötigt. Diese können über eine `config/config.json` konfiguriert werden.
+Um 50ohm ausführen zu können, muss der Pfad zu einem lokal ausgechecktem Content-Repository in die `config/config.json` eingetragen werden. Ein Beispiel-Content-Repository für deutsche Inhalte findet sich hier: [50ohm-contents-dl](https://github.com/DARC-e-V/50ohm-contents-dl).
 
 Die 50ohm.de-Website wird mit folgendem Befehl vollständig gebaut:
 
