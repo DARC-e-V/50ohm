@@ -6,16 +6,13 @@ from jinja2 import Environment, FileSystemLoader
 from mistletoe import Document
 
 import src.config as config
-import src.download as download
 from renderer.fifty_ohm_html_slide_renderer import FiftyOhmHtmlSlideRenderer
 
 conf = config.Config()
-dl = download.Download(conf)
-dl.download_git_content()
 
 
 def parse_katalog():
-    with open("data/git_content/contents/questions/fragenkatalog3b.json") as fragenkatalog_file:
+    with open(conf.p_data_fragenkatalog) as fragenkatalog_file:
         fragenkatalog = json.load(fragenkatalog_file)
 
         questions = {}
@@ -51,7 +48,7 @@ def filter_shuffle_answers(seq):
 
 def question_stub(number):
     """Combines the original question dataset from BNetzA with our internal metadata"""
-    with open("data/git_content/contents/questions/metadata3b.json") as metadata_file:
+    with open(conf.p_data_metadata) as metadata_file:
         metadata = json.load(metadata_file)
         question = questions[number]
         metadata = metadata[f"{number}"]
