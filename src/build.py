@@ -5,6 +5,7 @@ import shutil
 from jinja2 import Environment, FileSystemLoader
 from joblib import Memory
 from mistletoe import Document
+from rich.progress import BarColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
 from tqdm import tqdm
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
@@ -343,16 +344,29 @@ class Build:
             edition_name = book["title"]
             self.__build_book_index(book)
             self.__build_slide_index(book)
-            for chapter_number, chapter in enumerate(tqdm(chapters, desc=f"Build Edition: {edition}"), 1):
-                next_chapter = chapters[chapter_number] if chapter_number < len(chapters) else None
-                self.__build_chapter(edition, edition_name, chapter_number, chapter, next_chapter)
-                self.__build_chapter_slidedeck(edition, chapter, chapter["sections"], next_chapter, chapter_number)
 
-                for section_number, section in enumerate(chapter["sections"], 1):
-                    tqdm.write(f"Rendering section {section['title']}")
-                    next_section = (
-                        chapter["sections"][section_number] if section_number < len(chapter["sections"]) else None
-                    )
+            with Progress(
+                TaskProgressColumn(),
+                BarColumn(),
+                TimeRemainingColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                transient=True,
+            ) as progress:
+                chapter_task = progress.add_task(f"Building edition {edition} ...")
+                for chapter_number, chapter in enumerate(progress.track(chapters, task_id=chapter_task), 1):
+                    progress.update(chapter_task, description=f"Building edition {edition}: Chapter {chapter['title']}")
+                    next_chapter = chapters[chapter_number] if chapter_number < len(chapters) else None
+                    self.__build_chapter(edition, edition_name, chapter_number, chapter, next_chapter)
+                    self.__build_chapter_slidedeck(edition, chapter, chapter["sections"], next_chapter, chapter_number)
+
+                    section_task = progress.add_task(description="Rendering sections ...")
+                    for section_number, section in enumerate(
+                        progress.track(chapter["sections"], task_id=section_task), 1
+                    ):
+                        progress.update(section_task, description=f"Rendering section {section['title']}")
+                        next_section = (
+                            chapter["sections"][section_number] if section_number < len(chapter["sections"]) else None
+                        )
                     self.__build_section(
                         edition,
                         edition_name,
@@ -363,6 +377,8 @@ class Build:
                         next_chapter,
                         chapter_number,
                     )
+                    progress.remove_task(section_task)
+                progress.remove_task(chapter_task)
 
     def build_assets(self):
         self.config.p_build.mkdir(exist_ok=True)
