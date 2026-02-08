@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function() {
     "\\qty": "{#1\\,\\mathrm{#2}}",
     "\\qtyrange": "{#1\\text{--}#2\\,\\mathrm{#3}}",
     "\\unit": "{\\mathrm{#1}}",
+    "\\num": "{#1}",
     "\\squared": "{^{2}}",
     "\\cubed": "{^{3}}",
     "\\per": "/",
@@ -51,6 +52,8 @@ document.addEventListener("DOMContentLoaded", function() {
     "\\tesla": "\\text{T}",
     "\\bit": "\\text{b}",
     "\\baud": "\\text{Bd}",
+    "\\degree": "^\\circ",
+    "\\degreeCelsius": "^\\circ\\text{C}",
   };
 
   renderMathInElement(document.body, {
