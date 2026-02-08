@@ -20,8 +20,10 @@ document.addEventListener("DOMContentLoaded", function() {
     "\\nano": "\\text{n}",
     "\\pico": "\\text{p}",
     "\\kilogram": "\\text{kg}",
+    "\\gram": "\\text{g}",
     "\\meter": "\\text{m}",
     "\\second": "\\text{s}",
+    "\\hour": "\\text{h}",
     "\\ampere": "\\text{A}",
     "\\kelvin": "\\text{K}",
     "\\mol": "\\text{mol}",
@@ -48,6 +50,7 @@ document.addEventListener("DOMContentLoaded", function() {
     "\\weber": "\\text{Wb}",
     "\\tesla": "\\text{T}",
     "\\bit": "\\text{b}",
+    "\\baud": "\\text{Bd}",
   };
 
   renderMathInElement(document.body, {

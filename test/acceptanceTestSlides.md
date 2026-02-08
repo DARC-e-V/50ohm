@@ -75,7 +75,7 @@ CQ CQ hier ist DL1PZ mit einem allgemeinen Anruf, hier ist DL1PZ und hört.
 [photo:123:n_rst_s-meter:Display eines IC9700-Transceivers, hervorgehoben ist das S-Meter, das den aktuellen Empfangspegel anzeigt]
 
 ---
-[question:2482]
+[question:NB201]
 ---
 
 ## Slide Tabelle
