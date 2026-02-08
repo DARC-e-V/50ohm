@@ -46,7 +46,7 @@ Wenn man allerdings nur den Widerstand und die Spannung kennt und den entspreche
 
 $ I = \dfrac{U}{R} $
 
-[question:64]
+[question:NB504]
 
 Würde man die 10 V-Batterie in dem Beispiel durch eine 20 V-Batterie ersetzen, dann würde sich auch der Strom von 1 mA auf 2 mA erhöhen. Wenn man also die Spannung verdoppelt, dann verdoppelt sich auch der Strom. Entsprechend würde sich auch der Strom auf 0,5 mA halbieren, wenn man die Spannung auf 5 V halbieren würde.
 
@@ -73,8 +73,8 @@ CQ CQ hier ist DL1PZ mit einem allgemeinen Anruf, hier ist DL1PZ und hört.
 
 ---
 
-[question:397]
-[question:515]
+[question:BB102]
+[question:BE105]
 
 <indepth>
 *QSO* ist eine Abkürzung, die ursprünglich aus der Morsetelegrafie stammt und "ich habe direkten Kontakt zu Station X" bedeutet. Daran angelehnt, sprechen Funkamateure oftmals von einem QSO, wenn sie eine erfolgreiche Funkverbindung meinen.
