@@ -5,11 +5,14 @@ import pytest
 from jinja2 import Environment, FileSystemLoader
 from mistletoe import Document
 
+import src.config as config
 from renderer.fifty_ohm_html_slide_renderer import FiftyOhmHtmlSlideRenderer
+
+conf = config.Config()
 
 
 def parse_katalog():
-    with open("data/fragenkatalog3b.json") as fragenkatalog_file:
+    with open(conf.p_data_fragenkatalog) as fragenkatalog_file:
         fragenkatalog = json.load(fragenkatalog_file)
 
         questions = {}
@@ -43,14 +46,13 @@ def filter_shuffle_answers(seq):
         return seq
 
 
-def question_stub(input):
+def question_stub(number):
+    questions = parse_katalog()
     """Combines the original question dataset from BNetzA with our internal metadata"""
-    with open("data/metadata3b.json") as metadata_file:
+    with open(conf.p_data_metadata) as metadata_file:
         metadata = json.load(metadata_file)
-        number = metadata[f"{input}"]["number"]  # Fragennummer z.B. AB123
-
         question = questions[number]
-        metadata = metadata[f"{input}"]
+        metadata = metadata[f"{number}"]
 
         if "answer_a" in question:
             answers = [question["answer_a"], question["answer_b"], question["answer_c"], question["answer_d"]]
@@ -86,7 +88,6 @@ env = Environment(loader=FileSystemLoader("templates/"))
 env.filters["shuffle_answers"] = filter_shuffle_answers
 question_template = env.get_template("slide/question.html")
 slide_template = env.get_template("slide/slide.html")
-questions = parse_katalog()
 
 
 @pytest.mark.skip("Requires special files")
