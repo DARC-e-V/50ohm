@@ -94,6 +94,7 @@ document.addEventListener("DOMContentLoaded", function() {
         "\\dezi": "\\text{d}",
         "\\centi": "\\text{c}",
         "\\milli": "\\text{m}",
+        "\\m": "\\text{m}",
         "\\micro": "\\text{μ}",
         "\\nano": "\\text{n}",
         "\\pico": "\\text{p}",
