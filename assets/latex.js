@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         // Reassemble
-        return res = sign + intPart + (fracDigits ? (fracSep + fracDigits) : "") + exponent;
+        return sign + intPart + (fracDigits ? (fracSep + fracDigits) : "") + exponent;
     }
 
 
