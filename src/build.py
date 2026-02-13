@@ -103,6 +103,8 @@ class Build:
                 picture_question = ""
                 alt_text_question = ""
 
+            brightspot_file = self.config.p_data_brightspots / f"{number}.md"
+
             return question_template.render(
                 question=question["question"],
                 number=number,
@@ -112,6 +114,7 @@ class Build:
                 answer_pictures=answer_pictures,
                 alt_text_answers=alt_text_answers,
                 alt_text_question=alt_text_question,
+                brightspot=brightspot_file.exists(),
             )
 
     def __build_question_slide(self, input):
