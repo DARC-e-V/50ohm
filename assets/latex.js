@@ -15,10 +15,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 expValue = expValue.slice(1);
             }
 
-            // Exponent numerisch prüfen
+            // Parse exponent as a numeric value
             const expNum = parseInt(expValue, 10);
 
-            // e0 → komplett unterdrücken
+            // Suppress exponent if it is 0 (no \cdot 10^0 shown)
             if (expNum !== 0) {
                 exponent = "\\cdot 10^{" + expNum + "}";
             }
@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         // Reassemble
-        return res = sign + intPart + (fracDigits ? (fracSep + fracDigits) : "") + exponent;
+        return sign + intPart + (fracDigits ? (fracSep + fracDigits) : "") + exponent;
     }
 
 
