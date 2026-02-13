@@ -26,6 +26,7 @@ class Config:
         self.p_data_slides = self.p_data_contents / "slides"
         self.p_data_snippets = self.p_data_contents / "snippets"
         self.p_data_static = self.p_data_contents / "static"
+        self.p_data_brightspots = self.p_data_contents / "brightspots"
 
         self.p_data_fragenkatalog = self.p_data_questions / "fragenkatalog3b.json"
         self.p_data_metadata = self.p_data_questions / "metadata3b.json"
