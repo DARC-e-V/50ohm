@@ -71,7 +71,11 @@ document.addEventListener("DOMContentLoaded", function() {
             const rawNum = numTok.reverse().map(t => t.text).join("");
             const unit = unitTok.reverse().map(t => t.text).join("");
             const formattedNum = formatThousands(rawNum);
-            return formattedNum + "\\,\\mathrm{" + unit + "}";
+            if (unit.startsWith("\\degree")) {
+                return formattedNum + "\\mathrm{" + unit + "}";
+            } else {
+                return formattedNum + "\\,\\mathrm{" + unit + "}";
+            }
         },
         "\\qtyrange": (context) => {
             const [aTok, bTok, unitTok] = context.consumeArgs(3);
@@ -80,7 +84,11 @@ document.addEventListener("DOMContentLoaded", function() {
             const unit = unitTok.reverse().map(t => t.text).join("");
             const aFmt = formatThousands(aRaw);
             const bFmt = formatThousands(bRaw);
-            return aFmt + "\\,\\text{--}\\," + bFmt + "\\,\\mathrm{" + unit + "}";
+            if (unit.startsWith("\\degree")) {
+                return aFmt + "\\text{--}\\," + bFmt + "\\mathrm{" + unit + "}";
+            } else {
+                return aFmt + "\\,\\text{--}\\," + bFmt + "\\,\\mathrm{" + unit + "}";
+            }
         },
         "\\unit": "{\\mathrm{#1}}",
         "\\squared": "{^{2}}",
@@ -129,8 +137,7 @@ document.addEventListener("DOMContentLoaded", function() {
         "\\tesla": "\\text{T}",
         "\\bit": "\\text{b}",
         "\\baud": "\\text{Bd}",
-        "\\degree": "^\\circ",
-        "\\degreeCelsius": "^\\circ\\text{C}",
+        "\\degreeCelsius": "\\,\\degree\\text{C}",
     };
 
     renderMathInElement(document.body, {
