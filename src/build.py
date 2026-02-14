@@ -19,7 +19,7 @@ class Build:
     def __init__(self, config: Config):
         self.config = config
 
-        self.env = Environment(loader=FileSystemLoader("templates/"))
+        self.env = Environment(loader=FileSystemLoader(self.config.p_templates))
         self.env.filters["shuffle_answers"] = self.__filter_shuffle_answers
         self.questions = self.__parse_katalog()
 
@@ -377,16 +377,16 @@ class Build:
                         next_section = (
                             chapter["sections"][section_number] if section_number < len(chapter["sections"]) else None
                         )
-                    self.__build_section(
-                        edition,
-                        edition_name,
-                        section,
-                        section_number,
-                        chapter,
-                        next_section,
-                        next_chapter,
-                        chapter_number,
-                    )
+                        self.__build_section(
+                            edition,
+                            edition_name,
+                            section,
+                            section_number,
+                            chapter,
+                            next_section,
+                            next_chapter,
+                            chapter_number,
+                        )
                     progress.remove_task(section_task)
                 progress.remove_task(chapter_task)
 
