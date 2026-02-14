@@ -38,4 +38,3 @@ typing-extensions==4.15.0
     # via typer
 urllib3==2.5.0
     # via requests
-gitpython==3.1.46
