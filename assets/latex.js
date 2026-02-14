@@ -26,9 +26,13 @@ document.addEventListener("DOMContentLoaded", function() {
             s = s.slice(0, -expMatch[0].length);
         }
 
-        // Sign
+        // Sign (+, -, \pm). Also accept "\\pm" (double-escaped backslash) and optional whitespace.
         let sign = "";
-        if (s[0] === "+" || s[0] === "-") {
+        const pmMatch = s.match(/^(?:\\\\pm|\\pm)\s*/);
+        if (pmMatch) {
+            sign = "\\pm";
+            s = s.slice(pmMatch[0].length);
+        } else if (s[0] === "+" || s[0] === "-") {
             sign = s[0];
             s = s.slice(1);
         }
