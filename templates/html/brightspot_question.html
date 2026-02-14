@@ -1,4 +1,4 @@
-<div class="question layout-{{ layout }}" id="{{ number }}">
+<div class="question layout-{{ layout }} for-solution" id="{{ number }}">
     <div class="question-text">{{ number }}: {{ question }}</div>
     {% if picture_question %}
       <div class="question-picture"><img src="pictures/{{ picture_question }}.svg" alt="{{ alt_text_question }}"></div>
@@ -17,6 +17,6 @@
             <b>Falsch: </b> <div class="question-picture"><img src="pictures/{{ answer_pictures[3] }}.svg" alt="{{ alt_text_answers[3] }}"></div><br/>
         {% endif %}
     </div>
-  </div>
+</div>
   
   

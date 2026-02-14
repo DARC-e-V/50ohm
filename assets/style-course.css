@@ -19,7 +19,7 @@
   font-style: italic;
 }
 
-.question {
+.question:not(.for-solution) {
   padding: 1ex;
   background: #ddd;
   margin-top: 2em;
@@ -190,7 +190,7 @@ td {
 }
 
 ul {
-    list-style-type: square;
+  list-style-type: square;
 }
 
 ul li::marker {
@@ -438,15 +438,15 @@ span.formula {
 
 /* Enable Line Breaks in Equations ... */
 .course .katex-display > .katex {
-    white-space: normal
+  white-space: normal;
 }
 
 /* Add space between broken lines: */
 .course .katex-display .base {
-    margin: 0.5em 0em
+  margin: 0.5em 0em;
 }
 
 /* Compensate by reducing space around display math */
 .course .katex-display {
-    margin: 1em 0em;
+  margin: 1em 0em;
 }
