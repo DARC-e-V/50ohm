@@ -2,10 +2,8 @@ from typing import Annotated
 
 import typer
 
-import api.directus as directus
 import src.build as build
 import src.config as config
-import src.download as download
 from src.edition import Edition
 
 app = typer.Typer()
@@ -21,32 +19,11 @@ def main(
         Edition.ea,
         Edition.nea,
     ],
-    skip_download_editions: Annotated[
-        bool, typer.Option(help="Skip download for editions, will use cached files or fail.")
-    ] = False,
-    skip_download_assets: Annotated[
-        bool, typer.Option(help="Skip download for assets, will use cached assets or paceholders.")
-    ] = False,
+    source: Annotated[str | None, typer.Option(help="Content source directory.")] = None,
+    destination: Annotated[str | None, typer.Option(help="Destination directory to build to.")] = None,
 ) -> None:
-    conf = config.Config()
-    api = directus.DirectusAPI(conf.question_base_url, conf.question_access_token)
-    content_api = directus.DirectusAPI(conf.content_base_url, conf.content_access_token)
-    dl = download.Download(api, content_api, conf)
+    conf = config.Config(content_path=source, build_path=destination)
     bd = build.Build(conf)
-
-    if not skip_download_editions:
-        # Download the text files
-        for e in edition:
-            dl.download_edition(e)
-
-    if not skip_download_assets:
-        # Download additional files
-        # dl.download_question_metadata() # (now constant file metadata3b.json)
-        dl.download_photos()
-        dl.download_pictures()
-        dl.download_includes()
-        dl.download_snippets()
-        dl.download_content()
 
     # Build surrounding website
     bd.build_website()
