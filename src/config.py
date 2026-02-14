@@ -6,14 +6,14 @@ from pathlib import Path
 class Config:
     __env_prefix = "OHM"
 
-    def __init__(self):
+    def __init__(self, content_path: str = None, build_path: str = None):
         if os.path.isfile("config/config.json"):
             with open("config/config.json") as file:
                 self.config = json.load(file)
         else:
             self.config = {}
 
-        self.p_data = Path(self.get_config_value("content_path", "/var/www/content"))
+        self.p_data = Path(self.get_config_value("content") if content_path is None else content_path)
 
         self.p_data_toc = self.p_data / "toc"
 
@@ -30,12 +30,13 @@ class Config:
         self.p_data_fragenkatalog = self.p_data_questions / "fragenkatalog3b.json"
         self.p_data_metadata = self.p_data_questions / "metadata3b.json"
 
-        self.p_build = Path("./build")
+        self.p_build = Path(self.get_config_value("build_path", "./build") if build_path is None else build_path)
         self.p_build_photos = self.p_build / "photos"
         self.p_build_pictures = self.p_build / "pictures"
         self.p_build_assets = self.p_build / "assets"
 
         self.p_assets = Path("./assets")
+        self.p_templates = Path("./templates")
 
     def get_config_value(self, key: str, default=None):
         if key in self.config:
