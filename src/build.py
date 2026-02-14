@@ -1,4 +1,3 @@
-import functools
 import json
 import random
 import shutil
@@ -461,16 +460,18 @@ class Build:
                 content = file.read()
                 with (self.config.p_build / f"{brightspot_file.stem}.html").open("w") as file:
                     with FiftyOhmHtmlRenderer(
-                        question_renderer=functools.partial(
-                            self.__build_question,
-                            template_file="html/brightspot_question.html",
-                        ),
+                        question_renderer=self.__build_question,
                         picture_handler=self.__picture_handler,
                         photo_handler=self.__photo_handler,
                         include_handler=self.__include_handler,
                     ) as renderer:
+                        question = self.__build_question(
+                            brightspot_file.stem, template_file="html/brightspot_question.html"
+                        )
                         brightspot_template = self.env.get_template("html/brightspot.html")
-                        result = renderer.render(Document(content))
-                        result = brightspot_template.render(content=result, number=brightspot_file.stem)
-                        result = self.__build_page(result, course_wrapper=False)
-                        file.write(result)
+                        solution = renderer.render(Document(content))
+                        page = brightspot_template.render(
+                            question=question, solution=solution, number=brightspot_file.stem
+                        )
+                        page = self.__build_page(page, course_wrapper=False)
+                        file.write(page)
