@@ -36,28 +36,22 @@
   margin: 1ex 1em 1.5ex 1em;
 }
 
-.question.has-brightspot .question-text {
-  margin-right: 3em;
+.question .question-brightspot {
+  float: right;
+  margin: 0 0 0.5ex 1em;
 }
 
-.question .question-brightspot {
-  position: absolute;
-  top: 1ex;
-  right: 1ex;
-  line-height: 0;
-  text-decoration: none;
-  color: inherit;
+.question .question-text::after {
+  content: "";
+  display: block;
+  clear: right;
 }
 
 .question .question-brightspot-icon {
-  width: 2em;
-  height: 2em;
+  width: 1em;
+  height: 1em;
   display: block;
-}
-
-.question .question-brightspot:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 2px;
+  margin-right: 0.35em;
 }
 .question .question-picture {
   max-width: 100%;
