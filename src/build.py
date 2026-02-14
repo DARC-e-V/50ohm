@@ -1,9 +1,10 @@
 import json
 import random
+import re
 import shutil
+from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
-from joblib import Memory
 from mistletoe import Document
 from rich.progress import BarColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
 from tqdm import tqdm
@@ -18,20 +19,12 @@ class Build:
     def __init__(self, config: Config):
         self.config = config
 
-        memory = Memory("./cache", verbose=0)
         self.env = Environment(loader=FileSystemLoader("templates/"))
         self.env.filters["shuffle_answers"] = self.__filter_shuffle_answers
         self.questions = self.__parse_katalog()
 
-        # Decorate the method with memory.cache
-        self.__build_question = memory.cache(self.__build_question)
-        self.__build_question_slide = memory.cache(self.__build_question_slide)
-        self.__build_chapter = memory.cache(self.__build_chapter)
-        self.__build_section = memory.cache(self.__build_section)
-        self.__build_chapter_slidedeck = memory.cache(self.__build_chapter_slidedeck)
-
     def __parse_katalog(self):
-        with self.config.p_fragenkatalog.open() as file:
+        with self.config.p_data_fragenkatalog.open() as file:
             fragenkatalog = json.load(file)
 
             questions = {}
@@ -48,27 +41,28 @@ class Build:
 
             return questions
 
-    # cached
-    def __build_question(self, input, template_file="html/question.html"):
+    def __build_question(self, number, template_file="html/question.html"):
         """Combines the original question dataset from BNetzA with our internal metadata"""
 
         question_template = self.env.get_template(template_file)
 
-        with (self.config.p_data / "metadata3b.json").open() as file:
-            metadata = json.load(file)
+        with (self.config.p_data_metadata).open() as file:
+            metadata_json = json.load(file)
 
             question = None
-            number = None
-            if f"{input}" in metadata:
-                metadata = metadata[f"{input}"]
-                number = metadata["number"]  # Fragennummer z.B. AB123
-                if number in self.questions:
-                    question = self.questions[number]
+            metadata = None
 
-            if question is None:
+            if number in self.questions:
+                question = self.questions[number]
+
+            if number in metadata_json:
+                metadata = metadata_json[number]
+
+            if question is None or metadata is None:
                 tqdm.write(
-                    f"\033[31mQuestion #{input} is missing"
-                    + (f" (but found number: {number})" if number is not None else "")
+                    f"\033[31mQuestion #{number} is missing"
+                    + (" (Question not in question pool)" if question is None else "")
+                    + (" (Question not in metadata)" if metadata is None else "")
                     + "\033[0m"
                 )
                 metadata = {"layout": "not-found", "picture_a": ""}
@@ -125,13 +119,11 @@ class Build:
     def __build_question_slide(self, input):
         return self.__build_question(input, template_file="slide/question.html")
 
-    # cached
     def __build_page(self, content, course_wrapper=False, sidebar=None):
         page_template = self.env.get_template("html/page.html")
         return page_template.render(content=content, course_wrapper=course_wrapper, sidebar=sidebar)
 
-    def __picture_handler(self, id):
-        self.config.p_build_pictures.mkdir(parents=True, exist_ok=True)
+    def __copy_picture(self, id):
         file = f"{id}.svg"
         try:
             shutil.copyfile(self.config.p_data_pictures / file, self.config.p_build_pictures / file)
@@ -142,9 +134,13 @@ class Build:
         except FileNotFoundError:
             tqdm.write(f"\033[31mPicture #{id} not found\033[0m")
 
+    def __picture_handler(self, id):
+        self.config.p_build_pictures.mkdir(parents=True, exist_ok=True)
+        return self.__copy_picture(id)
+
     def __photo_handler(self, id):
         self.config.p_build_photos.mkdir(parents=True, exist_ok=True)
-        file = f"{id}.jpg"
+        file = f"{id}.png"
         try:
             shutil.copyfile(self.config.p_data_photos / file, self.config.p_build_photos / file)
             if (self.config.p_data_photos / f"{id}.txt").exists():
@@ -154,7 +150,6 @@ class Build:
         except FileNotFoundError:
             tqdm.write(f"\033[31mPhoto #{id} not found\033[0m")
 
-    # cached
     def __build_chapter(self, edition, edition_name, number, chapter, next_chapter=None):
         chapter_template = self.env.get_template("html/chapter.html")
         next_chapter_template = self.env.get_template("html/next_chapter.html")
@@ -176,11 +171,13 @@ class Build:
             file.write(result)
 
     def __include_handler(self, include):
-        with (self.config.p_data / "includes.json").open() as file:
-            includes = json.load(file)
-            return includes.get(include)
+        with (self.config.p_data_html / f"{include}.html").open() as file:
+            code = file.read()
+            svg_list = re.findall(r"(\d+)\.svg", code or "")
+            for id in svg_list:
+                self.__copy_picture(id)
+            return code
 
-    # cached
     def __build_section(
         self,
         edition,
@@ -338,9 +335,22 @@ class Build:
 
         edition = edition.upper()
 
-        with (self.config.p_data / f"book_{edition}.json").open() as file:
+        with (self.config.p_data_toc / f"{edition}.json").open() as file:
             book = json.load(file)
             chapters = book["chapters"]
+
+            for chapter in chapters:
+                for section in chapter["sections"]:
+                    ident = section["ident"]
+                    section["content"] = None
+                    section["slide"] = None
+                    with (self.config.p_data_sections / f"{ident}.md").open() as sfile:
+                        section_content = sfile.read()
+                        section["content"] = section_content
+                    with (self.config.p_data_slides / f"{ident}.md").open() as sfile:
+                        section_content = sfile.read()
+                        section["slide"] = section_content
+
             edition_name = book["title"]
             self.__build_book_index(book)
             self.__build_slide_index(book)
@@ -387,25 +397,47 @@ class Build:
         )
 
     def __parse_snippets(self):
-        with (self.config.p_data / "snippets.json").open() as file:
-            snippets = json.load(file)
+        snippets = {}
 
-            with FiftyOhmHtmlRenderer(
-                question_renderer=self.__build_question,
-                picture_handler=self.__picture_handler,
-                photo_handler=self.__photo_handler,
-                include_handler=self.__include_handler,
-            ) as renderer:
-                for key, value in snippets.items():
-                    snippets[key] = renderer.render_inner(Document(value))
-                    # Remove leading <p> and trailing </p>:
-                    snippets[key] = snippets[key][3:-4]
+        for md_file in Path(self.config.p_data_snippets).glob("*.md"):
+            with md_file.open() as file:
+                snippets[md_file.stem] = file.read()
+
+        with FiftyOhmHtmlRenderer(
+            question_renderer=self.__build_question,
+            picture_handler=self.__picture_handler,
+            photo_handler=self.__photo_handler,
+            include_handler=self.__include_handler,
+        ) as renderer:
+            for key, value in snippets.items():
+                snippets[key] = renderer.render_inner(Document(value))
+                # Remove leading <p> and trailing </p>:
+                snippets[key] = snippets[key][3:-4]
+
         return snippets
 
     def __parse_contents(self):
-        with (self.config.p_data / "content.json").open() as file:
-            contents = json.load(file)
-            return contents
+        static = []
+
+        for static_file in Path(self.config.p_data_static).glob("*.html"):
+            if "sidebar" not in static_file.stem:
+                with static_file.open() as file:
+                    content = file.read()
+                sidebar_file = self.config.p_data_static / f"{static_file.stem}_sidebar.html"
+                if not sidebar_file.exists():
+                    sidebar = ""
+                else:
+                    with sidebar_file.open() as file:
+                        sidebar = file.read()
+
+                static.append(
+                    {
+                        "url_part": static_file.stem,
+                        "content": content,
+                        "sidebar": sidebar if sidebar != "" else None,
+                    }
+                )
+        return static
 
     def __build_index(self, snippets):
         template = self.env.get_template("html/index.html")
