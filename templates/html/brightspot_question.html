@@ -1,0 +1,17 @@
+<div class="question layout-{{ layout }}" id="{{ number }}">
+    <div class="question-text">{{ number }}: {{ question }}</div>
+    {% if picture_question %}
+      <div class="question-picture"><img src="pictures/{{ picture_question }}.svg" alt="{{ alt_text_question }}"></div>
+    {% endif %}
+    <div class="question-text">
+        Richtige Lösung: <br/>
+        {% if answers[0] %}
+            {{ answers[0] }}
+        {% endif %}
+        {% if answer_pictures[0] %}
+            <div class="question-picture"><img src="pictures/{{ answer_pictures[0] }}.svg" alt="{{ alt_text_answers[0] }}"></div>
+        {% endif %}
+    </div>
+  </div>
+  
+  

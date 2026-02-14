@@ -1,3 +1,4 @@
+import functools
 import json
 import random
 import shutil
@@ -453,3 +454,23 @@ class Build:
         self.__build_course_page(snippets, "patenkarte", "patenkarte")
         self.__build_html_page(contents, "pruefung")
         self.__build_html_page(contents, "infos")
+
+    def build_brightspots(self):
+        for brightspot_file in self.config.p_data_brightspots.glob("*.md"):
+            with brightspot_file.open() as file:
+                content = file.read()
+                with (self.config.p_build / f"{brightspot_file.stem}.html").open("w") as file:
+                    with FiftyOhmHtmlRenderer(
+                        question_renderer=functools.partial(
+                            self.__build_question,
+                            template_file="html/brightspot_question.html",
+                        ),
+                        picture_handler=self.__picture_handler,
+                        photo_handler=self.__photo_handler,
+                        include_handler=self.__include_handler,
+                    ) as renderer:
+                        brightspot_template = self.env.get_template("html/brightspot.html")
+                        result = renderer.render(Document(content))
+                        result = brightspot_template.render(content=result, number=brightspot_file.stem)
+                        result = self.__build_page(result, course_wrapper=False)
+                        file.write(result)
