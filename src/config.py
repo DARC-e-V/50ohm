@@ -13,7 +13,7 @@ class Config:
         else:
             self.config = {}
 
-        self.p_data = Path(self.get_config_value("content") if content_path is None else content_path)
+        self.p_data = Path(self.get_config_value("input", "content") if content_path is None else content_path)
 
         self.p_data_toc = self.p_data / "toc"
 
@@ -31,7 +31,7 @@ class Config:
         self.p_data_fragenkatalog = self.p_data_questions / "fragenkatalog3b.json"
         self.p_data_metadata = self.p_data_questions / "metadata3b.json"
 
-        self.p_build = Path(self.get_config_value("build_path", "./build") if build_path is None else build_path)
+        self.p_build = Path(self.get_config_value("output", "./build") if build_path is None else build_path)
         self.p_build_photos = self.p_build / "photos"
         self.p_build_pictures = self.p_build / "pictures"
         self.p_build_assets = self.p_build / "assets"
