@@ -19,11 +19,12 @@
   font-style: italic;
 }
 
-.question {
+.question:not(.for-solution) {
   padding: 1ex;
   background: #ddd;
   margin-top: 2em;
   margin-bottom: 2em;
+  position: relative;
 }
 .question p {
   padding: 0;
@@ -34,6 +35,20 @@
   font-weight: 600;
   margin: 1ex 1em 1.5ex 1em;
 }
+
+.solution {
+  margin-top: -1.5em;
+  margin-bottom: 1em;
+  text-align: end;
+}
+
+.solution .solution-icon {
+  width: 1em;
+  height: 1em;
+  display: block;
+  margin-right: 0.35em;
+}
+
 .question .question-picture {
   max-width: 100%;
   margin-bottom: 1em;
@@ -171,7 +186,7 @@ td {
 }
 
 ul {
-    list-style-type: square;
+  list-style-type: square;
 }
 
 ul li::marker {
@@ -419,15 +434,15 @@ span.formula {
 
 /* Enable Line Breaks in Equations ... */
 .course .katex-display > .katex {
-    white-space: normal
+  white-space: normal;
 }
 
 /* Add space between broken lines: */
 .course .katex-display .base {
-    margin: 0.5em 0em
+  margin: 0.5em 0em;
 }
 
 /* Compensate by reducing space around display math */
 .course .katex-display {
-    margin: 1em 0em;
+  margin: 1em 0em;
 }
