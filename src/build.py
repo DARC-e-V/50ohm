@@ -1,5 +1,6 @@
 import json
 import random
+import re
 import shutil
 from pathlib import Path
 
@@ -121,8 +122,7 @@ class Build:
         page_template = self.env.get_template("html/page.html")
         return page_template.render(content=content, course_wrapper=course_wrapper, sidebar=sidebar)
 
-    def __picture_handler(self, id):
-        self.config.p_build_pictures.mkdir(parents=True, exist_ok=True)
+    def __copy_picture(self, id):
         file = f"{id}.svg"
         try:
             shutil.copyfile(self.config.p_data_pictures / file, self.config.p_build_pictures / file)
@@ -132,6 +132,10 @@ class Build:
                 return "Bildbeschreibung noch nicht verfügbar"
         except FileNotFoundError:
             tqdm.write(f"\033[31mPicture #{id} not found\033[0m")
+
+    def __picture_handler(self, id):
+        self.config.p_build_pictures.mkdir(parents=True, exist_ok=True)
+        return self.__copy_picture(id)
 
     def __photo_handler(self, id):
         self.config.p_build_photos.mkdir(parents=True, exist_ok=True)
@@ -167,7 +171,11 @@ class Build:
 
     def __include_handler(self, include):
         with (self.config.p_data_html / f"{include}.html").open() as file:
-            return file.read()
+            code = file.read()
+            svg_list = re.findall(r"(\d+)\.svg", code or "")
+            for id in svg_list:
+                self.__copy_picture(id)
+            return code
 
     def __build_section(
         self,
