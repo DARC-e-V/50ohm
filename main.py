@@ -19,17 +19,26 @@ def main(
         Edition.ea,
         Edition.nea,
     ],
-    source: Annotated[str | None, typer.Option(help="Content source directory.")] = None,
-    destination: Annotated[str | None, typer.Option(help="Destination directory to build to.")] = None,
+    input: Annotated[str | None, typer.Option("--input", "-i", help="Content source directory.")] = None,
+    output: Annotated[str | None, typer.Option("--output", "-o", help="Destination directory to build to.")] = None,
+    render_editions: Annotated[bool, typer.Option(help="Skip building editions.")] = True,
+    render_solutions: Annotated[bool, typer.Option(help="Skip building solutions.")] = True,
 ) -> None:
-    conf = config.Config(content_path=source, build_path=destination)
+    conf = config.Config(content_path=input, build_path=output)
     bd = build.Build(conf)
 
     # Build surrounding website
     bd.build_website()
-    # Build individual editions
-    for e in edition:
-        bd.build_edition(e)
+
+    if render_editions:
+        # Build individual editions
+        for e in edition:
+            bd.build_edition(e)
+
+    if render_solutions:
+        # Build solution pages
+        bd.build_solutions()
+
     # Copy assets to build folder
     bd.build_assets()
 
