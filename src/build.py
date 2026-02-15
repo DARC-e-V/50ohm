@@ -103,7 +103,7 @@ class Build:
                 picture_question = ""
                 alt_text_question = ""
 
-            brightspot_file = self.config.p_data_brightspots / f"{number}.md"
+            solution_file = self.config.p_data_solutions / f"{number}.md"
 
             return question_template.render(
                 question=question["question"],
@@ -114,7 +114,7 @@ class Build:
                 answer_pictures=answer_pictures,
                 alt_text_answers=alt_text_answers,
                 alt_text_question=alt_text_question,
-                brightspot=brightspot_file.exists(),
+                has_solution=solution_file.exists(),
             )
 
     def __build_question_slide(self, input):
@@ -454,11 +454,11 @@ class Build:
         self.__build_html_page(contents, "pruefung")
         self.__build_html_page(contents, "infos")
 
-    def build_brightspots(self):
-        for brightspot_file in self.config.p_data_brightspots.glob("*.md"):
-            with brightspot_file.open() as file:
+    def build_solutions(self):
+        for solution_file in self.config.p_data_solutions.glob("*.md"):
+            with solution_file.open() as file:
                 content = file.read()
-                with (self.config.p_build / f"{brightspot_file.stem}.html").open("w") as file:
+                with (self.config.p_build / f"{solution_file.stem}.html").open("w") as file:
                     with FiftyOhmHtmlRenderer(
                         question_renderer=self.__build_question,
                         picture_handler=self.__picture_handler,
@@ -466,12 +466,10 @@ class Build:
                         include_handler=self.__include_handler,
                     ) as renderer:
                         question = self.__build_question(
-                            brightspot_file.stem, template_file="html/brightspot_question.html"
+                            solution_file.stem, template_file="html/solution_question.html"
                         )
-                        brightspot_template = self.env.get_template("html/brightspot.html")
+                        solution_template = self.env.get_template("html/solution.html")
                         solution = renderer.render(Document(content))
-                        page = brightspot_template.render(
-                            question=question, solution=solution, number=brightspot_file.stem
-                        )
+                        page = solution_template.render(question=question, solution=solution, number=solution_file.stem)
                         page = self.__build_page(page, course_wrapper=False)
                         file.write(page)
