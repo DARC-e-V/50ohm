@@ -36,23 +36,19 @@
   margin: 1ex 1em 1.5ex 1em;
 }
 
-.question .question-brightspot {
-  float: right;
-  margin: 0 0 0.5ex 1em;
+.solution {
+  margin-top: -1.5em;
+  margin-bottom: 1em;
+  text-align: end;
 }
 
-.question .question-text::after {
-  content: "";
-  display: block;
-  clear: right;
-}
-
-.question .question-brightspot-icon {
+.solution .solution-icon {
   width: 1em;
   height: 1em;
   display: block;
   margin-right: 0.35em;
 }
+
 .question .question-picture {
   max-width: 100%;
   margin-bottom: 1em;
