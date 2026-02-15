@@ -6,6 +6,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 from mistletoe import Document
+from rich.progress import BarColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
 from tqdm import tqdm
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
@@ -18,7 +19,7 @@ class Build:
     def __init__(self, config: Config):
         self.config = config
 
-        self.env = Environment(loader=FileSystemLoader("templates/"))
+        self.env = Environment(loader=FileSystemLoader(self.config.p_templates))
         self.env.filters["shuffle_answers"] = self.__filter_shuffle_answers
         self.questions = self.__parse_katalog()
 
@@ -152,7 +153,7 @@ class Build:
         except FileNotFoundError:
             tqdm.write(f"\033[31mPhoto #{id} not found\033[0m")
 
-    def __build_chapter(self, edition, edition_name, number, chapter, next_chapter=None):
+    def __build_chapter_index(self, edition, edition_name, number, chapter, next_chapter=None):
         chapter_template = self.env.get_template("html/chapter.html")
         next_chapter_template = self.env.get_template("html/next_chapter.html")
         with (self.config.p_build / f"{edition}_chapter_{chapter['ident']}.html").open("w") as file:
@@ -241,7 +242,9 @@ class Build:
                 result = self.__build_page(result, course_wrapper=True)
                 file.write(result)
 
-    def __build_chapter_slidedeck(self, edition, chapter, sections, next_chapter, chapter_number=None):
+    def __build_chapter_slidedeck(
+        self, edition, chapter, sections, next_chapter, chapter_number=None, progress: Progress = None
+    ):
         with (self.config.p_build / f"{edition}_slide_{chapter['ident']}.html").open("w") as file:
             slide_template = self.env.get_template("slide/slide.html")
             help_template = self.env.get_template("slide/help.html")
@@ -270,7 +273,10 @@ class Build:
                 result += "</section>\n"
 
                 section_counter = 0
-                for section in sections:
+                slides_task = progress.add_task("Rendering slides ...")
+                for section in progress.track(sections, task_id=slides_task):
+                    progress.update(slides_task, description=f"Rendering slides of {section['title']}")
+
                     if section["slide"] is None:
                         continue
 
@@ -292,6 +298,8 @@ class Build:
                     tmp = f'<section data-background="#DAEEFA">\n<h1>{section["title"]}</h1>\n</section>\n'
                     tmp += renderer.render(doc)
                     result += f"<section>{tmp}</section>\n"
+
+                progress.remove_task(slides_task)
 
                 result += next_template.render(
                     edition=edition,
@@ -332,17 +340,45 @@ class Build:
             result = self.__build_page(result)
             file.write(result)
 
-    def build_edition(self, edition):
+    def build_edition(self, edition: str):
         self.config.p_build.mkdir(exist_ok=True)
 
         edition = edition.upper()
 
-        with (self.config.p_data_toc / f"{edition}.json").open() as file:
+        with (
+            (self.config.p_data_toc / f"{edition}.json").open() as file,
+            Progress(
+                TaskProgressColumn(),
+                BarColumn(),
+                TimeRemainingColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                transient=True,
+            ) as progress,
+        ):
+            chapter_task = progress.add_task(f"Building edition {edition} ...")
             book = json.load(file)
+            edition_name = book["title"]
+
+            # Create index pages for chapters and slides.
+            self.__build_book_index(book)
+            self.__build_slide_index(book)
+
             chapters = book["chapters"]
 
-            for chapter in chapters:
-                for section in chapter["sections"]:
+            for chapter_number, chapter in enumerate(progress.track(chapters, task_id=chapter_task), 1):
+                progress.update(chapter_task, description=f"Building edition {edition}: Chapter {chapter['title']}")
+
+                # Determine next chapter for navigation (None if this is the last chapter)
+                next_chapter = chapters[chapter_number] if chapter_number < len(chapters) else None
+
+                self.__build_chapter_index(edition, edition_name, chapter_number, chapter, next_chapter)
+
+                # Open, parse and render each section.
+                section_task = progress.add_task(description="Rendering sections ...")
+                for section_number, section in enumerate(progress.track(chapter["sections"], task_id=section_task), 1):
+                    progress.update(section_task, description=f"Rendering section {section['title']}")
+
+                    # Read section and slide content from the corresponding files.
                     ident = section["ident"]
                     section["content"] = None
                     section["slide"] = None
@@ -353,16 +389,6 @@ class Build:
                         section_content = sfile.read()
                         section["slide"] = section_content
 
-            edition_name = book["title"]
-            self.__build_book_index(book)
-            self.__build_slide_index(book)
-            for chapter_number, chapter in enumerate(tqdm(chapters, desc=f"Build Edition: {edition}"), 1):
-                next_chapter = chapters[chapter_number] if chapter_number < len(chapters) else None
-                self.__build_chapter(edition, edition_name, chapter_number, chapter, next_chapter)
-                self.__build_chapter_slidedeck(edition, chapter, chapter["sections"], next_chapter, chapter_number)
-
-                for section_number, section in enumerate(chapter["sections"], 1):
-                    tqdm.write(f"Rendering section {section['title']}")
                     next_section = (
                         chapter["sections"][section_number] if section_number < len(chapter["sections"]) else None
                     )
@@ -376,6 +402,14 @@ class Build:
                         next_chapter,
                         chapter_number,
                     )
+
+                progress.remove_task(section_task)
+                # Build the slidedeck after all sections have been processed, as they require the files to be read.
+                self.__build_chapter_slidedeck(
+                    edition, chapter, chapter["sections"], next_chapter, chapter_number, progress
+                )
+
+            progress.remove_task(chapter_task)
 
     def build_assets(self):
         self.config.p_build.mkdir(exist_ok=True)
