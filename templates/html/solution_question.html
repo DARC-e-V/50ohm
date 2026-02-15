@@ -1,0 +1,21 @@
+<div class="question layout-{{ layout }} for-solution" id="{{ number }}">
+    <div class="question-text m-0">Frage: {{ question }}</div>
+    {% if picture_question %}
+      <div class="question-picture"><img src="pictures/{{ picture_question }}.svg" alt="{{ alt_text_question }}"></div>
+    {% endif %}
+    <div class="answers">
+        {% for i in range(1) %}
+            <div>
+                <b>{{ 'Lösung:' if i == 0 else 'Falsch:' }}</b>
+                {% if answers[i] %}
+                    {{ answers[i] }}
+                {% endif %}
+                {% if answer_pictures[i] %}
+                    <div class="question-picture"><img src="pictures/{{ answer_pictures[i] }}.svg" alt="{{ alt_text_answers[i] }}"></div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+  
+  
