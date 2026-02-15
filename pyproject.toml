@@ -9,8 +9,9 @@ dependencies = [
     "joblib==1.5.1",
     "mistletoe==1.4.0",
     "requests==2.32.4",
+    "rich>=14.2.0",
     "tqdm==4.67.1",
-    "gitpython==3.1.46",
+    "typer>=0.21.1",
 ]
 
 [tool.ruff]
