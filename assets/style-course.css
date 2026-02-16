@@ -213,7 +213,6 @@ span.morse {
   font-size: 33%;
   position: relative;
   bottom: 1.7ex;
-  display: inline-block;
 }
 
 span.morse_char {
