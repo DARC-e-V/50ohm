@@ -99,6 +99,7 @@ document.addEventListener("DOMContentLoaded", function() {
         "\\cubed": "{^{3}}",
         "\\per": "/",
         "\\percent": "\\%",
+        "\\ppm": "\\text{ppm}",
         "\\tera": "\\text{T}",
         "\\giga": "\\text{G}",
         "\\mega": "\\text{M}",
