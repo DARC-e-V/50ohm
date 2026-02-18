@@ -119,10 +119,11 @@ document.addEventListener("DOMContentLoaded", function() {
         "\\kelvin": "\\text{K}",
         "\\mol": "\\text{mol}",
         "\\bel": "\\text{B}",
-        "\\dezibel": "\\text{dB}",
         "\\dB": "\\text{dB}",
         "\\dBm": "\\text{dBm}",
         "\\dBu": "\\text{dBu}",
+        "\\dBV": "\\text{dB}\\volt",
+        "\\dBuV": "\\text{dB}\\micro\\volt",
         "\\dBW": "\\text{dBW}",
         "\\dBi": "\\text{dBi}",
         "\\dBd": "\\text{dBd}",
@@ -143,6 +144,8 @@ document.addEventListener("DOMContentLoaded", function() {
         "\\bit": "\\text{b}",
         "\\baud": "\\text{Bd}",
         "\\degreeCelsius": "\\,\\degree\\text{C}",
+        "\\liter": "\\text{l}",
+        "\\oszidiv": "\\text{div}",
     };
 
     renderMathInElement(document.body, {
