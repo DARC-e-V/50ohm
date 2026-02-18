@@ -119,7 +119,6 @@ document.addEventListener("DOMContentLoaded", function() {
         "\\kelvin": "\\text{K}",
         "\\mol": "\\text{mol}",
         "\\bel": "\\text{B}",
-        "\\dezibel": "\\text{dB}",
         "\\dB": "\\text{dB}",
         "\\dBm": "\\text{dBm}",
         "\\dBu": "\\text{dBu}",
