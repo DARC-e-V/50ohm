@@ -1,8 +1,9 @@
 from jinja2 import Environment, FileSystemLoader
-from mistletoe import Document, HtmlRenderer
+from mistletoe import HtmlRenderer
 
 from .comment import BlockComment
 from .dash import Dash
+from .document import Document
 from .formula import Formula
 from .halfwidth_spaces import HalfwidthSpaces
 from .include import Include
@@ -25,8 +26,14 @@ table_alignment = {"l": "left", "c": "center", "r": "right"}
 class FiftyOhmHtmlRenderer(HtmlRenderer):
     margin_anchor_id = 0
     margin_id = 0
-    section_url = "section.html"
-    ref_id = 0
+
+    edition: str = None
+    chapter: str = None
+    section: str = None
+    section_url: str = None
+
+    # TODO: Add type
+    references = {}
 
     def __init__(
         self,
@@ -87,6 +94,12 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
         # Single unified counter for all figure types (pictures, photos, tables)
         self.figure_counter = 0
+
+    def get_reference_label(self, marker: str):
+        if marker in self.references:
+            return f"{self.edition}-{self.chapter}.{self.section}.{self.references[marker]}", True
+        else:
+            return marker, False
 
     def render_dash(self, token):
         return " &ndash; "
@@ -249,6 +262,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return self.question_renderer(token.question_number)
 
     def render_document(self, token: Document) -> str:
+        self.references.update(token.references)
         self.footnotes.update(token.footnotes)
         inner = self.render_inner(token, "\n")
         return f"{inner}\n" if inner else ""
@@ -257,21 +271,20 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         # Filter out None values, so block tokens can return None to not be rendered.
         return base.join(filter(lambda x: x is not None, [self.render(child) for child in token.children]))
 
-    @staticmethod
-    def render_picture_helper(id, ref, text, number, alt_text):
-        return f"""
-                <figure class="picture" id="ref_{ref}" name="{ref}">
-                    <img src="pictures/{id}.svg" alt="{alt_text}">
-                    <figcaption>Abbildung {number}: {text}</figcaption>
-                </figure>
-            """
+    def render_picture_helper(self, id, marker, text, label, alt_text):
+        return (
+            f'<figure class="picture" id="ref_{marker}" name="{marker}">\n'
+            f'  <img src="pictures/{id}.svg" alt="{alt_text}">\n'
+            f"  <figcaption>Abbildung {self.get_reference_label(marker)}: {text}</figcaption>\n"
+            "</figure>\n"
+        )
 
     def render_picture(self, token):
         alt_text = ""
         if self.picture_handler is not None:
             alt_text = self.picture_handler(token.id)
 
-        return self.render_picture_helper(token.id, token.ref, token.text, token.number, alt_text)
+        return self.render_picture_helper(token.id, token.marker, token.text, token.label, alt_text)
 
     @staticmethod
     def render_photo_helper(id, ref, text, number, alt_text):
