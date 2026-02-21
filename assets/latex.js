@@ -143,6 +143,7 @@ document.addEventListener("DOMContentLoaded", function() {
         "\\bit": "\\text{b}",
         "\\baud": "\\text{Bd}",
         "\\degreeCelsius": "\\,\\degree\\text{C}",
+        "\\sps": "\\text{sps}",
     };
 
     renderMathInElement(document.body, {
