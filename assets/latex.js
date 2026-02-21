@@ -147,6 +147,7 @@ document.addEventListener("DOMContentLoaded", function() {
         "\\degreeCelsius": "\\,\\degree\\text{C}",
         "\\liter": "\\text{l}",
         "\\oszidiv": "\\text{div}",
+        "\\sps": "\\text{sps}",
     };
 
     renderMathInElement(document.body, {
