@@ -8,13 +8,15 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 from mistletoe import Document
+from rich.console import Console
 from rich.progress import BarColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
-from tqdm import tqdm
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 from renderer.fifty_ohm_html_slide_renderer import FiftyOhmHtmlSlideRenderer
 
 from .config import Config
+
+console = Console()
 
 
 class Build:
@@ -61,11 +63,11 @@ class Build:
                 metadata = metadata_json[number]
 
             if question is None or metadata is None:
-                tqdm.write(
-                    f"\033[31mQuestion #{number} is missing"
+                console.print(
+                    f"[red]Question #{number} is missing"
                     + (" (Question not in question pool)" if question is None else "")
                     + (" (Question not in metadata)" if metadata is None else "")
-                    + "\033[0m"
+                    + "[/red]"
                 )
                 metadata = {"layout": "not-found", "picture_a": ""}
                 number = 404
@@ -137,7 +139,7 @@ class Build:
             else:
                 return "Bildbeschreibung noch nicht verfügbar"
         except FileNotFoundError:
-            tqdm.write(f"\033[31mPicture #{id} not found\033[0m")
+            console.print(f"[red]Picture #{id} not found[/red]")
 
     def __picture_handler(self, id):
         self.config.p_build_pictures.mkdir(parents=True, exist_ok=True)
@@ -153,7 +155,7 @@ class Build:
             else:
                 return "Bildbeschreibung noch nicht verfügbar"
         except FileNotFoundError:
-            tqdm.write(f"\033[31mPhoto #{id} not found\033[0m")
+            console.print(f"[red]Photo #{id} not found[/red]")
 
     def __build_chapter_index(self, edition, edition_name, number, chapter, next_chapter=None):
         chapter_template = self.env.get_template("html/chapter.html")
@@ -535,7 +537,7 @@ class Build:
         if zip_path.exists():
             zip_path.unlink()
 
-        tqdm.write(f"Creating zip archive: {zip_path}")
+        console.print(f"Creating zip archive: {zip_path}")
 
         with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
             # os.walk includes dotfiles; sort for stable archives.
