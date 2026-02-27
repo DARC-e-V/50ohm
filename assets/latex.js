@@ -142,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function() {
         "\\Ohm": "\\Omega",
         "\\weber": "\\text{Wb}",
         "\\tesla": "\\text{T}",
-        "\\bit": "\\text{b}",
+        "\\bit": "\\text{Bit}",
         "\\baud": "\\text{Bd}",
         "\\degreeCelsius": "\\,\\degree\\text{C}",
         "\\liter": "\\text{l}",
