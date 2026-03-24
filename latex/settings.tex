@@ -1063,3 +1063,172 @@
     \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true}
 
 \makeatother
+
+
+
+% Channel Coder
+\makeatletter
+\ctikzset{bipoles/channelcoder/width/.initial=.7}
+
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/channelcoder/width}}
+{channelcoder}
+{\ctikzvalof{bipoles/channelcoder/width}}
+{\ctikzvalof{bipoles/channelcoder/width}}
+{
+    \pgfcirc@twoport@draw@splitline
+    %
+    \pgf@circ@text@strokecolor
+    \pgftext[center,x=0.55\pgf@circ@res@left,y=0.6\pgf@circ@res@up]{\tiny 01}
+    \pgftext[center,x=0.30\pgf@circ@res@right,y=0.6\pgf@circ@res@down]{\tiny 01+01}
+}
+
+\pgfcirc@activate@bipole@simple{l}{channelcoder}
+\makeatother
+
+% Channel Decoder
+\makeatletter
+\ctikzset{bipoles/channeldecoder/width/.initial=.7}
+
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/channeldecoder/width}}
+{channeldecoder}
+{\ctikzvalof{bipoles/channeldecoder/width}}
+{\ctikzvalof{bipoles/channeldecoder/width}}
+{
+    \pgfcirc@twoport@draw@splitline
+    %
+    \pgf@circ@text@strokecolor
+    \pgftext[center,x=0.25\pgf@circ@res@left,y=0.6\pgf@circ@res@up]{\tiny 01+01}
+    \pgftext[center,x=0.55\pgf@circ@res@right,y=0.6\pgf@circ@res@down]{\tiny 01}
+}
+
+\pgfcirc@activate@bipole@simple{l}{channeldecoder}
+\makeatother
+
+
+% Source Coder
+\makeatletter
+\ctikzset{bipoles/sourcecoder/width/.initial=.7}
+
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/sourcecoder/width}}
+{sourcecoder}
+{\ctikzvalof{bipoles/sourcecoder/width}}
+{\ctikzvalof{bipoles/sourcecoder/width}}
+{
+    \pgfcirc@twoport@draw@splitline
+    %
+    \pgf@circ@text@strokecolor
+    \pgftext[center,x=0.30\pgf@circ@res@left,y=0.6\pgf@circ@res@up]{\tiny 0101}
+    \pgftext[center,x=0.55\pgf@circ@res@right,y=0.6\pgf@circ@res@down]{\tiny 01}
+}
+
+\pgfcirc@activate@bipole@simple{l}{sourcecoder}
+\makeatother
+
+% Source Decoder
+\makeatletter
+\ctikzset{bipoles/sourcedecoder/width/.initial=.7}
+
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/sourcedecoder/width}}
+{sourcedecoder}
+{\ctikzvalof{bipoles/sourcedecoder/width}}
+{\ctikzvalof{bipoles/sourcedecoder/width}}
+{
+    \pgfcirc@twoport@draw@splitline
+    %
+    \pgf@circ@text@strokecolor
+    \pgftext[center,x=0.55\pgf@circ@res@left,y=0.6\pgf@circ@res@up]{\tiny 01}
+    \pgftext[center,x=0.30\pgf@circ@res@right,y=0.6\pgf@circ@res@down]{\tiny 0101}
+}
+
+\pgfcirc@activate@bipole@simple{l}{sourcedecoder}
+\makeatother
+
+% Mapper
+\makeatletter
+\ctikzset{bipoles/mapper/width/.initial=.7}
+
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/mapper/width}}
+{mapper}
+{\ctikzvalof{bipoles/mapper/width}}
+{\ctikzvalof{bipoles/mapper/width}}
+{
+    \pgfcirc@twoport@draw@splitline
+    %
+    \pgf@circ@text@strokecolor
+    \pgftext[center,x=0.55\pgf@circ@res@left,y=0.6\pgf@circ@res@up]{\tiny 01}
+    %
+    \pgfpathmoveto{\pgfpoint{0.50\pgf@circ@res@right}{-0.25\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.50\pgf@circ@res@right}{-0.75\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    %
+    \pgfpathmoveto{\pgfpoint{0.25\pgf@circ@res@right}{-0.50\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.75\pgf@circ@res@right}{-0.50\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    %
+    \pgfpathcircle{\pgfpoint{0.65\pgf@circ@res@right}{-0.65\pgf@circ@res@up}}{0.05\pgf@circ@res@up}
+    \pgfusepath{fill}
+    %
+    \pgfpathcircle{\pgfpoint{0.35\pgf@circ@res@right}{-0.65\pgf@circ@res@up}}{0.05\pgf@circ@res@up}
+    \pgfusepath{fill}
+    %
+    \pgfpathcircle{\pgfpoint{0.65\pgf@circ@res@right}{-0.35\pgf@circ@res@up}}{0.05\pgf@circ@res@up}
+    \pgfusepath{fill}
+    %
+    \pgfpathcircle{\pgfpoint{0.35\pgf@circ@res@right}{-0.35\pgf@circ@res@up}}{0.05\pgf@circ@res@up}
+    \pgfusepath{fill}
+    %
+}
+
+\pgfcirc@activate@bipole@simple{l}{mapper}
+\makeatother
+
+% Demapper
+\makeatletter
+\ctikzset{bipoles/demapper/width/.initial=.7}
+
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/demapper/width}}
+{demapper}
+{\ctikzvalof{bipoles/demapper/width}}
+{\ctikzvalof{bipoles/demapper/width}}
+{
+    \pgfcirc@twoport@draw@splitline
+    %
+    \pgf@circ@text@strokecolor
+    %
+    \pgfpathmoveto{\pgfpoint{0.50\pgf@circ@res@left}{+0.25\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.50\pgf@circ@res@left}{+0.75\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    %
+    \pgfpathmoveto{\pgfpoint{0.25\pgf@circ@res@left}{+0.50\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.75\pgf@circ@res@left}{+0.50\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    %
+    \pgfpathcircle{\pgfpoint{0.65\pgf@circ@res@left}{+0.65\pgf@circ@res@up}}{0.05\pgf@circ@res@up}
+    \pgfusepath{fill}
+    %
+    \pgfpathcircle{\pgfpoint{0.35\pgf@circ@res@left}{+0.65\pgf@circ@res@up}}{0.05\pgf@circ@res@up}
+    \pgfusepath{fill}
+    %
+    \pgfpathcircle{\pgfpoint{0.65\pgf@circ@res@left}{+0.35\pgf@circ@res@up}}{0.05\pgf@circ@res@up}
+    \pgfusepath{fill}
+    %
+    \pgfpathcircle{\pgfpoint{0.35\pgf@circ@res@left}{+0.35\pgf@circ@res@up}}{0.05\pgf@circ@res@up}
+    \pgfusepath{fill}
+    %
+    \pgftext[center,x=0.55\pgf@circ@res@right,y=-0.6\pgf@circ@res@up]{\tiny 01}
+}
+
+\pgfcirc@activate@bipole@simple{l}{demapper}
+\makeatother
