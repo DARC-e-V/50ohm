@@ -6,6 +6,7 @@ from .dash import Dash
 from .formula import Formula
 from .halfwidth_spaces import HalfwidthSpaces
 from .include import Include
+from .index import Index
 from .morse import Morse
 from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
 from .photo import Photo
@@ -64,6 +65,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             Qso,
             Include,
             Formula,
+            Index,
             *extras,
             **kwargs,
         )
@@ -332,3 +334,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
     def render_formula(self, token):
         return f"\n$${token.formula}$$\n"
+
+    def render_index(self, token):
+        # For HTML just ignore the index
+        return ""
