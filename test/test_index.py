@@ -8,7 +8,6 @@ from test.util import paragraph
 
 @pytest.mark.html
 def test_index_html():
-
     assertions = {
         "Im Betrieb werden Yagi-Antennen [index:Antenne:Yagi-Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen oft gedreht",  # noqa: E501
         "Im Betrieb werden Yagi-Antennen[index:Antenne:Yagi-Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen oft gedreht",  # noqa: E501
@@ -22,7 +21,6 @@ def test_index_html():
 
 @pytest.mark.latex
 def test_index_latex():
-
     assertions = {
         "Im Betrieb werden Yagi-Antennen [index:Antenne:Yagi-Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen\\index{Antenne!Yagi-Antenne} oft gedreht",  # noqa: E501
         "Im Betrieb werden Yagi-Antennen[index:Antenne:Yagi-Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen\\index{Antenne!Yagi-Antenne} oft gedreht",  # noqa: E501
