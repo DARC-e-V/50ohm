@@ -10,8 +10,8 @@ from test.util import paragraph
 def test_index_html():
 
     assertions = {
-        "Im Betrieb werden Yagi-Antennen [index:Antenne:Yagi-Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen oft gedreht",
-        "Im Betrieb werden Yagi-Antennen[index:Antenne:Yagi-Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen oft gedreht",
+        "Im Betrieb werden Yagi-Antennen [index:Antenne:Yagi-Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen oft gedreht",  # noqa: E501
+        "Im Betrieb werden Yagi-Antennen[index:Antenne:Yagi-Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen oft gedreht",  # noqa: E501
         "Im Betrieb werden Yagi-Antennen [index:Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen oft gedreht",
         "Im Betrieb werden Yagi-Antennen[index:Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen oft gedreht",
     }
@@ -24,10 +24,10 @@ def test_index_html():
 def test_index_latex():
 
     assertions = {
-        "Im Betrieb werden Yagi-Antennen [index:Antenne:Yagi-Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen\\index{Antenne!Yagi-Antenne} oft gedreht",
-        "Im Betrieb werden Yagi-Antennen[index:Antenne:Yagi-Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen\\index{Antenne!Yagi-Antenne} oft gedreht",
-        "Im Betrieb werden Yagi-Antennen [index:Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen\\index{Antenne} oft gedreht",
-        "Im Betrieb werden Yagi-Antennen[index:Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen\\index{Antenne} oft gedreht",
+        "Im Betrieb werden Yagi-Antennen [index:Antenne:Yagi-Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen\\index{Antenne!Yagi-Antenne} oft gedreht",  # noqa: E501
+        "Im Betrieb werden Yagi-Antennen[index:Antenne:Yagi-Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen\\index{Antenne!Yagi-Antenne} oft gedreht",  # noqa: E501
+        "Im Betrieb werden Yagi-Antennen [index:Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen\\index{Antenne} oft gedreht",  # noqa: E501
+        "Im Betrieb werden Yagi-Antennen[index:Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen\\index{Antenne} oft gedreht",  # noqa: E501
     }
 
     for key, value in assertions.items():
