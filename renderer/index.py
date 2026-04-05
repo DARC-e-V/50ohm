@@ -9,7 +9,7 @@ class Index(SpanToken):
     Identifies "[index:term:subterm]" or "[index:term]"
     """
 
-    pattern = re.compile(r"[ \t]*\[index:([^:\]\s]+)(?::([^:\]\s]+))?\]")
+    pattern = re.compile(r"[ \t]*\[index:([^:\]\s](?:[^:\]\s]| )*)(?::([^:\]\s](?:[^:\]\s]| )*))?\]")
 
     def __init__(self, match_object):
         self.first = match_object.group(1)
