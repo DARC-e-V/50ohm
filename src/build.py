@@ -560,9 +560,11 @@ class Build:
         for question_data in self.question_index.values():
             question_data["editions"] = sorted(question_data["editions"])
 
-        with (self.config.p_build_assets / "question_index.json").open("w", encoding="utf-8") as file:
+        path = self.config.p_build_assets / "question_index.json"
+        with (path).open("w", encoding="utf-8") as file:
             json.dump(self.question_index, file, ensure_ascii=False, indent=2, sort_keys=True)
             file.write("\n")
+
     def build_zip(self, zip_name: str | None = None) -> Path:
         """Create a zip archive of the complete build output directory.
 
