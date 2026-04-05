@@ -502,6 +502,7 @@ class Build:
         self.__build_course_page(snippets, "patenkarte", "patenkarte")
         self.__build_html_page(contents, "pruefung")
         self.__build_html_page(contents, "infos")
+        self.__build_html_page(contents, "suche")
 
     def build_solutions(self):
         for solution_file in self.config.p_data_solutions.glob("*.md"):
