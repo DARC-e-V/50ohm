@@ -2,7 +2,6 @@ import json
 import random
 import re
 import shutil
-from collections import defaultdict
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
@@ -24,7 +23,7 @@ class Build:
         self.env.filters["shuffle_answers"] = self.__filter_shuffle_answers
         self.questions = self.__parse_katalog()
 
-        self.question_index = defaultdict(dict)
+        self.question_index = {}
         self.question_token_pattern = re.compile(r"^\s*\[question:([\w\d]+)\]", re.MULTILINE)
 
     def __parse_katalog(self):
@@ -539,31 +538,26 @@ class Build:
         section_content: str,
     ):
         for question_number in self.question_token_pattern.findall(section_content or ""):
-            section_entry = self.question_index[question_number].setdefault(
-                section_ident,
+            question_entry = self.question_index.setdefault(
+                question_number,
                 {
+                    "has_solution": self.__has_solution(question_number),
+                    "section": section_ident,
                     "chapter_title": chapter_title,
                     "section_title": section_title,
-                    "editions": set(),
+                    "editions": [],
                 },
             )
-            section_entry["editions"].add(edition)
+            if edition not in question_entry["editions"]:
+                question_entry["editions"].append(edition)
 
-    def __serialize_question_index(self) -> dict[str, list[dict[str, object]]]:
-        serialized: dict[str, list[dict[str, object]]] = {}
-        for question, sections in sorted(self.question_index.items()):
-            serialized[question] = [
-                {
-                    "section": section,
-                    "chapter_title": data["chapter_title"],
-                    "section_title": data["section_title"],
-                    "editions": sorted(data["editions"]),
-                }
-                for section, data in sorted(sections.items())
-            ]
-        return serialized
+    def __has_solution(self, question_number: str) -> bool:
+        return (self.config.p_data_solutions / f"{question_number}.md").exists()
 
     def build_question_index(self):
+        for question_data in self.question_index.values():
+            question_data["editions"] = sorted(question_data["editions"])
+
         with (self.config.p_build_assets / "question_index.json").open("w", encoding="utf-8") as file:
-            json.dump(self.__serialize_question_index(), file, ensure_ascii=False, indent=2, sort_keys=True)
+            json.dump(self.question_index, file, ensure_ascii=False, indent=2, sort_keys=True)
             file.write("\n")
