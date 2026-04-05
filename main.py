@@ -23,6 +23,7 @@ def main(
     output: Annotated[str | None, typer.Option("--output", "-o", help="Destination directory to build to.")] = None,
     render_editions: Annotated[bool, typer.Option(help="Skip building editions.")] = True,
     render_solutions: Annotated[bool, typer.Option(help="Skip building solutions.")] = True,
+    build_zip: Annotated[bool, typer.Option(help="Whether to build a zip file of the output.")] = False,
 ) -> None:
     conf = config.Config(content_path=input, build_path=output)
     bd = build.Build(conf)
@@ -41,6 +42,10 @@ def main(
 
     # Copy assets to build folder
     bd.build_assets()
+
+    if build_zip:
+        # Build zip file of output
+        bd.build_zip()
 
 
 if __name__ == "__main__":
