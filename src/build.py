@@ -24,7 +24,7 @@ class Build:
         self.env.filters["shuffle_answers"] = self.__filter_shuffle_answers
         self.questions = self.__parse_katalog()
 
-        self.question_index = defaultdict(lambda: defaultdict(set))
+        self.question_index = defaultdict(dict)
         self.question_token_pattern = re.compile(r"^\s*\[question:([\w\d]+)\]", re.MULTILINE)
 
     def __parse_katalog(self):
@@ -394,7 +394,7 @@ class Build:
                         section["slide"] = section_content
 
                     if section["content"] is not None:
-                        self.__collect_question_occurrences(edition, ident, section["content"])
+                        self.__collect_question_occurrences(edition, ident, section["title"], section["content"])
 
                     next_section = (
                         chapter["sections"][section_number] if section_number < len(chapter["sections"]) else None
@@ -524,19 +524,33 @@ class Build:
                         page = self.__build_page(page, course_wrapper=False)
                         file.write(page)
 
-    def __collect_question_occurrences(self, edition: str, section_ident: str, section_content: str):
+    def __collect_question_occurrences(
+        self,
+        edition: str,
+        section_ident: str,
+        section_title: str,
+        section_content: str,
+    ):
         for question_number in self.question_token_pattern.findall(section_content or ""):
-            self.question_index[question_number][section_ident].add(edition)
+            section_entry = self.question_index[question_number].setdefault(
+                section_ident,
+                {
+                    "section_title": section_title,
+                    "editions": set(),
+                },
+            )
+            section_entry["editions"].add(edition)
 
-    def __serialize_question_index(self) -> dict[str, list[dict[str, list[str]]]]:
-        serialized: dict[str, list[dict[str, list[str]]]] = {}
+    def __serialize_question_index(self) -> dict[str, list[dict[str, object]]]:
+        serialized: dict[str, list[dict[str, object]]] = {}
         for question, sections in sorted(self.question_index.items()):
             serialized[question] = [
                 {
                     "section": section,
-                    "editions": sorted(editions),
+                    "section_title": data["section_title"],
+                    "editions": sorted(data["editions"]),
                 }
-                for section, editions in sorted(sections.items())
+                for section, data in sorted(sections.items())
             ]
         return serialized
 
