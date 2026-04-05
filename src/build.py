@@ -25,6 +25,9 @@ class Build:
         self.env.filters["shuffle_answers"] = self.__filter_shuffle_answers
         self.questions = self.__parse_katalog()
 
+        self.question_index = {}
+        self.question_token_pattern = re.compile(r"^\s*\[question:([\w\d]+)\]", re.MULTILINE)
+
     def __parse_katalog(self):
         with self.config.p_data_fragenkatalog.open() as file:
             fragenkatalog = json.load(file)
@@ -391,6 +394,15 @@ class Build:
                         section_content = sfile.read()
                         section["slide"] = section_content
 
+                    if section["content"] is not None:
+                        self.__collect_question_occurrences(
+                            edition,
+                            chapter["title"],
+                            ident,
+                            section["title"],
+                            section["content"],
+                        )
+
                     next_section = (
                         chapter["sections"][section_number] if section_number < len(chapter["sections"]) else None
                     )
@@ -497,6 +509,7 @@ class Build:
         self.__build_course_page(snippets, "patenkarte", "patenkarte")
         self.__build_html_page(contents, "pruefung")
         self.__build_html_page(contents, "infos")
+        self.__build_html_page(contents, "suche")
 
     def build_solutions(self):
         for solution_file in self.config.p_data_solutions.glob("*.md"):
@@ -517,6 +530,40 @@ class Build:
                         page = solution_template.render(question=question, solution=solution, number=solution_file.stem)
                         page = self.__build_page(page, course_wrapper=False)
                         file.write(page)
+
+    def __collect_question_occurrences(
+        self,
+        edition: str,
+        chapter_title: str,
+        section_ident: str,
+        section_title: str,
+        section_content: str,
+    ):
+        for question_number in self.question_token_pattern.findall(section_content or ""):
+            question_entry = self.question_index.setdefault(
+                question_number,
+                {
+                    "has_solution": self.__has_solution(question_number),
+                    "section": section_ident,
+                    "chapter_title": chapter_title,
+                    "section_title": section_title,
+                    "editions": [],
+                },
+            )
+            if edition not in question_entry["editions"]:
+                question_entry["editions"].append(edition)
+
+    def __has_solution(self, question_number: str) -> bool:
+        return (self.config.p_data_solutions / f"{question_number}.md").exists()
+
+    def build_question_index(self):
+        for question_data in self.question_index.values():
+            question_data["editions"] = sorted(question_data["editions"])
+
+        path = self.config.p_build_assets / "question_index.json"
+        with (path).open("w", encoding="utf-8") as file:
+            json.dump(self.question_index, file, ensure_ascii=False, indent=2, sort_keys=True)
+            file.write("\n")
 
     def build_zip(self, zip_name: str | None = None) -> Path:
         """Create a zip archive of the complete build output directory.

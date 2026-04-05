@@ -42,6 +42,7 @@ def main(
 
     # Copy assets to build folder
     bd.build_assets()
+    bd.build_question_index()
 
     if build_zip:
         # Build zip file of output
