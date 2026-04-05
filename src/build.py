@@ -564,6 +564,6 @@ class Build:
         return serialized
 
     def build_question_index(self):
-        with (self.config.p_build / "question_index.json").open("w", encoding="utf-8") as file:
+        with (self.p_build_assets / "question_index.json").open("w", encoding="utf-8") as file:
             json.dump(self.__serialize_question_index(), file, ensure_ascii=False, indent=2, sort_keys=True)
             file.write("\n")
