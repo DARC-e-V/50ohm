@@ -394,7 +394,13 @@ class Build:
                         section["slide"] = section_content
 
                     if section["content"] is not None:
-                        self.__collect_question_occurrences(edition, ident, section["title"], section["content"])
+                        self.__collect_question_occurrences(
+                            edition,
+                            chapter["title"],
+                            ident,
+                            section["title"],
+                            section["content"],
+                        )
 
                     next_section = (
                         chapter["sections"][section_number] if section_number < len(chapter["sections"]) else None
@@ -527,6 +533,7 @@ class Build:
     def __collect_question_occurrences(
         self,
         edition: str,
+        chapter_title: str,
         section_ident: str,
         section_title: str,
         section_content: str,
@@ -535,6 +542,7 @@ class Build:
             section_entry = self.question_index[question_number].setdefault(
                 section_ident,
                 {
+                    "chapter_title": chapter_title,
                     "section_title": section_title,
                     "editions": set(),
                 },
@@ -547,6 +555,7 @@ class Build:
             serialized[question] = [
                 {
                     "section": section,
+                    "chapter_title": data["chapter_title"],
                     "section_title": data["section_title"],
                     "editions": sorted(data["editions"]),
                 }
