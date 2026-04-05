@@ -13,7 +13,7 @@ def test_index_html():
         "Im Betrieb werden Yagi-Antennen[index:Antenne:Yagi-Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen oft gedreht",  # noqa: E501
         "Im Betrieb werden Yagi-Antennen [index:Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen oft gedreht",
         "Im Betrieb werden Yagi-Antennen[index:Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen oft gedreht",
-        "Im Betrieb werden Yagi-Antennen[index:Test Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen oft gedreht",
+        "Im Betrieb werden Yagi-Antennen[index:Test Antenne] oft gedreht": "Im Betrieb werden Yagi-Antennen oft gedreht",  # noqa: E501
     }
 
     for key, value in assertions.items():
