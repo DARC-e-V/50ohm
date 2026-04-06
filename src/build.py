@@ -13,6 +13,7 @@ from tqdm import tqdm
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 from renderer.fifty_ohm_html_slide_renderer import FiftyOhmHtmlSlideRenderer
+from renderer.index import Index
 
 from .config import Config
 
@@ -27,6 +28,9 @@ class Build:
 
         self.question_index = {}
         self.question_token_pattern = re.compile(r"^\s*\[question:([\w\d]+)\]", re.MULTILINE)
+
+        self.index_entries = {}
+        self.index_token_pattern = Index.pattern
 
     def __parse_katalog(self):
         with self.config.p_data_fragenkatalog.open() as file:
@@ -402,6 +406,13 @@ class Build:
                             section["title"],
                             section["content"],
                         )
+                        self.__collect_index_occurrences(
+                            edition,
+                            chapter["title"],
+                            ident,
+                            section["title"],
+                            section["content"],
+                        )
 
                     next_section = (
                         chapter["sections"][section_number] if section_number < len(chapter["sections"]) else None
@@ -556,13 +567,69 @@ class Build:
     def __has_solution(self, question_number: str) -> bool:
         return (self.config.p_data_solutions / f"{question_number}.md").exists()
 
+    def __collect_index_occurrences(
+        self,
+        edition: str,
+        chapter_title: str,
+        section_ident: str,
+        section_title: str,
+        section_content: str,
+    ):
+        for match in self.index_token_pattern.finditer(section_content or ""):
+            first = match.group(1).strip()
+            second = match.group(2).strip() if match.group(2) else None
+
+            normalized_first = FiftyOhmHtmlRenderer._normalize_index_part(first)
+            if second:
+                normalized_second = FiftyOhmHtmlRenderer._normalize_index_part(second)
+                anchor_id = f"index_{normalized_first}__{normalized_second}"
+            else:
+                anchor_id = f"index_{normalized_first}"
+
+            entry_key = f"{section_ident}#{anchor_id}"
+            index_entry = self.index_entries.setdefault(
+                entry_key,
+                {
+                    "term": first,
+                    "subterm": second,
+                    "anchor_id": anchor_id,
+                    "section": section_ident,
+                    "chapter_title": chapter_title,
+                    "section_title": section_title,
+                    "editions": [],
+                },
+            )
+            if edition not in index_entry["editions"]:
+                index_entry["editions"].append(edition)
+
     def build_question_index(self):
+        tqdm.write("Creating question index")
         for question_data in self.question_index.values():
             question_data["editions"] = sorted(question_data["editions"])
 
         path = self.config.p_build_assets / "question_index.json"
         with (path).open("w", encoding="utf-8") as file:
             json.dump(self.question_index, file, ensure_ascii=False, indent=2, sort_keys=True)
+            file.write("\n")
+
+    def build_index(self):
+        tqdm.write("Creating index")
+        for index_data in self.index_entries.values():
+            index_data["editions"] = sorted(index_data["editions"])
+
+        entries = sorted(
+            self.index_entries.values(),
+            key=lambda item: (
+                item["term"].casefold(),
+                (item["subterm"] or "").casefold(),
+                item["section"],
+                item["anchor_id"],
+            ),
+        )
+
+        path = self.config.p_build_assets / "index.json"
+        with (path).open("w", encoding="utf-8") as file:
+            json.dump(entries, file, ensure_ascii=False, indent=2)
             file.write("\n")
 
     def build_zip(self, zip_name: str | None = None) -> Path:
