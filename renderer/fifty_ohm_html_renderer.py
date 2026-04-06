@@ -1,3 +1,5 @@
+import re
+
 from jinja2 import Environment, FileSystemLoader
 from mistletoe import Document, HtmlRenderer
 
@@ -89,6 +91,9 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
         # Single unified counter for all figure types (pictures, photos, tables)
         self.figure_counter = 0
+
+        # Keep track of index ids already emitted in this document.
+        self.index_anchor_ids = set()
 
     def render_dash(self, token):
         return " &ndash; "
@@ -335,6 +340,24 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     def render_formula(self, token):
         return f"\n$${token.formula}$$\n"
 
+    @staticmethod
+    def _normalize_index_part(value: str) -> str:
+        normalized = value.strip().lower()
+        normalized = re.sub(r"\s+", "_", normalized)
+        normalized = re.sub(r"[^\w]", "_", normalized)
+        normalized = re.sub(r"_+", "_", normalized).strip("_")
+        return normalized or "index"
+
     def render_index(self, token):
-        # For HTML just ignore the index
-        return ""
+        first = self._normalize_index_part(token.first)
+        if token.second:
+            second = self._normalize_index_part(token.second)
+            span_id = f"index_{first}__{second}"
+        else:
+            span_id = f"index_{first}"
+
+        if span_id in self.index_anchor_ids:
+            return ""
+
+        self.index_anchor_ids.add(span_id)
+        return f'<span id="{span_id}" class="index-anchor" aria-hidden="true"></span>'
