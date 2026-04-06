@@ -260,35 +260,47 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return base.join(filter(lambda x: x is not None, [self.render(child) for child in token.children]))
 
     @staticmethod
-    def render_picture_helper(id, ref, text, number, alt_text):
+    def render_img_helper(url, alt_text):
         return f"""
-                <figure class="picture" id="ref_{ref}" name="{ref}">
-                    <img src="pictures/{id}.svg" alt="{alt_text}">
+                <img src="{url}" alt="{alt_text}">
+                """
+
+    @staticmethod
+    def render_figure_link_helper(url, text):
+        return f"""
+                <a href="{url}">{text}</a>
+                """
+
+    @staticmethod
+    def render_figure_helper(ref, text, number, alt_text, css_class, content):
+        return f"""
+                <figure class="{css_class}" id="ref_{ref}" name="{ref}">
+                    {content}
                     <figcaption>Abbildung {number}: {text}</figcaption>
                 </figure>
-            """
+                """
 
     def render_picture(self, token):
         alt_text = ""
         if self.picture_handler is not None:
             alt_text = self.picture_handler(token.id)
 
-        return self.render_picture_helper(token.id, token.ref, token.text, token.number, alt_text)
+        url = f"pictures/{token.id}.svg"
+        img_text = self.render_img_helper(url, alt_text)
+        content = self.render_figure_link_helper(url, img_text)
 
-    @staticmethod
-    def render_photo_helper(id, ref, text, number, alt_text):
-        return f"""
-                <figure class="photo" id="ref_{ref}" name="{ref}">
-                    <img src="photos/{id}.png" alt="{alt_text}">
-                    <figcaption>Abbildung {number}: {text}</figcaption>
-                </figure>
-            """
+        return self.render_figure_helper(token.ref, token.text, token.number, alt_text, "picture", content)
 
     def render_photo(self, token):
         alt_text = ""
         if self.photo_handler is not None:
             alt_text = self.photo_handler(token.id) or alt_text
-        return self.render_photo_helper(token.id, token.ref, token.text, token.number, alt_text)
+
+        url = f"photos/{token.id}.png"
+        img_text = self.render_img_helper(url, alt_text)
+        content = self.render_figure_link_helper(url, img_text)
+
+        return self.render_figure_helper(token.ref, token.text, token.number, alt_text, "photo", content)
 
     def render_table(self, token: Table):
         # Add id and name attributes if table has a name
