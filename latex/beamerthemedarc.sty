@@ -1,0 +1,180 @@
+% Chapter and section title boxes for slide dividers
+\setbeamercolor{chapter title box}{bg=DARCblue,fg=white}
+\setbeamercolor{section title box}{bg=DARCgray!75,fg=black}
+% DARC LaTeX Slide Template
+% 2021 de Dr. Matthias Jung, DL9MJ
+
+\NeedsTeXFormat{LaTeX2e}[2005/12/01]
+\ProvidesPackage{DARC}[2021/11/20 v.0.1 DARC Theme for the Beamer class]%
+\mode<presentation>
+
+% Fonts:
+\usepackage[sfdefault,light]{roboto}
+\RequirePackage{fontspec}
+%\usefonttheme{professionalfonts}
+\setbeamerfont{normal text}{shape=\upshape, series=\mdseries}
+\setbeamerfont*{tiny structure}{series=\mdseries,size=\fontsize{6}{6}}
+\setbeamerfont*{title}{size=\LARGE,series=\bfseries}
+\setbeamerfont*{subtitle}{size=\normalsize,series=\mdseries}
+\setbeamerfont*{frametitle}{size=\Large,series=\bfseries}
+\setbeamerfont{framesubtitle}{series=\mdseries}
+\setbeamerfont*{author}{size=\small,series=\bfseries}
+\setbeamerfont*{date}{size=\footnotesize}
+\setbeamerfont*{block title}{size={}}
+
+% Packages:
+\RequirePackage{tikz}
+\RequirePackage{tcolorbox}
+\RequirePackage{tabularray}
+\tcbuselibrary{skins}
+
+% Define Colors:
+\definecolor{DARCblue}   {RGB} {70,132,191}
+\definecolor{DARCgreen}  {RGB} {17,147,70}
+\definecolor{DARCred}    {RGB} {230,35,42}
+\definecolor{DARCgray}   {RGB} {100,100,105}
+
+% Configure Colors: 
+\setbeamercolor*{alerted text}{fg=DARCred}
+\setbeamercolor*{example text}{fg=DARCgreen}
+\setbeamercolor*{structure}{fg=DARCblue}
+\setbeamercolor*{frametitle}{fg=black}
+\setbeamercolor*{author in head/foot}{fg=DARCgray!80,bg=}
+\setbeamercolor*{title in head/foot}{fg=DARCgray!80,bg=}
+\setbeamercolor*{date in head/foot}{fg=DARCgray!80,bg=}
+\setbeamercolor*{section in head/foot}{fg=DARCgray!80,bg=}
+\setbeamercolor*{subsection in head/foot}{fg=DARCgray!80,bg=}
+\setbeamercolor*{subtitle}{fg=black}
+\setbeamercolor*{title}{fg=black,bg=DARCgray!75}
+\setbeamercolor*{sectiontitle}{fg=white,bg=black!75}
+\setbeamercolor*{author}{fg=black}
+\setbeamercolor*{date}{fg=black}
+
+% Blocks:
+\setbeamercolor{quotation}{bg=black!5}
+\setbeamercolor{block body}{bg=DARCblue!30,fg=black}
+\setbeamercolor{block body alerted}{bg=DARCred!30,fg=black}
+\setbeamercolor{block body example}{bg=DARCgreen!30,fg=black}
+
+\setbeamercolor{block title}{bg=DARCblue!50,fg=black}
+\setbeamercolor{block title alerted}{bg=DARCred!50,fg=black}
+\setbeamercolor{block title example}{bg=DARCgreen!50,fg=black}
+
+% Theme:
+\hfuzz=3pt % Suppress tiny overfull hbox warnings from headline/frametitle
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize item}[square]
+\setbeamertemplate{itemize subitem}[square]
+\setbeamertemplate{blocks}[default]
+\setbeamercovered{invisible}
+
+% Header Line:
+%\setbeamertemplate{headline}{
+%  \begin{tikzpicture}[overlay, remember picture]
+%  	\draw[
+%      line width=1mm,
+%      draw=structure.fg
+%    ] (current page.north east) ++(0,-1.0cm) -- ++(-\paperwidth,0) {};
+%  \end{tikzpicture}
+%}
+
+% Footer Line:
+\setbeamertemplate{footline} {%
+  %\begin{tikzpicture}[overlay]
+  %	\draw[
+  %    line width=1mm,
+  %    draw=structure.fg
+  %  ] (current page.south east) ++(0,0.35cm) -- ++(-\paperwidth,0) {};
+  %\end{tikzpicture}
+  \leavevmode%
+  \hfuzz=2pt\hbox to \paperwidth{%
+    \begin{beamercolorbox}[wd=.333\paperwidth,ht=2.25ex,dp=2ex,left]{author in head/foot}%
+      \usebeamerfont{author in head/foot}\hspace*{1ex}\insertshortauthor\expandafter\beamer@ifempty\expandafter{\beamer@shortinstitute}{}{}
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.334\paperwidth,ht=2.25ex,dp=2ex,center]{title in head/foot}%
+      \usebeamerfont{title in head/foot}\insertshorttitle
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.333\paperwidth,ht=2.25ex,dp=2ex,right]{date in head/foot}%
+      \usebeamerfont{date in head/foot}
+      \insertshortdate{}\hspace*{2em}
+      \quad\insertframenumber~\tikz[overlay]\draw[draw=structure.fg!70] (0,-.5mm) -- (0,1.6mm);~\inserttotalframenumber\hspace*{2mm} 
+    \end{beamercolorbox}
+  }%
+  \vskip0pt%
+}
+
+% Title Page:
+\setbeamertemplate{title page}
+{
+  \begingroup
+  % Titlepicture:
+  \begin{tikzpicture}[overlay,remember picture]
+    \node[
+      xshift=+0.5\paperwidth,
+      yshift=-0.08829365079\paperwidth
+    ] (worldpic) at (current page.north west) {\includegraphics[width=\paperwidth]{world.png}};
+    \node[
+      anchor = south east,
+      xshift=-0.5cm,
+      yshift=1cm
+    ] (worldpic) at (current page.south east) {\includegraphics[width=2.5cm]{50ohm.pdf}};
+		\draw[
+      line width=1mm,
+      draw=structure.fg
+    ] (current page.north east) ++(0,-0.17658730158\paperwidth) -- ++(-\paperwidth,0) {};
+
+    \node[anchor=south west,align=left] at (0,-2.5cm) {%
+        \parbox{14cm}{%     
+            \centering
+            \usebeamerfont{title}\usebeamercolor[fg]{title}\inserttitle\par%
+            \ifx\insertsubtitle\@empty%
+            \else\vskip.5ex%
+            {\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}
+            \insertsubtitle\par}%
+            \fi
+            \vskip1.5mm
+            {\usebeamerfont{author}\usebeamercolor[fg]{author}\insertauthor}\vskip-.5ex
+        }%
+    };
+
+\node[anchor=north west,align=left] at (0,-2.0cm) {%
+    \includegraphics[width=1cm]{DARCLogo.pdf}
+};
+
+\node[anchor=north west,align=left] at (1.25cm,-3.5cm) {%
+    \parbox{7cm}{
+        \usebeamerfont{institute}\usebeamercolor[fg]{author}\insertinstitute
+        \vskip1.5mm
+        \usebeamercolor[fg]{date}\usebeamerfont{date}\insertdate
+    }}; 
+    \end{tikzpicture}
+    \endgroup
+}
+
+% Normal Frame:
+\newlength{\frametitlesidebar}
+\setlength{\frametitlesidebar}{\dimexpr(\paperwidth-\beamer@rightsidebar-4mm)}
+\setbeamertemplate{frametitle}
+{
+    \ifbeamercolorempty[bg]{frametitle}{}{\nointerlineskip}%
+    \@tempdima=\textwidth%
+    \advance\@tempdima by\beamer@leftmargin%
+    \advance\@tempdima by\beamer@rightmargin%
+    \begin{beamercolorbox}[sep=0.3cm,left,wd=\the\@tempdima]{frametitle}
+        \usebeamerfont{frametitle}%
+        \vbox{}\vskip-1ex%
+        \strut\insertframetitle\strut\par%
+    \end{beamercolorbox}%
+}
+
+% Zwischenkapitel werden direkt im Python-Build generiert
+
+\def\beamer@fteright{\vskip0.35cm\advance\leftskip by 1.7cm\advance\rightskip by1.7cm}
+
+\setbeamersize{text margin left=8mm,text margin right=8mm}
+
+\mode
+<all>
+
+\endinput
+%%

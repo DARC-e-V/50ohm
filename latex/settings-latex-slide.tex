@@ -1,0 +1,405 @@
+\PassOptionsToPackage{fleqn}{amsmath}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{csquotes}
+\usepackage[greek,german]{babel}
+\AtBeginDocument{\shorthandoff{"}}
+\usepackage{ragged2e}
+\usepackage{siunitx}
+\usepackage{tabularray}
+\usepackage{fontawesome5}
+\usepackage{cancel}
+\makeatletter
+\let\ang\relax
+\makeatother
+% Beamer does not provide KOMA font commands used by question column types.
+\providecommand{\usekomafont}[1]{}
+% texvc pulls in stix, which conflicts with currently loaded math symbols (\not= redefinition).
+% Keep it disabled for slide builds unless a specific texvc macro is required.
+% \usepackage{texvc}
+
+\DeclareSIUnit{\baud}{Bd}
+\DeclareSIUnit{\dB}{dB}
+\DeclareSIUnit{\dBi}{dBi}
+\DeclareSIUnit{\dBd}{dBd}
+\DeclareSIUnit{\dBm}{dBm}
+\DeclareSIUnit{\dBu}{dBu}
+\DeclareSIUnit{\dBV}{dbV}
+\DeclareSIUnit{\dBW}{dbW}
+\DeclareSIUnit{\dBuV}{\decibel\micro\volt}
+\DeclareSIUnit{\dBW}{dBW}
+\DeclareSIUnit{\ppm}{ppm}
+\DeclareSIUnit{\pps}{pps}
+\DeclareSIUnit{\CPM}{CPM}
+\DeclareSIUnit{\WPM}{WPM}
+\DeclareSIUnit{\mOhm}{\milli\ohm}
+\DeclareSIUnit{\MOhm}{\mega\ohm}
+\DeclareSIUnit{\nF}{\nano\farad}
+\DeclareSIUnit{\MHz}{\mega\hertz}
+\DeclareSIUnit{\oszidiv}{div}
+\DeclareSIUnit{\sps}{sps}
+%\DeclareSIUnit{\degreeCelsius}{\degree\celsius}
+\DeclareSIUnit\noop{\relax}
+
+\newcommand{\gt}{\mathrel{>}}
+\newcommand{\lt}{\mathrel{<}}
+
+\sisetup{
+    mode=text,
+    reset-text-family=false,
+    reset-text-series=false,
+    reset-text-shape=false,
+    parse-numbers = false
+}
+
+\definecolor{DARCgreen}{RGB}{0,155,110}
+\definecolor{DARCorange}{RGB}{250,180,0}
+\definecolor{DARCred}{RGB}{225,80,35}
+\definecolor{DARCblue}{RGB}{0,160,220}
+\definecolor{DARCgray}{RGB}{190,190,190}
+\definecolor{DARClightgray}{HTML/cmyk}{e8e9e8/.11,.07,.09,0}
+
+\definecolor{unit-title}{RGB}{155,205,185}
+\definecolor{attention-title}{RGB}{255,230,170}
+\definecolor{danger-title}{RGB}{245,175,150}
+\definecolor{hint-title}{RGB}{185,220,245}
+\definecolor{advanced-title}{RGB}{225,230,235}
+
+\definecolor{DARCdarkblue}{RGB}{43, 103, 140}
+
+\definecolor{r}{rgb}{0.98, 0.84, 0.65}
+\definecolor{rsilver}{rgb}{0.75, 0.75, 0.75}
+\definecolor{rgold}{rgb}{0.85, 0.65, 0.13}
+\definecolor{rbrown}{rgb}{0.59, 0.29, 0.0}
+\definecolor{rblack}{rgb}{0,0,0}
+\definecolor{rred}{rgb}{0.89, 0.0, 0.13}
+\definecolor{rorange}{rgb}{0.93, 0.53, 0.18}
+\definecolor{ryellow}{rgb}{1.0, 0.96, 0.0}
+\definecolor{rgreen}{rgb}{0.0, 0.42, 0.24}
+\definecolor{rblue}{rgb}{0.06, 0.2, 0.65}
+\definecolor{rviolet}{rgb}{0.56, 0.0, 1.0}
+\definecolor{rgrey}{rgb}{0.33, 0.33, 0.33}
+\definecolor{rwhite}{rgb}{0.96, 0.96, 0.96}
+
+\tcbset{QSO/.style={
+	enhanced,boxrule=0pt,
+	frame empty,colback=DARClightgray,fontupper=\footnotesize,
+	interior code={
+		\fill[tcbcolback](frame.north west)to(frame.north east)to([yshift=-\ht\strutbox]interior.north east)to(interior.south east)to(interior.south west)to([yshift=-\ht\strutbox]interior.north west)--cycle;
+	}
+}}
+
+\newcommand{\QSOown}[1]{\begin{tcolorbox}[
+		QSO,
+		leftrule=\ht\strutbox,
+		right skip=.1\linewidth
+]%
+#1%
+\end{tcolorbox}}
+
+\newcommand{\QSOother}[1]{\begin{tcolorbox}[
+		QSO,
+		rightrule=\ht\strutbox,
+		left skip=.1\linewidth]%
+		#1%
+\end{tcolorbox}}
+
+% Custom Column Definiton von Marei:
+\newlength{\ColumnSep}
+\setlength{\ColumnSep}{2\tabcolsep}
+
+\ExplSyntaxOn
+\newcounter{columncount}
+\newlength{\columntotalwidth}
+\NewDocumentEnvironment{Columns}{O{} +b}{}{%
+	\setcounter{columncount}{0}
+	\renewcommand\Column[2]{
+		\stepcounter{columncount}
+	}
+	#2
+	\setlength{\columntotalwidth}{\dimexpr\linewidth-\thecolumncount\ColumnSep+\ColumnSep}
+	\renewcommand\Column[2]{
+			\begin{column}{##1\columntotalwidth}
+			##2
+			\end{column}
+	}
+	\begin{columns}[onlytextwidth,#1]
+		#2
+	\end{columns}
+}
+\ExplSyntaxOff
+
+\newcommand{\Column}[2]{}
+
+\newcolumntype{x}[1]{>{\centering\let\newline\\\arraybackslash}p{#1}}
+\newcolumntype{t}{>{\RaggedRight\let\newline\\\arraybackslash\hspace{0pt}}p{0.85\linewidth}}
+\newcolumntype{s}{>{\RaggedRight\let\newline\\\arraybackslash\hspace{0pt}}p{0.35\linewidth}}
+\newcolumntype{u}{>{\RaggedRight\let\newline\\\arraybackslash\hspace{0pt}}p{0.25\linewidth}}
+\newcolumntype{v}{>{\RaggedRight\let\newline\\\arraybackslash\hspace{0pt}}p{0.50\linewidth}}
+\newcolumntype{q}{>{\raggedleft\usekomafont{questionlabel}}p{0.15\linewidth}<{\hspace*{1ex}}}
+\newcolumntype{h}{>{\usekomafont{questionlabel}}p{0.15\linewidth}}
+
+\AtBeginDocument{
+	\let\Question\relax% avoid conflict with unicde-math-symbol
+    	
+	\newenvironment{questiontabular}[1]{
+		\setlength{\tabcolsep}{0pt}%
+		\noindent\begin{tabular}{#1}
+		}{
+		\end{tabular}
+	}
+
+	\NewDocumentCommand{\Question}{+m+m+m+m+m+m+m}
+	{%
+        \begin{block}{\textbf{#1}}
+            #2
+            
+            #3
+            \begin{itemize}
+                \item[A:] #4
+                \item[B:] #5
+                \item[C:] #6
+                \item[D:] #7
+            \end{itemize}
+        \end{block}
+	}
+
+	\NewDocumentCommand{\QuestionMD}{+m+m+m+m+m+m+m}
+	{%
+        % TODO More Distance if required!
+        \begin{block}{\textbf{#1}}
+            #2
+            
+            #3
+            \begin{itemize}
+                \item[A:] #4
+                \item[B:] #5
+                \item[C:] #6
+                \item[D:] #7
+            \end{itemize}
+        \end{block}
+	}
+
+	\NewDocumentCommand{\QuestionTwoCol}{+m+m+m+m+m+m+m}{
+        %
+        \begin{block}{\textbf{#1}}
+            #2
+
+            #3
+            \begin{Columns}
+                \Column{0.5}{
+                    \begin{itemize}
+                        \item[A:] #4
+                        \item[B:] #5
+                    \end{itemize}
+                }
+                \Column{0.5}{
+                    \begin{itemize}
+                        \item[C:] #6
+                        \item[D:] #7
+                    \end{itemize}
+                }
+            \end{Columns}
+        \end{block}
+	}
+
+	\NewDocumentCommand{\QuestionPictureLeft}{+m+m+m+m+m+m+m}{
+        %
+        \begin{block}{\textbf{#1}}
+            #2
+            \begin{Columns}
+                \Column{0.5}{
+                    #3
+                }
+                \Column{0.5}{
+                    \begin{itemize}
+                        \item[A:] #4
+                        \item[B:] #5
+                        \item[C:] #6
+                        \item[D:] #7
+                    \end{itemize}
+                }
+            \end{Columns}
+        \end{block}
+	}
+
+    \NewDocumentCommand{\QuestionPictureSmall}{+m+m+m+m+m+m+m}{
+        %
+        \begin{block}{\textbf{#1}}
+            #2
+            \begin{Columns}
+                \Column{0.5}{
+                    #3
+                }
+                \Column{0.5}{
+                    \footnotesize
+                    \begin{itemize}
+                        \item[A:] #4
+                        \item[B:] #5
+                        \item[C:] #6
+                        \item[D:] #7
+                    \end{itemize}
+                }
+            \end{Columns}
+        \end{block}
+	}
+
+    \NewDocumentCommand{\QuestionPictureTwo}{+m+m+m+m+m+m+m}{
+        %
+        \begin{block}{\textbf{#1}}
+            #2
+            \begin{Columns}
+                \Column{0.5}{
+                    #3
+                }
+                \Column{0.5}{
+                    \begin{Columns}
+                        \Column{0.5}{
+                            \begin{itemize}
+                                \item[A:] #4
+                                \item[B:] #5
+                            \end{itemize}
+                        }
+                        \Column{0.5}{
+                            \begin{itemize}
+                                \item[C:] #6
+                                \item[D:] #7
+                            \end{itemize}
+                        }
+                    \end{Columns}
+                }
+            \end{Columns}
+        \end{block}
+	}
+
+	\NewDocumentCommand{\QuestionFourCol}{+m+m+m+m+m+m+m}{
+        %
+        \begin{block}{\textbf{#1}}
+            #2
+
+            #3
+            \begin{Columns}
+                \Column{0.25}{
+                    \begin{itemize}
+                        \item[C:] #4
+                    \end{itemize}
+                }
+                \Column{0.25}{
+                    \begin{itemize}
+                        \item[D:] #5
+                    \end{itemize}
+                }
+                \Column{0.25}{
+                    \begin{itemize}
+                        \item[C:] #6
+                    \end{itemize}
+                }
+                \Column{0.25}{
+                    \begin{itemize}
+                        \item[D:] #7
+                    \end{itemize}
+                }
+            \end{Columns}
+        \end{block}
+	}
+}
+
+%%%\newenvironment{QQuestion}[6]{
+%%%    \begin{block}{#1}
+%%%        #2
+%%%        \begin{itemize}
+%%%            \item[A:] #3
+%%%            \item[B:] #4
+%%%            \item[C:] #5
+%%%            \item[D:] #6
+%%%        \end{itemize}
+%%%    \end{block}
+%%%}
+%%%
+%%%\newenvironment{PQuestion}[7]{
+%%%    \begin{block}{#1}
+%%%        \begin{columns}
+%%%            \begin{column}{0.48\linewidth}
+%%%                #7
+%%%            \end{column}
+%%%            \begin{column}{0.48\linewidth}
+%%%                #2
+%%%                \begin{itemize}
+%%%                    \item[A:] #3
+%%%                    \item[B:] #4
+%%%                    \item[C:] #5
+%%%                    \item[D:] #6
+%%%                \end{itemize}
+%%%            \end{column}
+%%%        \end{columns}
+%%%    \end{block}
+%%%}
+%%%
+%%%\newenvironment{P2Question}[7]{
+%%%    \begin{block}{#1}
+%%%        \begin{columns}
+%%%            \begin{column}{0.48\linewidth}
+%%%                #2
+%%%                #7
+%%%            \end{column}
+%%%            \begin{column}{0.48\linewidth}
+%%%                \begin{columns}
+%%%                    \begin{column}{0.48\linewidth}
+%%%                        \begin{itemize}
+%%%                            \item[A:] #3
+%%%                            \item[B:] #4
+%%%                        \end{itemize}
+%%%                    \end{column}
+%%%                    \begin{column}{0.48\linewidth}
+%%%                        \begin{itemize}
+%%%                            \item[C:] #5
+%%%                            \item[D:] #6
+%%%                        \end{itemize}
+%%%                    \end{column}
+%%%        \end{columns}
+%%%            \end{column}
+%%%        \end{columns}
+%%%    \end{block}
+%%%}
+%%%
+%%%\newenvironment{question_md}[6]{
+%%%    \Question{#1}{#2}{#3}{#4}{#5}{#6}
+%%%}
+%%%
+%%%\newenvironment{question2x2}[6]{
+%%%    \begin{block}{#1}
+%%%        #2
+%%%        \begin{columns}
+%%%            \begin{column}{0.48\linewidth}
+%%%                \begin{itemize}
+%%%                    \item[A:] #3
+%%%                    \item[B:] #4
+%%%                \end{itemize}
+%%%            \end{column}
+%%%            \begin{column}{0.48\linewidth}
+%%%                \begin{itemize}
+%%%                    \item[C:] #5
+%%%                    \item[D:] #6
+%%%                \end{itemize}
+%%%            \end{column}
+%%%        \end{columns}
+%%%    \end{block}
+%%%}
+
+%\newenvironment{DARCtabular}[1]{
+%    \begin{tblr}{hlines, colspec={#1}}
+%}{
+%    \end{tblr}
+%}
+
+\NewTblrEnviron{DARCtabular}
+
+\SetTblrInner[DARCtabular]{
+    row{odd} = {DARCblue!30},
+    row{even} = {DARCblue!50},
+    row{1} = {bg=DARCblue, fg=white, font=\bfseries}
+}
+
+\SetTblrOuter[DARCtabular]{
+    baseline=B
+}

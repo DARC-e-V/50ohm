@@ -30,12 +30,15 @@ class Config:
 
         self.p_data_fragenkatalog = self.p_data_questions / "fragenkatalog3b.json"
         self.p_data_metadata = self.p_data_questions / "metadata3b.json"
+        self.p_data_question_metadata = self.p_data_contents / "metadata" / "question_layout.json"
 
         self.p_build = Path(self.get_config_value("output", "./build") if build_path is None else build_path)
         self.p_build_photos = self.p_build / "photos"
         self.p_build_pictures = self.p_build / "pictures"
         self.p_build_assets = self.p_build / "assets"
+        self.p_build_latex = self.p_build / "latex"
 
+        self.p_latex = Path("./latex")
         self.p_assets = Path("./assets")
         self.p_templates = Path("./templates")
 

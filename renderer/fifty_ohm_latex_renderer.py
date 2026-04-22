@@ -3,9 +3,11 @@ from mistletoe.latex_renderer import LaTeXRenderer
 from .comment import BlockComment
 from .dash import Dash
 from .halfwidth_spaces import HalfwidthSpaces
+from .morse import Morse
 from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
 from .photo import Photo
 from .picture import Picture
+from .qso import Qso
 from .question import Question
 from .quote import Quote
 from .table import Table, TableBody, TableCell, TableHeader, TableRow
@@ -14,7 +16,7 @@ from .underline import Underline
 
 
 class FiftyOhmLaTeXRenderer(LaTeXRenderer):
-    def __init__(self, question_renderer=None):
+    def __init__(self, *extras, question_renderer=None):
         super().__init__(
             Dash,
             BlockComment,
@@ -25,6 +27,8 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
             NonbreakingSpaces,
             NonbreakingSpacesDots,
             Question,
+            Qso,
+            Morse,
             Picture,
             Photo,
             Table,
@@ -32,6 +36,7 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
             TableRow,
             TableHeader,
             TableCell,
+            *extras,
         )
         self.question_renderer = question_renderer
 
@@ -142,7 +147,7 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
     def render_table_header(self, token: TableHeader):
         align = ""
         for alignment in token.alignment:
-            align += alignment
+            align += alignment if alignment is not None else "l"
 
         return f"{{{align}}}\n{self.render_table_row(token)}"
 
