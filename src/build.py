@@ -1,7 +1,9 @@
 import json
+import os
 import random
 import re
 import shutil
+import zipfile
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
@@ -515,3 +517,39 @@ class Build:
                         page = solution_template.render(question=question, solution=solution, number=solution_file.stem)
                         page = self.__build_page(page, course_wrapper=False)
                         file.write(page)
+
+    def build_zip(self, zip_name: str | None = None) -> Path:
+        """Create a zip archive of the complete build output directory.
+
+        The zip file is written into the build directory itself and is excluded
+        from the archive contents.
+        """
+
+        build_dir = self.config.p_build
+        build_dir.mkdir(parents=True, exist_ok=True)
+
+        zip_path = build_dir / (zip_name if zip_name is not None else f"{build_dir.name}.zip")
+        zip_path = zip_path.resolve()
+
+        # If a previous archive exists, remove it first to avoid zipping stale data.
+        if zip_path.exists():
+            zip_path.unlink()
+
+        tqdm.write(f"Creating zip archive: {zip_path}")
+
+        with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+            # os.walk includes dotfiles; sort for stable archives.
+            for root, dirs, files in os.walk(build_dir):
+                dirs.sort()
+                files.sort()
+
+                root_path = Path(root)
+                for filename in files:
+                    file_path = (root_path / filename).resolve()
+                    if file_path == zip_path:
+                        continue
+
+                    arcname = file_path.relative_to(build_dir.resolve())
+                    zf.write(file_path, arcname=arcname)
+
+        return zip_path
