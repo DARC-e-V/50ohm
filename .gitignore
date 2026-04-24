@@ -167,3 +167,4 @@ test/acceptanceTestSlides.html
 .DS_Store
 .envrc
 config/config.json
+tmp/
