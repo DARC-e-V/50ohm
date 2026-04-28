@@ -60,4 +60,4 @@ $ cd build/
 $ python3 -m http.server 8000
 ```
 
-Ansckießend kann die Webseite unter [`http://localhost:8000/index.html`](http://localhost:8000/index.html) aufgerufen werden.
+Anschließend kann die Webseite unter [`http://localhost:8000/index.html`](http://localhost:8000/index.html) aufgerufen werden.
