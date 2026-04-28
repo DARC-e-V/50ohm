@@ -53,11 +53,11 @@ $ python3 ./build.py
 Der Einstiegspunkt ist in `build/index.html` zu finden.
 Alle Seiten sind auch in  `build/build.zip`  gepackt enthalten.
 
-Um auch die Suchfunktion auf der Seite nutzen zu können muss ein lokaler Webserver gestartet werden:
+Um auch die Suchfunktion auf der Seite nutzen zu können, muss ein lokaler Webserver gestartet werden:
 
 ```console
 $ cd build/
 $ python3 -m http.server 8000
 ```
 
-Ansckießend kann die Wwebseite unter [`http://localhost:8000/index.html`](http://localhost:8000/index.html) aufgerufen werden.
+Ansckießend kann die Webseite unter [`http://localhost:8000/index.html`](http://localhost:8000/index.html) aufgerufen werden.
