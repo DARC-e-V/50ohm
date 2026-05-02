@@ -11,6 +11,7 @@ jobs:
       - uses: astral-sh/ruff-action@v3
         with:
           args: check --output-format=github
+          version: "0.15.12"
   Format:
     runs-on: ubuntu-latest
     steps:
@@ -18,3 +19,4 @@ jobs:
       - uses: astral-sh/ruff-action@v3
         with:
           args: format --check --diff
+          version: "0.15.12"
