@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class Edition(str, Enum):
+class Edition(StrEnum):
     n = "N"
     e = "E"
     a = "A"
