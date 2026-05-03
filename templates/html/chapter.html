@@ -1,4 +1,4 @@
-<div class="course-toolbar" style="float: right;">
+<div class="course-toolbar" style="float: right;" data-quiz-shown>
   <div class="btn-group" role="group">
     {% if chapter["video_url"] %}
       <a class="btn btn-secondary" href="{{ chapter["video_url"] }}" title="Video öffnen" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M21 3H3c-1.11 0-2 .89-2 2v12c0 1.1.89 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.11-.9-2-2-2zm0 14H3V5h18v12zm-5-6l-7 4V7z"></path></svg></a>
@@ -9,7 +9,7 @@
   </div>
 </div>
 
-<nav aria-label="breadcrumb">
+<nav aria-label="breadcrumb" data-quiz-shown>
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="index.html">Home</a></li>
     <li class="breadcrumb-item"><a href="{{ edition }}_course_index.html">{{ name }}</a></li>
@@ -17,7 +17,7 @@
   </ol>
 </nav>
 
-<h1>{{ chapter["title"] }}</h1>
+<h1 data-quiz-shown>{{ chapter["title"] }}</h1>
 <p>{{ chapter["abstract"] }}</p>
 <div class="chapter-toc d-grid gap-2">
     {% for section in chapter["sections"] %}

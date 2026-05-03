@@ -22,32 +22,11 @@ function answer(el, correct) {
 (function () {
   var NOTICE_ID = "quiz-mode-notice";
   var STORAGE_KEY = "quiz-mode-enabled";
-  var QUIZ_CLASS = "quiz-mode-active";
-  var HAS_Q_CLASS = "quiz-has-questions";
+  var QUIZ_ATTR = "data-quiz-mode";
+  var HAS_Q_ATTR = "data-quiz-has-questions";
 
   function pageHasQuestions() {
     return document.querySelector(".course .question") !== null;
-  }
-
-  function tagSectionTail() {
-    var course = document.querySelector(".course");
-    if (!course) return false;
-    var tagged = course.querySelectorAll("[data-quiz-tail]");
-    for (var i = 0; i < tagged.length; i++) {
-      tagged[i].removeAttribute("data-quiz-tail");
-    }
-    var children = course.children;
-    for (var j = 0; j < children.length; j++) {
-      var child = children[j];
-      if (child.tagName !== "DIV") continue;
-      var text = (child.textContent || "").toLowerCase();
-      if (text.indexOf("weiter zum nächsten abschnitt") !== -1 ||
-          text.indexOf("weiter zum nächsten kapitel") !== -1) {
-        child.setAttribute("data-quiz-tail", "");
-        return true;
-      }
-    }
-    return false;
   }
 
   function showNotice(text) {
@@ -55,7 +34,15 @@ function answer(el, correct) {
     if (!n) {
       n = document.createElement("div");
       n.id = NOTICE_ID;
-      document.body.appendChild(n);
+      n.className = "alert alert-info";
+      n.setAttribute("role", "alert");
+      n.style.clear = "both";
+      var course = document.querySelector(".course");
+      if (course) {
+        course.insertBefore(n, course.firstChild);
+      } else {
+        document.body.appendChild(n);
+      }
     }
     n.textContent = text;
   }
@@ -67,15 +54,17 @@ function answer(el, correct) {
 
   function updateButton(btn, on) {
     btn.setAttribute("aria-pressed", on ? "true" : "false");
-    btn.classList.toggle("active", on);
+    btn.classList.toggle("btn-primary", on);
+    btn.classList.toggle("btn-secondary", !on);
     btn.title = on ? "Alles anzeigen" : "Nur Fragen anzeigen";
   }
 
   function setQuizMode(on) {
     var hasQ = pageHasQuestions();
-    document.body.classList.toggle(HAS_Q_CLASS, hasQ);
-    if (on && hasQ) tagSectionTail();
-    document.body.classList.toggle(QUIZ_CLASS, on);
+    if (hasQ) document.body.setAttribute(HAS_Q_ATTR, "");
+    else document.body.removeAttribute(HAS_Q_ATTR);
+    if (on) document.body.setAttribute(QUIZ_ATTR, "");
+    else document.body.removeAttribute(QUIZ_ATTR);
     var btn = document.getElementById("quiz-mode-toggle");
     if (btn) updateButton(btn, on);
     if (on && !hasQ) {
@@ -89,7 +78,7 @@ function answer(el, correct) {
     var btn = document.getElementById("quiz-mode-toggle");
     if (!btn) return;
     btn.addEventListener("click", function () {
-      var next = !document.body.classList.contains(QUIZ_CLASS);
+      var next = !document.body.hasAttribute(QUIZ_ATTR);
       setQuizMode(next);
       try { localStorage.setItem(STORAGE_KEY, next ? "1" : "0"); } catch (e) {}
     });
