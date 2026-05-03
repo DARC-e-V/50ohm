@@ -158,17 +158,19 @@ class LatexSlidesBuild:
             return renderer.render(Document(markdown))
 
     def _write_section_file(self, output_dir: Path, section_ident: str, section_title: str):
+
         slide_markdown = self._read_slide(section_ident)
         if not slide_markdown.strip():
             return
 
         rendered = self._render_slide_markdown(slide_markdown)
+
         section_file = output_dir / f"section-{section_ident}.tex"
 
         # Always prepend a dedicated title slide for each section
         content = [
             f"% Auto-generated section slides for {section_ident}",
-            r"\begin{frame}[fragile]",
+            r"\begin{frame}[fragile]{~}",
             r"\vfill",
             r"\centering",
             r"\begin{beamercolorbox}[sep=8pt,center]{section title box}",
@@ -341,4 +343,4 @@ class LatexSlidesBuild:
     def build_edition(self, edition: str | Edition) -> None:
         self.generate_edition(edition)
         self.copy_assets()
-        self.run_latex(edition)
+        # self.run_latex(edition)

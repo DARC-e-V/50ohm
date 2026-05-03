@@ -54,7 +54,7 @@ class FiftyOhmLaTeXSlideRenderer(FiftyOhmLaTeXRenderer):
         output = []
         # Zu Beginn: Falls kein Frame offen ist, Frame öffnen
         if not getattr(self, "_frame_open", False):
-            output.append("\\begin{frame}[fragile]")
+            output.append("\\begin{frame}[fragile]{~}")
             self._frame_open = True
         inner = self.render_inner(token)
         # Ersetze \textrm durch \mathrm im Math-Mode
@@ -137,10 +137,9 @@ class FiftyOhmLaTeXSlideRenderer(FiftyOhmLaTeXRenderer):
         out = ""
         if self._frame_open:
             out += "\\end{frame}\n"
-        if title:
-            out += f"\\begin{{frame}}[fragile]{{{title}}}\n{size_prefix}{inner}\n"
-        else:
-            out += f"\\begin{{frame}}[fragile]\n{size_prefix}{inner}\n"
+        # Immer einen Frame-Titel setzen: entweder echten Titel oder ~ (auch wenn leer)
+        frame_title = title if title and title.strip() else "~"
+        out += f"\\begin{{frame}}[fragile]{{{frame_title}}}\n{size_prefix}{inner}\n"
         self._frame_open = True
         return out
 
