@@ -6,7 +6,6 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "jinja2==3.1.6",
-    "joblib==1.5.1",
     "mistletoe==1.4.0",
     "requests==2.32.4",
     "rich>=14.2.0",
@@ -59,4 +58,4 @@ addopts = ["--color=yes"]
 markers = ["html", "latex", "slide"]
 
 [dependency-groups]
-dev = ["pytest==8.4.1", "pytest-cov==6.2.1", "ruff==0.12.2", "ty==0.0.1a13"]
+dev = ["pytest==8.4.1", "pytest-cov==6.2.1", "ruff==0.15.12", "ty==0.0.1a13"]
