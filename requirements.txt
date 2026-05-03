@@ -10,8 +10,6 @@ idna==3.10
     # via requests
 jinja2==3.1.6
     # via 50ohm-de (pyproject.toml)
-joblib==1.5.1
-    # via 50ohm-de (pyproject.toml)
 markdown-it-py==4.0.0
     # via rich
 markupsafe==3.0.2
