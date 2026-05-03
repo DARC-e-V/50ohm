@@ -1,4 +1,4 @@
-<div class="question layout-{{ layout }}" id="{{ number }}">
+<div class="question layout-{{ layout }}" id="{{ number }}" data-quiz-shown>
   <div class="question-text">
     {{ number }}: {{ question }}
   </div>
@@ -23,7 +23,7 @@
     {% endfor %}
   </div>
 </div>
-<div class="solution">
+<div class="solution" data-quiz-shown>
   {% if has_solution %}
     <a class="btn btn-warning btn-sm d-inline-flex align-items-center" href="{{ number }}.html" aria-label="Lösungshinweis zu Frage {{ number }}" title="Lösungshinweis">
       <svg class="solution-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true" focusable="false">
