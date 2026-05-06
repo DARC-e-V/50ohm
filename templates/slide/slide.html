@@ -17,6 +17,11 @@
     <!-- Chart plugin -->
     <script src="assets/reveal.js-plugins/chart/plugin.js"></script>
     <script src="assets/chartjs/4.4.1/chart.min.js"></script>
+    <!-- KaTeX for formulas -->
+    <link rel="stylesheet" href="assets/katex/katex.min.css">
+    <script defer src="assets/katex/katex.min.js"></script>
+    <script defer src="assets/katex/auto-render.min.js"></script>
+    <script defer src="assets/latex.js"></script>
 </head>
 
 <body>
@@ -49,7 +54,7 @@
 				pdfSeparateFragments: false,
 
 				// Learn about plugins: https://revealjs.com/plugins/
-				plugins: [ RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight, RevealMath.KaTeX, RevealChart ]
+				plugins: [ RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight, RevealChart ]
 			});
 		</script>
 	</body>

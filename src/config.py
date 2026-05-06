@@ -6,31 +6,38 @@ from pathlib import Path
 class Config:
     __env_prefix = "OHM"
 
-    def __init__(self):
+    def __init__(self, content_path: str = None, build_path: str = None):
         if os.path.isfile("config/config.json"):
             with open("config/config.json") as file:
                 self.config = json.load(file)
         else:
             self.config = {}
 
-        self.question_access_token = self.get_config_value("directus_question_api_key")
-        self.question_base_url = self.get_config_value("directus_question_base_url", "https://fragenkatalog.darc.de/")
-        self.content_access_token = self.get_config_value("directus_content_api_key")
-        self.content_base_url = self.get_config_value("directus_content_base_url", "https://redaktion.50ohm.de/")
-        self.no_latex = self.get_config_value("no_latex", False)
+        self.p_data = Path(self.get_config_value("input", "content") if content_path is None else content_path)
 
-        self.p_fragenkatalog = Path(self.get_config_value("path_fragenkatalog", "./data/fragenkatalog3b.json"))
+        self.p_data_toc = self.p_data / "toc"
 
-        self.p_data = Path("./data")
-        self.p_data_photos = self.p_data / "photos"
-        self.p_data_pictures = self.p_data / "pictures"
+        self.p_data_contents = self.p_data / "contents"
+        self.p_data_questions = self.p_data_contents / "questions"
+        self.p_data_html = self.p_data_contents / "html"
+        self.p_data_photos = self.p_data_contents / "photos"
+        self.p_data_pictures = self.p_data_contents / "drawings"
+        self.p_data_sections = self.p_data_contents / "sections"
+        self.p_data_slides = self.p_data_contents / "slides"
+        self.p_data_snippets = self.p_data_contents / "snippets"
+        self.p_data_static = self.p_data_contents / "static"
+        self.p_data_solutions = self.p_data_contents / "solutions"
 
-        self.p_build = Path("./build")
+        self.p_data_fragenkatalog = self.p_data_questions / "fragenkatalog3b.json"
+        self.p_data_metadata = self.p_data_questions / "metadata3b.json"
+
+        self.p_build = Path(self.get_config_value("output", "./build") if build_path is None else build_path)
         self.p_build_photos = self.p_build / "photos"
         self.p_build_pictures = self.p_build / "pictures"
         self.p_build_assets = self.p_build / "assets"
 
         self.p_assets = Path("./assets")
+        self.p_templates = Path("./templates")
 
     def get_config_value(self, key: str, default=None):
         if key in self.config:

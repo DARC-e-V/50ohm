@@ -8,12 +8,12 @@ class Question(BlockToken):
     def start(line):
         # Search for:
         # [question:123]
-        return re.match(r"^\s*\[question:\d+\]", line)
+        return re.match(r"^\s*\[question:[\w\d]+\]", line)
 
     @classmethod
     def read(cls, lines):
         first_line = next(lines)
-        question_number = re.match(r"^\s*\[question:(\d+)\]", first_line).group(1)
+        question_number = re.match(r"^\s*\[question:([\w\d]+)\]", first_line).group(1)
         return question_number
 
     @classmethod

@@ -167,7 +167,4 @@ test/acceptanceTestSlides.html
 .DS_Store
 .envrc
 config/config.json
-
-data/*
-!data/fragenkatalog3b.json
-!data/README.txt
+tmp/

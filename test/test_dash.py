@@ -10,6 +10,7 @@ from test.util import paragraph
 def test_dash_html():
     assertions = {
         "Foo - Bar": "Foo &ndash; Bar",
+        "Foo-Bar": "Foo-Bar",
     }
 
     for assertion in assertions:

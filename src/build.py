@@ -1,14 +1,19 @@
 import json
+import os
 import random
+import re
 import shutil
+import zipfile
+from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
-from joblib import Memory
 from mistletoe import Document
+from rich.progress import BarColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
 from tqdm import tqdm
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 from renderer.fifty_ohm_html_slide_renderer import FiftyOhmHtmlSlideRenderer
+from renderer.index import Index
 
 from .config import Config
 
@@ -17,20 +22,18 @@ class Build:
     def __init__(self, config: Config):
         self.config = config
 
-        memory = Memory("./cache", verbose=0)
-        self.env = Environment(loader=FileSystemLoader("templates/"))
+        self.env = Environment(loader=FileSystemLoader(self.config.p_templates))
         self.env.filters["shuffle_answers"] = self.__filter_shuffle_answers
         self.questions = self.__parse_katalog()
 
-        # Decorate the method with memory.cache
-        self.__build_question = memory.cache(self.__build_question)
-        self.__build_question_slide = memory.cache(self.__build_question_slide)
-        self.__build_chapter = memory.cache(self.__build_chapter)
-        self.__build_section = memory.cache(self.__build_section)
-        self.__build_chapter_slidedeck = memory.cache(self.__build_chapter_slidedeck)
+        self.question_index = {}
+        self.question_token_pattern = re.compile(r"^\s*\[question:([\w\d]+)\]", re.MULTILINE)
+
+        self.index_entries = {}
+        self.index_token_pattern = Index.pattern
 
     def __parse_katalog(self):
-        with self.config.p_fragenkatalog.open() as file:
+        with self.config.p_data_fragenkatalog.open() as file:
             fragenkatalog = json.load(file)
 
             questions = {}
@@ -47,27 +50,28 @@ class Build:
 
             return questions
 
-    # cached
-    def __build_question(self, input, template_file="html/question.html"):
+    def __build_question(self, number, template_file="html/question.html"):
         """Combines the original question dataset from BNetzA with our internal metadata"""
 
         question_template = self.env.get_template(template_file)
 
-        with (self.config.p_data / "metadata3b.json").open() as file:
-            metadata = json.load(file)
+        with (self.config.p_data_metadata).open() as file:
+            metadata_json = json.load(file)
 
             question = None
-            number = None
-            if f"{input}" in metadata:
-                metadata = metadata[f"{input}"]
-                number = metadata["number"]  # Fragennummer z.B. AB123
-                if number in self.questions:
-                    question = self.questions[number]
+            metadata = None
 
-            if question is None:
+            if number in self.questions:
+                question = self.questions[number]
+
+            if number in metadata_json:
+                metadata = metadata_json[number]
+
+            if question is None or metadata is None:
                 tqdm.write(
-                    f"\033[31mQuestion #{input} is missing"
-                    + (f" (but found number: {number})" if number is not None else "")
+                    f"\033[31mQuestion #{number} is missing"
+                    + (" (Question not in question pool)" if question is None else "")
+                    + (" (Question not in metadata)" if metadata is None else "")
                     + "\033[0m"
                 )
                 metadata = {"layout": "not-found", "picture_a": ""}
@@ -110,6 +114,8 @@ class Build:
                 picture_question = ""
                 alt_text_question = ""
 
+            solution_file = self.config.p_data_solutions / f"{number}.md"
+
             return question_template.render(
                 question=question["question"],
                 number=number,
@@ -119,18 +125,17 @@ class Build:
                 answer_pictures=answer_pictures,
                 alt_text_answers=alt_text_answers,
                 alt_text_question=alt_text_question,
+                has_solution=solution_file.exists(),
             )
 
     def __build_question_slide(self, input):
         return self.__build_question(input, template_file="slide/question.html")
 
-    # cached
     def __build_page(self, content, course_wrapper=False, sidebar=None):
         page_template = self.env.get_template("html/page.html")
         return page_template.render(content=content, course_wrapper=course_wrapper, sidebar=sidebar)
 
-    def __picture_handler(self, id):
-        self.config.p_build_pictures.mkdir(parents=True, exist_ok=True)
+    def __copy_picture(self, id):
         file = f"{id}.svg"
         try:
             shutil.copyfile(self.config.p_data_pictures / file, self.config.p_build_pictures / file)
@@ -141,9 +146,13 @@ class Build:
         except FileNotFoundError:
             tqdm.write(f"\033[31mPicture #{id} not found\033[0m")
 
+    def __picture_handler(self, id):
+        self.config.p_build_pictures.mkdir(parents=True, exist_ok=True)
+        return self.__copy_picture(id)
+
     def __photo_handler(self, id):
         self.config.p_build_photos.mkdir(parents=True, exist_ok=True)
-        file = f"{id}.jpg"
+        file = f"{id}.png"
         try:
             shutil.copyfile(self.config.p_data_photos / file, self.config.p_build_photos / file)
             if (self.config.p_data_photos / f"{id}.txt").exists():
@@ -153,8 +162,7 @@ class Build:
         except FileNotFoundError:
             tqdm.write(f"\033[31mPhoto #{id} not found\033[0m")
 
-    # cached
-    def __build_chapter(self, edition, edition_name, number, chapter, next_chapter=None):
+    def __build_chapter_index(self, edition, edition_name, number, chapter, next_chapter=None):
         chapter_template = self.env.get_template("html/chapter.html")
         next_chapter_template = self.env.get_template("html/next_chapter.html")
         with (self.config.p_build / f"{edition}_chapter_{chapter['ident']}.html").open("w") as file:
@@ -175,11 +183,13 @@ class Build:
             file.write(result)
 
     def __include_handler(self, include):
-        with (self.config.p_data / "includes.json").open() as file:
-            includes = json.load(file)
-            return includes.get(include)
+        with (self.config.p_data_html / f"{include}.html").open() as file:
+            code = file.read()
+            svg_list = re.findall(r"(\d+)\.svg", code or "")
+            for id in svg_list:
+                self.__copy_picture(id)
+            return code
 
-    # cached
     def __build_section(
         self,
         edition,
@@ -241,7 +251,9 @@ class Build:
                 result = self.__build_page(result, course_wrapper=True)
                 file.write(result)
 
-    def __build_chapter_slidedeck(self, edition, chapter, sections, next_chapter, chapter_number=None):
+    def __build_chapter_slidedeck(
+        self, edition, chapter, sections, next_chapter, chapter_number=None, progress: Progress = None
+    ):
         with (self.config.p_build / f"{edition}_slide_{chapter['ident']}.html").open("w") as file:
             slide_template = self.env.get_template("slide/slide.html")
             help_template = self.env.get_template("slide/help.html")
@@ -270,7 +282,10 @@ class Build:
                 result += "</section>\n"
 
                 section_counter = 0
-                for section in sections:
+                slides_task = progress.add_task("Rendering slides ...")
+                for section in progress.track(sections, task_id=slides_task):
+                    progress.update(slides_task, description=f"Rendering slides of {section['title']}")
+
                     if section["slide"] is None:
                         continue
 
@@ -292,6 +307,8 @@ class Build:
                     tmp = f'<section data-background="#DAEEFA">\n<h1>{section["title"]}</h1>\n</section>\n'
                     tmp += renderer.render(doc)
                     result += f"<section>{tmp}</section>\n"
+
+                progress.remove_task(slides_task)
 
                 result += next_template.render(
                     edition=edition,
@@ -332,24 +349,71 @@ class Build:
             result = self.__build_page(result)
             file.write(result)
 
-    def build_edition(self, edition):
+    def build_edition(self, edition: str):
         self.config.p_build.mkdir(exist_ok=True)
 
         edition = edition.upper()
 
-        with (self.config.p_data / f"book_{edition}.json").open() as file:
+        with (
+            (self.config.p_data_toc / f"{edition}.json").open() as file,
+            Progress(
+                TaskProgressColumn(),
+                BarColumn(),
+                TimeRemainingColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                transient=True,
+            ) as progress,
+        ):
+            chapter_task = progress.add_task(f"Building edition {edition} ...")
             book = json.load(file)
-            chapters = book["chapters"]
             edition_name = book["title"]
+
+            # Create index pages for chapters and slides.
             self.__build_book_index(book)
             self.__build_slide_index(book)
-            for chapter_number, chapter in enumerate(tqdm(chapters, desc=f"Build Edition: {edition}"), 1):
-                next_chapter = chapters[chapter_number] if chapter_number < len(chapters) else None
-                self.__build_chapter(edition, edition_name, chapter_number, chapter, next_chapter)
-                self.__build_chapter_slidedeck(edition, chapter, chapter["sections"], next_chapter, chapter_number)
 
-                for section_number, section in enumerate(chapter["sections"], 1):
-                    tqdm.write(f"Rendering section {section['title']}")
+            chapters = book["chapters"]
+
+            for chapter_number, chapter in enumerate(progress.track(chapters, task_id=chapter_task), 1):
+                progress.update(chapter_task, description=f"Building edition {edition}: Chapter {chapter['title']}")
+
+                # Determine next chapter for navigation (None if this is the last chapter)
+                next_chapter = chapters[chapter_number] if chapter_number < len(chapters) else None
+
+                self.__build_chapter_index(edition, edition_name, chapter_number, chapter, next_chapter)
+
+                # Open, parse and render each section.
+                section_task = progress.add_task(description="Rendering sections ...")
+                for section_number, section in enumerate(progress.track(chapter["sections"], task_id=section_task), 1):
+                    progress.update(section_task, description=f"Rendering section {section['title']}")
+
+                    # Read section and slide content from the corresponding files.
+                    ident = section["ident"]
+                    section["content"] = None
+                    section["slide"] = None
+                    with (self.config.p_data_sections / f"{ident}.md").open() as sfile:
+                        section_content = sfile.read()
+                        section["content"] = section_content
+                    with (self.config.p_data_slides / f"{ident}.md").open() as sfile:
+                        section_content = sfile.read()
+                        section["slide"] = section_content
+
+                    if section["content"] is not None:
+                        self.__collect_question_occurrences(
+                            edition,
+                            chapter["title"],
+                            ident,
+                            section["title"],
+                            section["content"],
+                        )
+                        self.__collect_index_occurrences(
+                            edition,
+                            chapter["title"],
+                            ident,
+                            section["title"],
+                            section["content"],
+                        )
+
                     next_section = (
                         chapter["sections"][section_number] if section_number < len(chapter["sections"]) else None
                     )
@@ -364,6 +428,14 @@ class Build:
                         chapter_number,
                     )
 
+                progress.remove_task(section_task)
+                # Build the slidedeck after all sections have been processed, as they require the files to be read.
+                self.__build_chapter_slidedeck(
+                    edition, chapter, chapter["sections"], next_chapter, chapter_number, progress
+                )
+
+            progress.remove_task(chapter_task)
+
     def build_assets(self):
         self.config.p_build.mkdir(exist_ok=True)
         shutil.copytree(
@@ -371,25 +443,47 @@ class Build:
         )
 
     def __parse_snippets(self):
-        with (self.config.p_data / "snippets.json").open() as file:
-            snippets = json.load(file)
+        snippets = {}
 
-            with FiftyOhmHtmlRenderer(
-                question_renderer=self.__build_question,
-                picture_handler=self.__picture_handler,
-                photo_handler=self.__photo_handler,
-                include_handler=self.__include_handler,
-            ) as renderer:
-                for key, value in snippets.items():
-                    snippets[key] = renderer.render_inner(Document(value))
-                    # Remove leading <p> and trailing </p>:
-                    snippets[key] = snippets[key][3:-4]
+        for md_file in Path(self.config.p_data_snippets).glob("*.md"):
+            with md_file.open() as file:
+                snippets[md_file.stem] = file.read()
+
+        with FiftyOhmHtmlRenderer(
+            question_renderer=self.__build_question,
+            picture_handler=self.__picture_handler,
+            photo_handler=self.__photo_handler,
+            include_handler=self.__include_handler,
+        ) as renderer:
+            for key, value in snippets.items():
+                snippets[key] = renderer.render_inner(Document(value))
+                # Remove leading <p> and trailing </p>:
+                snippets[key] = snippets[key][3:-4]
+
         return snippets
 
     def __parse_contents(self):
-        with (self.config.p_data / "content.json").open() as file:
-            contents = json.load(file)
-            return contents
+        static = []
+
+        for static_file in Path(self.config.p_data_static).glob("*.html"):
+            if "sidebar" not in static_file.stem:
+                with static_file.open() as file:
+                    content = file.read()
+                sidebar_file = self.config.p_data_static / f"{static_file.stem}_sidebar.html"
+                if not sidebar_file.exists():
+                    sidebar = ""
+                else:
+                    with sidebar_file.open() as file:
+                        sidebar = file.read()
+
+                static.append(
+                    {
+                        "url_part": static_file.stem,
+                        "content": content,
+                        "sidebar": sidebar if sidebar != "" else None,
+                    }
+                )
+        return static
 
     def __build_index(self, snippets):
         template = self.env.get_template("html/index.html")
@@ -426,3 +520,150 @@ class Build:
         self.__build_course_page(snippets, "patenkarte", "patenkarte")
         self.__build_html_page(contents, "pruefung")
         self.__build_html_page(contents, "infos")
+        self.__build_html_page(contents, "suche")
+
+    def build_solutions(self):
+        for solution_file in self.config.p_data_solutions.glob("*.md"):
+            with solution_file.open() as file:
+                content = file.read()
+                with (self.config.p_build / f"{solution_file.stem}.html").open("w") as file:
+                    with FiftyOhmHtmlRenderer(
+                        question_renderer=self.__build_question,
+                        picture_handler=self.__picture_handler,
+                        photo_handler=self.__photo_handler,
+                        include_handler=self.__include_handler,
+                    ) as renderer:
+                        question = self.__build_question(
+                            solution_file.stem, template_file="html/solution_question.html"
+                        )
+                        solution_template = self.env.get_template("html/solution.html")
+                        solution = renderer.render(Document(content))
+                        page = solution_template.render(question=question, solution=solution, number=solution_file.stem)
+                        page = self.__build_page(page, course_wrapper=False)
+                        file.write(page)
+
+    def __collect_question_occurrences(
+        self,
+        edition: str,
+        chapter_title: str,
+        section_ident: str,
+        section_title: str,
+        section_content: str,
+    ):
+        for question_number in self.question_token_pattern.findall(section_content or ""):
+            question_entry = self.question_index.setdefault(
+                question_number,
+                {
+                    "has_solution": self.__has_solution(question_number),
+                    "section": section_ident,
+                    "chapter_title": chapter_title,
+                    "section_title": section_title,
+                    "editions": [],
+                },
+            )
+            if edition not in question_entry["editions"]:
+                question_entry["editions"].append(edition)
+
+    def __has_solution(self, question_number: str) -> bool:
+        return (self.config.p_data_solutions / f"{question_number}.md").exists()
+
+    def __collect_index_occurrences(
+        self,
+        edition: str,
+        chapter_title: str,
+        section_ident: str,
+        section_title: str,
+        section_content: str,
+    ):
+        for match in self.index_token_pattern.finditer(section_content or ""):
+            first = match.group(1).strip()
+            second = match.group(2).strip() if match.group(2) else None
+
+            normalized_first = FiftyOhmHtmlRenderer._normalize_index_part(first)
+            if second:
+                normalized_second = FiftyOhmHtmlRenderer._normalize_index_part(second)
+                anchor_id = f"index_{normalized_first}__{normalized_second}"
+            else:
+                anchor_id = f"index_{normalized_first}"
+
+            entry_key = f"{section_ident}#{anchor_id}"
+            index_entry = self.index_entries.setdefault(
+                entry_key,
+                {
+                    "term": first,
+                    "subterm": second,
+                    "anchor_id": anchor_id,
+                    "section": section_ident,
+                    "chapter_title": chapter_title,
+                    "section_title": section_title,
+                    "editions": [],
+                },
+            )
+            if edition not in index_entry["editions"]:
+                index_entry["editions"].append(edition)
+
+    def build_question_index(self):
+        tqdm.write("Creating question index")
+        for question_data in self.question_index.values():
+            question_data["editions"] = sorted(question_data["editions"])
+
+        path = self.config.p_build_assets / "question_index.json"
+        with (path).open("w", encoding="utf-8") as file:
+            json.dump(self.question_index, file, ensure_ascii=False, indent=2, sort_keys=True)
+            file.write("\n")
+
+    def build_index(self):
+        tqdm.write("Creating index")
+        for index_data in self.index_entries.values():
+            index_data["editions"] = sorted(index_data["editions"])
+
+        entries = sorted(
+            self.index_entries.values(),
+            key=lambda item: (
+                item["term"].casefold(),
+                (item["subterm"] or "").casefold(),
+                item["section"],
+                item["anchor_id"],
+            ),
+        )
+
+        path = self.config.p_build_assets / "index.json"
+        with (path).open("w", encoding="utf-8") as file:
+            json.dump(entries, file, ensure_ascii=False, indent=2)
+            file.write("\n")
+
+    def build_zip(self, zip_name: str | None = None) -> Path:
+        """Create a zip archive of the complete build output directory.
+
+        The zip file is written into the build directory itself and is excluded
+        from the archive contents.
+        """
+
+        build_dir = self.config.p_build
+        build_dir.mkdir(parents=True, exist_ok=True)
+
+        zip_path = build_dir / (zip_name if zip_name is not None else f"{build_dir.name}.zip")
+        zip_path = zip_path.resolve()
+
+        # If a previous archive exists, remove it first to avoid zipping stale data.
+        if zip_path.exists():
+            zip_path.unlink()
+
+        tqdm.write(f"Creating zip archive: {zip_path}")
+
+        with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+            # os.walk includes dotfiles; sort for stable archives.
+            for root, dirs, files in os.walk(build_dir):
+                dirs.sort()
+                files.sort()
+
+                root_path = Path(root)
+                for filename in files:
+                    file_path = (root_path / filename).resolve()
+                    if file_path == zip_path:
+                        continue
+
+                    arcname = file_path.relative_to(build_dir.resolve())
+                    zf.write(file_path, arcname=arcname)
+
+        return zip_path
