@@ -3,6 +3,7 @@ from mistletoe.latex_renderer import LaTeXRenderer
 from .comment import BlockComment
 from .dash import Dash
 from .halfwidth_spaces import HalfwidthSpaces
+from .index import Index
 from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
 from .photo import Photo
 from .picture import Picture
@@ -32,6 +33,7 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
             TableRow,
             TableHeader,
             TableCell,
+            Index,
         )
         self.question_renderer = question_renderer
 
@@ -148,3 +150,9 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
 
     def render_table_cell(self, token: TableCell):
         return self.render_inner(token)
+
+    def render_index(self, token):
+        if token.second:
+            return f"\\index{{{token.first}!{token.second}}}"
+        else:
+            return f"\\index{{{token.first}}}"
