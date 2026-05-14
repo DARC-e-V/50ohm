@@ -265,6 +265,9 @@ span.formula {
   .course .katex-display {
     width: 59.3%;
   }
+  .course .breadcrumb {
+    width: 82%;
+  }
 
   .course .margin {
     clear: right;
