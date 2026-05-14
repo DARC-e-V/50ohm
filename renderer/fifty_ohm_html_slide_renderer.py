@@ -22,6 +22,10 @@ class FiftyOhmHtmlSlideRenderer(FiftyOhmHtmlRenderer):
         else:
             return f"<section {token.attribute}>\n{inner}\n</section>\n"
 
+    @staticmethod
+    def render_figure_link_helper(url, text):
+        return text
+
     def render_qso(self, token):
         qso = '<div class="qso r-fit-text">\n'
         for child in token.children:
