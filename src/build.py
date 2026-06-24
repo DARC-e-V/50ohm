@@ -7,10 +7,10 @@ import zipfile
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
-from mistletoe import Document
 from rich.progress import BarColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
 from tqdm import tqdm
 
+from renderer.document import Document
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 from renderer.fifty_ohm_html_slide_renderer import FiftyOhmHtmlSlideRenderer
 from renderer.index import Index
@@ -222,12 +222,7 @@ class Build:
                 section=section_num,
                 section_url=section_filename,
             ) as renderer:
-                # First pass: collect all figures and assign hierarchical numbers
-                doc = Document(section["content"])
-                renderer.collect_figures(doc)
-
-                # Second pass: render with hierarchical numbers
-                section["content"] = renderer.render(doc)
+                section["content"] = renderer.render(Document(section["content"]))
 
                 result = section_template.render(
                     edition=edition,
@@ -266,58 +261,51 @@ class Build:
             # Note: filename uses original edition (e.g., "N"), not modified edition with "S" (e.g., "NS")
             slide_filename = f"{edition}_slide_{chapter['ident']}.html"
 
-            with FiftyOhmHtmlSlideRenderer(
-                question_renderer=self.__build_question_slide,
-                picture_handler=self.__picture_handler,
-                photo_handler=self.__photo_handler,
-                include_handler=self.__include_handler,
-                edition=edition,
-                chapter=chapter_num,
-                section="0",  # Will be updated per section
-                section_url=slide_filename,
-            ) as renderer:
-                result = "<section>\n"
-                result += f'<section data-background="#DAEEFA">\n<h1>{chapter["title"]}</h1>\n</section>\n'
-                result += help_template.render()
-                result += "</section>\n"
+            result = "<section>\n"
+            result += f'<section data-background="#DAEEFA">\n<h1>{chapter["title"]}</h1>\n</section>\n'
+            result += help_template.render()
+            result += "</section>\n"
 
-                section_counter = 0
-                slides_task = progress.add_task("Rendering slides ...")
-                for section in progress.track(sections, task_id=slides_task):
-                    progress.update(slides_task, description=f"Rendering slides of {section['title']}")
+            section_counter = 0
+            slides_task = progress.add_task("Rendering slides ...")
+            for section in progress.track(sections, task_id=slides_task):
+                progress.update(slides_task, description=f"Rendering slides of {section['title']}")
 
-                    if section["slide"] is None:
-                        continue
+                if section["slide"] is None:
+                    continue
 
-                    section_counter += 1
-                    # Update section number for this section
-                    renderer.section = str(section_counter)
-                    # Reset figure counter for each section
-                    renderer.figure_counter = 0
-                    renderer.figure_map = {}
+                section_counter += 1
 
-                    if not section["slide"].startswith("---"):
-                        section["slide"] = "---\n" + section["slide"]
+                if not section["slide"].startswith("---"):
+                    section["slide"] = "---\n" + section["slide"]
 
-                    # First pass: collect figures
-                    doc = Document(section["slide"])
-                    renderer.collect_figures(doc)
-
-                    # Second pass: render with hierarchical numbers
-                    tmp = f'<section data-background="#DAEEFA">\n<h1>{section["title"]}</h1>\n</section>\n'
-                    tmp += renderer.render(doc)
-                    result += f"<section>{tmp}</section>\n"
-
-                progress.remove_task(slides_task)
-
-                result += next_template.render(
+                # A fresh renderer per section keeps the figure counter and
+                # reference map scoped to that section.
+                with FiftyOhmHtmlSlideRenderer(
+                    question_renderer=self.__build_question_slide,
+                    picture_handler=self.__picture_handler,
+                    photo_handler=self.__photo_handler,
+                    include_handler=self.__include_handler,
                     edition=edition,
-                    next_chapter=next_chapter,
-                    chapter=chapter,
-                )
+                    chapter=chapter_num,
+                    section=str(section_counter),
+                    section_url=slide_filename,
+                ) as renderer:
+                    tmp = f'<section data-background="#DAEEFA">\n<h1>{section["title"]}</h1>\n</section>\n'
+                    tmp += renderer.render(Document(section["slide"]))
 
-                result = slide_template.render(content=result)
-                file.write(result)
+                result += f"<section>{tmp}</section>\n"
+
+            progress.remove_task(slides_task)
+
+            result += next_template.render(
+                edition=edition,
+                next_chapter=next_chapter,
+                chapter=chapter,
+            )
+
+            result = slide_template.render(content=result)
+            file.write(result)
 
     def __filter_shuffle_answers(self, seq):
         answers = []

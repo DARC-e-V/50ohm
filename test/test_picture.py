@@ -1,4 +1,3 @@
-import mistletoe
 import pytest
 
 from renderer.document import Document
@@ -21,5 +20,6 @@ def test_picture_latex():
         "[picture:0:abc:Text]": FiftyOhmLaTeXRenderer.render_picture_helper("0", "abc", "Text", "TODO"),
     }
 
-    for assertion in assertions:
-        assert mistletoe.markdown(assertion, FiftyOhmLaTeXRenderer) == "\n" + assertions[assertion] + "\n"
+    with FiftyOhmLaTeXRenderer() as renderer:
+        for assertion in assertions:
+            assert renderer.render(Document(assertion)) == assertions[assertion]
