@@ -2,9 +2,8 @@ import mistletoe
 import pytest
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
-from renderer.fifty_ohm_html_slide_renderer import FiftyOhmHtmlSlideRenderer
 from renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
-from test.util import paragraph
+from test.util import paragraph, render_html, render_slide
 
 
 @pytest.mark.html
@@ -15,7 +14,7 @@ def test_thematic_break_html():
     }
 
     for assertion in assertions:
-        assert mistletoe.markdown(assertion, FiftyOhmHtmlRenderer) == assertions[assertion]
+        assert render_html(assertion) == assertions[assertion]
 
 
 @pytest.mark.html
@@ -39,7 +38,7 @@ def test_tag_html():
     }
 
     for assertion in assertions:
-        assert mistletoe.markdown(assertion, FiftyOhmHtmlRenderer) == assertions[assertion]
+        assert render_html(assertion) == assertions[assertion]
 
 
 @pytest.mark.html
@@ -61,7 +60,7 @@ def test_thematic_break_and_tag_html():
     }
 
     for assertion in assertions:
-        assert mistletoe.markdown(assertion, FiftyOhmHtmlRenderer) == assertions[assertion]
+        assert render_html(assertion) == assertions[assertion]
 
 
 @pytest.mark.latex
@@ -119,7 +118,7 @@ def test_tag_slide():
     }
 
     for assertion in assertions:
-        assert mistletoe.markdown(assertion, FiftyOhmHtmlSlideRenderer) == assertions[assertion]
+        assert render_slide(assertion) == assertions[assertion]
 
 
 @pytest.mark.slide
@@ -133,4 +132,4 @@ def test_slide_break():
     }
 
     for assertion in assertions:
-        assert mistletoe.markdown(assertion, FiftyOhmHtmlSlideRenderer) == assertions[assertion]
+        assert render_slide(assertion) == assertions[assertion]
