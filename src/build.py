@@ -33,7 +33,7 @@ class Build:
         self.index_token_pattern = Index.pattern
 
     def __parse_katalog(self):
-        with self.config.p_data_fragenkatalog.open() as file:
+        with self.config.p_data_fragenkatalog.open(encoding="utf-8") as file:
             fragenkatalog = json.load(file)
 
             questions = {}
@@ -55,7 +55,7 @@ class Build:
 
         question_template = self.env.get_template(template_file)
 
-        with (self.config.p_data_metadata).open() as file:
+        with (self.config.p_data_metadata).open(encoding="utf-8") as file:
             metadata_json = json.load(file)
 
             question = None
@@ -140,7 +140,7 @@ class Build:
         try:
             shutil.copyfile(self.config.p_data_pictures / file, self.config.p_build_pictures / file)
             if (self.config.p_data_pictures / f"{id}.txt").exists():
-                return (self.config.p_data_pictures / f"{id}.txt").read_text()
+                return (self.config.p_data_pictures / f"{id}.txt").read_text(encoding="utf-8")
             else:
                 return "Bildbeschreibung noch nicht verfügbar"
         except FileNotFoundError:
@@ -156,7 +156,7 @@ class Build:
         try:
             shutil.copyfile(self.config.p_data_photos / file, self.config.p_build_photos / file)
             if (self.config.p_data_photos / f"{id}.txt").exists():
-                return (self.config.p_data_photos / f"{id}.txt").read_text()
+                return (self.config.p_data_photos / f"{id}.txt").read_text(encoding="utf-8")
             else:
                 return "Bildbeschreibung noch nicht verfügbar"
         except FileNotFoundError:
@@ -165,7 +165,7 @@ class Build:
     def __build_chapter_index(self, edition, edition_name, number, chapter, next_chapter=None):
         chapter_template = self.env.get_template("html/chapter.html")
         next_chapter_template = self.env.get_template("html/next_chapter.html")
-        with (self.config.p_build / f"{edition}_chapter_{chapter['ident']}.html").open("w") as file:
+        with (self.config.p_build / f"{edition}_chapter_{chapter['ident']}.html").open("w", encoding="utf-8") as file:
             result = chapter_template.render(
                 edition=edition,
                 name=edition_name,
@@ -183,7 +183,7 @@ class Build:
             file.write(result)
 
     def __include_handler(self, include):
-        with (self.config.p_data_html / f"{include}.html").open() as file:
+        with (self.config.p_data_html / f"{include}.html").open(encoding="utf-8") as file:
             code = file.read()
             svg_list = re.findall(r"(\d+)\.svg", code or "")
             for id in svg_list:
@@ -204,7 +204,7 @@ class Build:
         section_template = self.env.get_template("html/section.html")
         next_section_template = self.env.get_template("html/next_section.html")
         next_chapter_template = self.env.get_template("html/next_chapter.html")
-        with (self.config.p_build / f"{edition}_{section['ident']}.html").open("w") as file:
+        with (self.config.p_build / f"{edition}_{section['ident']}.html").open("w", encoding="utf-8") as file:
             # Use provided chapter_number or fall back to chapter dict
             chapter_num = str(chapter_number) if chapter_number is not None else chapter.get("number", "0")
             section_num = str(section_id)
@@ -249,7 +249,7 @@ class Build:
     def __build_chapter_slidedeck(
         self, edition, chapter, sections, next_chapter, chapter_number=None, progress: Progress = None
     ):
-        with (self.config.p_build / f"{edition}_slide_{chapter['ident']}.html").open("w") as file:
+        with (self.config.p_build / f"{edition}_slide_{chapter['ident']}.html").open("w", encoding="utf-8") as file:
             slide_template = self.env.get_template("slide/slide.html")
             help_template = self.env.get_template("slide/help.html")
             next_template = self.env.get_template("slide/next.html")
@@ -321,7 +321,7 @@ class Build:
 
     def __build_book_index(self, book):
         template = self.env.get_template("html/course_index.html")
-        with (self.config.p_build / f"{book['edition']}_course_index.html").open("w") as file:
+        with (self.config.p_build / f"{book['edition']}_course_index.html").open("w", encoding="utf-8") as file:
             result = template.render(
                 book=book,
             )
@@ -330,7 +330,7 @@ class Build:
 
     def __build_slide_index(self, book):
         template = self.env.get_template("slide/slide_index.html")
-        with (self.config.p_build / f"{book['edition']}_slide_index.html").open("w") as file:
+        with (self.config.p_build / f"{book['edition']}_slide_index.html").open("w", encoding="utf-8") as file:
             result = template.render(
                 book=book,
             )
@@ -343,7 +343,7 @@ class Build:
         edition = edition.upper()
 
         with (
-            (self.config.p_data_toc / f"{edition}.json").open() as file,
+            (self.config.p_data_toc / f"{edition}.json").open(encoding="utf-8") as file,
             Progress(
                 TaskProgressColumn(),
                 BarColumn(),
@@ -379,10 +379,10 @@ class Build:
                     ident = section["ident"]
                     section["content"] = None
                     section["slide"] = None
-                    with (self.config.p_data_sections / f"{ident}.md").open() as sfile:
+                    with (self.config.p_data_sections / f"{ident}.md").open(encoding="utf-8") as sfile:
                         section_content = sfile.read()
                         section["content"] = section_content
-                    with (self.config.p_data_slides / f"{ident}.md").open() as sfile:
+                    with (self.config.p_data_slides / f"{ident}.md").open(encoding="utf-8") as sfile:
                         section_content = sfile.read()
                         section["slide"] = section_content
 
@@ -434,7 +434,7 @@ class Build:
         snippets = {}
 
         for md_file in Path(self.config.p_data_snippets).glob("*.md"):
-            with md_file.open() as file:
+            with md_file.open(encoding="utf-8") as file:
                 snippets[md_file.stem] = file.read()
 
         with FiftyOhmHtmlRenderer(
@@ -455,13 +455,13 @@ class Build:
 
         for static_file in Path(self.config.p_data_static).glob("*.html"):
             if "sidebar" not in static_file.stem:
-                with static_file.open() as file:
+                with static_file.open(encoding="utf-8") as file:
                     content = file.read()
                 sidebar_file = self.config.p_data_static / f"{static_file.stem}_sidebar.html"
                 if not sidebar_file.exists():
                     sidebar = ""
                 else:
-                    with sidebar_file.open() as file:
+                    with sidebar_file.open(encoding="utf-8") as file:
                         sidebar = file.read()
 
                 static.append(
@@ -477,7 +477,7 @@ class Build:
         template = self.env.get_template("html/index.html")
         result = template.render({"snippets": snippets})
 
-        with (self.config.p_build / "index.html").open("w") as file:
+        with (self.config.p_build / "index.html").open("w", encoding="utf-8") as file:
             result = self.__build_page(result)
 
             file.write(result)
@@ -486,14 +486,14 @@ class Build:
         template = self.env.get_template(f"html/{template}.html")
         result = template.render({"snippets": snippets})
 
-        with (self.config.p_build / f"{page}.html").open("w") as file:
+        with (self.config.p_build / f"{page}.html").open("w", encoding="utf-8") as file:
             result = self.__build_page(result)
             file.write(result)
 
     def __build_html_page(self, contents, page):
         for content in contents:
             if content["url_part"] == page:
-                with (self.config.p_build / f"{page}.html").open("w") as file:
+                with (self.config.p_build / f"{page}.html").open("w", encoding="utf-8") as file:
                     result = self.__build_page(content=content["content"], sidebar=content["sidebar"])
                     file.write(result)
 
@@ -512,9 +512,9 @@ class Build:
 
     def build_solutions(self):
         for solution_file in self.config.p_data_solutions.glob("*.md"):
-            with solution_file.open() as file:
+            with solution_file.open(encoding="utf-8") as file:
                 content = file.read()
-                with (self.config.p_build / f"{solution_file.stem}.html").open("w") as file:
+                with (self.config.p_build / f"{solution_file.stem}.html").open("w", encoding="utf-8") as file:
                     with FiftyOhmHtmlRenderer(
                         question_renderer=self.__build_question,
                         picture_handler=self.__picture_handler,
