@@ -1,0 +1,23 @@
+[project]
+name = "ohm-cli"
+version = "0.1.0"
+description = "Kommandozeilen-Interface für den 50ohm.de-Generator."
+readme = "README.md"
+authors = [
+    { name = "Tim Grelka", email = "tim@grelka.net" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "ohm-builder",
+    "typer>=0.21.1",
+]
+
+[project.scripts]
+ohm = "ohm_cli.main:app"
+
+[build-system]
+requires = ["uv_build>=0.10.4,<0.11.0"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+ohm-builder = { workspace = true }

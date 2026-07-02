@@ -1,17 +1,16 @@
 [project]
-name = "50ohm-de"
+name = "ohm"
 version = "0.1.0"
 description = "Generator für 50ohm.de, die Ausbildungsplattform des DARC e.V."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
-    "jinja2==3.1.6",
-    "mistletoe==1.4.0",
-    "requests==2.32.4",
-    "rich>=14.2.0",
-    "tqdm==4.67.1",
-    "typer>=0.21.1",
-]
+dependencies = ["ohm-cli"]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+ohm-cli = { workspace = true }
 
 [tool.ruff]
 line-length = 120
@@ -54,8 +53,17 @@ select = [
 ]
 
 [tool.pytest.ini_options]
-addopts = ["--color=yes"]
+addopts = ["--color=yes", "--import-mode=importlib"]
 markers = ["html", "latex", "slide"]
+testpaths = ["packages/ohm-renderer/tests", "packages/ohm-builder/tests"]
+pythonpath = ["packages/ohm-renderer/tests"]
+
+[tool.uv.workspace]
+members = [
+    "packages/ohm-renderer",
+    "packages/ohm-builder",
+    "packages/ohm-cli",
+]
 
 [dependency-groups]
 dev = ["pytest==8.4.1", "pytest-cov==6.2.1", "ruff==0.15.12", "ty==0.0.1a13"]
