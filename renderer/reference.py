@@ -3,7 +3,7 @@ import re
 from mistletoe.span_token import SpanToken
 
 
-class References(SpanToken):
+class Reference(SpanToken):
     """
     Resolve references for html
     Identifies "[ref:$]"
@@ -12,4 +12,4 @@ class References(SpanToken):
     pattern = re.compile(r"\[ref\:(\S+)\]")
 
     def __init__(self, match_object):
-        self.first = match_object.group(1)
+        self.marker: str = match_object.group(1)
