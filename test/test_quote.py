@@ -1,9 +1,8 @@
 import mistletoe
 import pytest
 
-from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 from renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
-from test.util import paragraph
+from test.util import paragraph, render_html
 
 
 @pytest.mark.html
@@ -18,7 +17,7 @@ def test_quote_html():
     }
 
     for assertion in assertions:
-        assert mistletoe.markdown(assertion, FiftyOhmHtmlRenderer) == paragraph(assertions[assertion])
+        assert render_html(assertion) == paragraph(assertions[assertion])
 
 
 @pytest.mark.latex

@@ -1,8 +1,7 @@
-import mistletoe
 import pytest
 
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
-from renderer.fifty_ohm_html_slide_renderer import FiftyOhmHtmlSlideRenderer
+from test.util import render_html, render_slide
 
 
 @pytest.mark.html
@@ -21,7 +20,7 @@ def test_qso_html():
     }
 
     for assertion in assertions:
-        assert mistletoe.markdown(assertion, FiftyOhmHtmlRenderer) == assertions[assertion]
+        assert render_html(assertion) == assertions[assertion]
 
 
 @pytest.mark.slide
@@ -31,4 +30,4 @@ def test_qso_slide():
     }
 
     for assertion in assertions:
-        assert mistletoe.markdown(assertion, FiftyOhmHtmlSlideRenderer) == assertions[assertion]
+        assert render_slide(assertion) == assertions[assertion]

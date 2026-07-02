@@ -1,9 +1,8 @@
 import mistletoe
 import pytest
 
-from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 from renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
-from test.util import paragraph
+from test.util import paragraph, render_html
 
 
 @pytest.mark.html
@@ -11,7 +10,7 @@ def test_paragraph_html():
     input = "Der Test befindet sich unter §2 vielleicht aber auch § 3."
     target = "Der Test befindet sich unter §&#160;2 vielleicht aber auch §&#160;3."
 
-    assert mistletoe.markdown(input, FiftyOhmHtmlRenderer) == paragraph(target)
+    assert render_html(input) == paragraph(target)
 
 
 @pytest.mark.html
@@ -24,7 +23,7 @@ def test_three_points_html():
     }
 
     for key, value in assertions.items():
-        assert mistletoe.markdown(key, FiftyOhmHtmlRenderer) == paragraph(value)
+        assert render_html(key) == paragraph(value)
 
 
 @pytest.mark.html
@@ -32,7 +31,7 @@ def test_absatz_html():
     input = "Der Test befindet sich unter Abs.2 vielleicht aber auch Abs. 3."
     target = "Der Test befindet sich unter Abs.&#160;2 vielleicht aber auch Abs.&#160;3."
 
-    assert mistletoe.markdown(input, FiftyOhmHtmlRenderer) == paragraph(target)
+    assert render_html(input) == paragraph(target)
 
 
 @pytest.mark.html
@@ -40,7 +39,7 @@ def test_class_html():
     input = "Ich lerne für Klasse A, Klasse E und Klasse N."
     target = "Ich lerne für Klasse&#160;A, Klasse&#160;E und Klasse&#160;N."
 
-    assert mistletoe.markdown(input, FiftyOhmHtmlRenderer) == paragraph(target)
+    assert render_html(input) == paragraph(target)
 
 
 @pytest.mark.latex
