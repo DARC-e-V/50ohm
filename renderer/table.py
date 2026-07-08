@@ -4,6 +4,8 @@ from enum import Enum
 from mistletoe import span_token
 from mistletoe.block_token import BlockToken
 
+from renderer.referenced_token import ReferencedToken
+
 
 class CellAlignment(Enum):
     LEFT = "l"
@@ -76,7 +78,7 @@ class TableBody(BlockToken):
         self.children, self.header = rows, header
 
 
-class Table(BlockToken):
+class Table(ReferencedToken):
     name: str
     caption: str
     header: list[TableHeader]
@@ -115,4 +117,8 @@ class Table(BlockToken):
         return children, name, caption
 
     def __init__(self, match):
-        self.children, self.name, self.caption = match
+        children, name, caption = match
+        super().__init__(name)
+        self.children = children
+        self.name = name
+        self.caption = caption

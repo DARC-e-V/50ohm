@@ -2,9 +2,9 @@ import json
 
 import pytest
 from jinja2 import Environment, FileSystemLoader
-from mistletoe import Document
 
 import src.config as config
+from renderer.document import Document
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 
 conf = config.Config()

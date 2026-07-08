@@ -1,8 +1,6 @@
-import mistletoe
 import pytest
 
-from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
-from test.util import paragraph
+from test.util import paragraph, render_html
 
 
 @pytest.mark.html
@@ -15,4 +13,4 @@ def test_references_html():
     }
 
     for key, value in assertions.items():
-        assert mistletoe.markdown(key, FiftyOhmHtmlRenderer) == paragraph(value)
+        assert render_html(key) == paragraph(value)
