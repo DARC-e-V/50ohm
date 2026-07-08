@@ -1,22 +1,22 @@
 import re
 
 from jinja2 import Environment, FileSystemLoader
-from mistletoe import Document, HtmlRenderer
+from mistletoe import HtmlRenderer
 
 from .comment import BlockComment
 from .dash import Dash
+from .document import Document
 from .formula import Formula
 from .halfwidth_spaces import HalfwidthSpaces
+from .image import Image
 from .include import Include
 from .index import Index
 from .morse import Morse
 from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
-from .photo import Photo
-from .picture import Picture
 from .qso import Qso
 from .question import Question
 from .quote import Quote
-from .references import References
+from .reference import Reference
 from .table import Table, TableBody, TableCell, TableHeader, TableRow
 from .tag import Tag
 from .underline import Underline
@@ -28,8 +28,6 @@ table_alignment = {"l": "left", "c": "center", "r": "right"}
 class FiftyOhmHtmlRenderer(HtmlRenderer):
     margin_anchor_id = 0
     margin_id = 0
-    section_url = "section.html"
-    ref_id = 0
 
     def __init__(
         self,
@@ -55,10 +53,9 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             HalfwidthSpaces,
             NonbreakingSpaces,
             NonbreakingSpacesDots,
-            References,
+            Reference,
             Question,
-            Picture,
-            Photo,
+            Image,
             Table,
             TableHeader,
             TableRow,
@@ -83,17 +80,21 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         self.section = section
 
         # Set section URL if provided, otherwise use default
-        if section_url is not None:
-            self.section_url = section_url
+        self.section_url = section_url if section_url is not None else "section.html"
 
-        # Figure map: stores ref -> hierarchical number mapping
-        self.figure_map = {}
-
-        # Single unified counter for all figure types (pictures, photos, tables)
-        self.figure_counter = 0
+        self.references: dict[str, str] = {}
 
         # Keep track of index ids already emitted in this document.
         self.index_anchor_ids = set()
+
+    def _format_reference_label(self, marker: str):
+        if marker in self.references:
+            label = self.references[marker]
+            if self.edition and self.chapter and self.section:
+                label = f"{self.edition}-{self.chapter}.{self.section}.{label}"
+            return label
+        else:
+            return None
 
     def render_dash(self, token):
         return " &ndash; "
@@ -209,53 +210,18 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         lookup = {"": "", " ": "&#160;"}
         return f"{lookup[token.first]}{token.second}{lookup[token.third]}"
 
-    def collect_figures(self, document):
-        """First pass: collect all figures and assign hierarchical numbers."""
-        self.figure_counter = 0
-        self.figure_map = {}
-
-        self._collect_figures_recursive(document)
-
-    def _collect_figures_recursive(self, token):
-        """Recursively traverse the document tree to collect figures."""
-        if hasattr(token, "children") and token.children is not None:
-            for child in token.children:
-                # Check if this is a Picture, Photo, or Table token
-                if isinstance(child, Picture | Photo | Table):
-                    # Get the reference ID (ref for Picture/Photo, name for Table)
-                    ref_id = getattr(child, "ref", None) or getattr(child, "name", None)
-
-                    if ref_id:  # Only number figures with a reference ID
-                        self.figure_counter += 1
-                        hierarchical_num = self._format_figure_number(self.figure_counter)
-                        self.figure_map[ref_id] = hierarchical_num
-                        child.number = hierarchical_num
-                    else:
-                        child.number = ""
-
-                # Recurse into children
-                self._collect_figures_recursive(child)
-
-    def _format_figure_number(self, counter):
-        """Format the hierarchical figure number based on context."""
-        if self.edition and self.chapter and self.section:
-            return f"{self.edition}-{self.chapter}.{self.section}.{counter}"
-        else:
-            # Fallback for tests or when context is not provided
-            return str(counter)
-
-    def render_references(self, token):
+    def render_reference(self, token: Reference):
         # Look up the figure number from the map
-        figure_num = self.figure_map.get(token.first, "?")
+        label = self._format_reference_label(token.marker) or "?"
         return (
-            f'<a href="{self.section_url}#ref_{token.first}"'
-            f" onclick=\"highlightRef('{token.first}');\">{figure_num}</a>"
+            f'<a href="{self.section_url}#ref_{token.marker}" onclick="highlightRef(\'{token.marker}\');">{label}</a>'
         )
 
     def render_question(self, token):
         return self.question_renderer(token.question_number)
 
     def render_document(self, token: Document) -> str:
+        self.references.update(token.references)
         self.footnotes.update(token.footnotes)
         inner = self.render_inner(token, "\n")
         return f"{inner}\n" if inner else ""
@@ -264,36 +230,38 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         # Filter out None values, so block tokens can return None to not be rendered.
         return base.join(filter(lambda x: x is not None, [self.render(child) for child in token.children]))
 
-    @staticmethod
-    def render_picture_helper(id, ref, text, number, alt_text):
-        return f"""
-                <figure class="picture" id="ref_{ref}" name="{ref}">
-                    <img src="pictures/{id}.svg" alt="{alt_text}">
-                    <figcaption>Abbildung {number}: {text}</figcaption>
-                </figure>
-            """
-
-    def render_picture(self, token):
-        alt_text = ""
-        if self.picture_handler is not None:
-            alt_text = self.picture_handler(token.id)
-
-        return self.render_picture_helper(token.id, token.ref, token.text, token.number, alt_text)
+    def render_picture_helper(self, id, marker, text, label, alt_text):
+        return (
+            f'<figure class="picture" id="ref_{marker}" name="{marker}">\n'
+            f'  <img src="pictures/{id}.svg" alt="{alt_text}">\n'
+            f"  <figcaption>Abbildung {label}: {text}</figcaption>\n"
+            "</figure>\n"
+        )
 
     @staticmethod
-    def render_photo_helper(id, ref, text, number, alt_text):
+    def render_photo_helper(id, ref, text, label, alt_text):
         return f"""
                 <figure class="photo" id="ref_{ref}" name="{ref}">
                     <img src="photos/{id}.png" alt="{alt_text}">
-                    <figcaption>Abbildung {number}: {text}</figcaption>
+                    <figcaption>Abbildung {label}: {text}</figcaption>
                 </figure>
             """
 
-    def render_photo(self, token):
-        alt_text = ""
-        if self.photo_handler is not None:
-            alt_text = self.photo_handler(token.id) or alt_text
-        return self.render_photo_helper(token.id, token.ref, token.text, token.number, alt_text)
+    def render_image(self, token: Image):
+        label = self._format_reference_label(token.marker) or "?"
+
+        # Only supported kinds are photo and picture
+        if token.kind == "photo":
+            alt_text = ""
+            if self.photo_handler is not None:
+                alt_text = self.photo_handler(token.id) or alt_text
+            return self.render_photo_helper(token.id, token.marker, token.text, label, alt_text)
+        if token.kind == "picture":
+            alt_text = ""
+            if self.picture_handler is not None:
+                alt_text = self.picture_handler(token.id)
+            return self.render_picture_helper(token.id, token.marker, token.text, label, alt_text)
+        return ""
 
     def render_table(self, token: Table):
         # Add id and name attributes if table has a name
@@ -304,10 +272,11 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         table = f'<table class="table table-hover"{table_attrs}>\n{self.render_inner(token)}'
 
         if token.caption != "":
-            # Include hierarchical number in caption if available
+            # Include hierarchical number in caption if the table is named.
             caption_text = token.caption
-            if hasattr(token, "number") and token.number:
-                caption_text = f"Tabelle {token.number}: {token.caption}"
+            label = self._format_reference_label(token.name)
+            if label:
+                caption_text = f"Tabelle {label}: {token.caption}"
             table += f"<caption>{caption_text}</caption>\n"
 
         table += "</table>"

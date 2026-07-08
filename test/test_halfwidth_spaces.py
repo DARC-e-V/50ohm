@@ -1,9 +1,8 @@
 import mistletoe
 import pytest
 
-from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 from renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
-from test.util import paragraph
+from test.util import paragraph, render_html
 
 
 @pytest.mark.html
@@ -11,7 +10,7 @@ def test_halfwidth_space_html():
     input = "Dies ist z.B. ein Test. D.h. hier sollten d.h. Spaces ersetzt worden sein."
     target = "Dies ist z.&#8239;B. ein Test. D.&#8239;h. hier sollten d.&#8239;h. Spaces ersetzt worden sein."
 
-    assert mistletoe.markdown(input, FiftyOhmHtmlRenderer) == paragraph(target)
+    assert render_html(input) == paragraph(target)
 
 
 @pytest.mark.latex
