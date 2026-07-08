@@ -1,273 +1,51 @@
-/* ==========================================================================
-   DARC Mitgliedsantrag – Buttons, Banner & Floating CTA
-   Feste, kontrastgeprüfte Palette (nicht durch Redakteure änderbar):
-     Hintergrund  #2aa6da  (DARC-Blau)
-     Schrift      #16294a  (Dunkelnavy)  → Kontrast 5,2:1
-     Hover        #4cb8e6  (aufgehellt)  → Kontrast 6,4:1
-   ========================================================================== */
+/* Minimal CSS for floating CTA positioning/animation only. Uses Bootstrap button styles. */
 
-.darc-antrag {
-    --darc-blue: #00ADEF;
-    --darc-blue-hover: #4cb8e6;
-    --darc-navy: #16294a;
-    --darc-radius: 5px;
-    --darc-font: inherit;
-    font-family: var(--darc-font);
-    line-height: 1.4;
-}
-
-/* ==========================================================================
-   Buttons
-   ========================================================================== */
-.darc-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55em;
-    padding: 0.75em 1.4em;
-    min-height: 44px;
-    box-sizing: border-box;
-    font-size: 1rem;
-    text-decoration: none;
-    color: #fff;
-    border-radius: var(--darc-radius);
-    border: 2px solid transparent;
-    cursor: pointer;
-    transition: transform .12s ease, background-color .12s ease, color .12s ease;
-    -webkit-tap-highlight-color: transparent;
-}
-.darc-btn:hover { transform: translateY(-1px); }
-.darc-btn:focus-visible { outline: 3px solid var(--darc-navy); outline-offset: 2px; }
-
-.darc-btn__icon { display: inline-flex; }
-.darc-btn__label { white-space: nowrap; }
-.darc-btn__arrow { width: 1.1em; height: 1.1em; transition: transform .12s ease; }
-.darc-btn:hover .darc-btn__arrow { transform: translateX(3px); }
-.darc-icon { width: 1.25em; height: 1.25em; }
-
-/* Primär (gefüllt): Navy-Schrift auf DARC-Blau */
-.darc-btn--primary {
-    background: var(--darc-blue);
-    color: #fff;
-}
-.darc-btn--primary:hover {
-    background: var(--darc-blue-hover);
-    color: #fff;
-}
-
-/* Outline: Navy-Schrift, blauer Rahmen */
-.darc-btn--outline {
-    background: transparent;
-    color: #fff;
-    border-color: var(--darc-blue);
-}
-.darc-btn--outline:hover {
-    background: var(--darc-blue);
-    color: #fff;
-}
-
-/* Pille mit Icon */
-.darc-btn--pill {
-    background: var(--darc-blue);
-    color: #fff;
-    border-radius: 999px;
-    padding: 0.7em 1.5em;
-}
-.darc-btn--pill:hover { background: var(--darc-blue-hover); color: #fff; }
-
-/* ==========================================================================
-   Banner – breit (Streifen)
-   ========================================================================== */
-.darc-banner {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem 1.5rem;
-    padding: 1.25rem 1.5rem;
-    border-radius: 14px;
-    background: var(--darc-blue);
-    color: var(--darc-navy);
-}
-.darc-banner__body { display: flex; align-items: center; gap: 1rem; min-width: 0; }
-.darc-banner__icon .darc-icon { width: 2.2em; height: 2.2em; }
-.darc-banner__headline { margin: 0; font-size: 1.3rem; font-weight: 800; }
-.darc-banner__sub { margin: .15rem 0 0; font-size: .95rem; }
-/* CTA auf dem blauen Banner: weiße Fläche mit Navy-Schrift (hoher Kontrast).
-   Dezente Navy-Outline, damit der Button auch auf sehr hellen Seiten und am
-   helleren Rand des Banners klar abgegrenzt bleibt. */
-.darc-banner__cta {
-    background: #ffffff;
-    color: var(--darc-navy);
-    border-color: rgba(22, 41, 74, .3);
-    box-shadow: none;
-    flex-shrink: 0;
-}
-.darc-banner__cta:hover {
-    background: #eaf6fc;
-    color: var(--darc-navy);
-    border-color: rgba(22, 41, 74, .55);
-}
-
-/* ==========================================================================
-   Banner – Karte mit Vorteilen
-   ========================================================================== */
-.darc-card {
-    max-width: 420px;
-    padding: 1.5rem;
-    border-radius: 16px;
-    background: #ffffff;
-    border: 1px solid #e4eef3;
-    color: var(--darc-navy);
-}
-.darc-card__head { display: flex; align-items: center; gap: .75rem; }
-.darc-card__icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.6rem; height: 2.6rem;
-    border-radius: 50%;
-    background: var(--darc-blue);
-    color: var(--darc-navy);
-    flex-shrink: 0;
-}
-.darc-card__icon .darc-icon { width: 1.4em; height: 1.4em; }
-.darc-card__headline { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--darc-navy); }
-.darc-card__sub { margin: .85rem 0 0; font-size: .95rem; opacity: .85; }
-.darc-card__benefits {
-    list-style: none !important;
-    margin: 1rem 0 1.25rem;
-    padding: 0;
-    display: grid;
-    gap: .5rem;
-}
-/* !important, damit eingebettete Host-Themes (z. B. darc.de) keine Aufzählungs-
-   punkte auf die li zurückbringen. */
-.darc-card__benefits li {
-    list-style: none !important;
-    position: relative;
-    margin: 0;
-    padding-left: 1.6rem;
-    font-size: .95rem;
-}
-.darc-card__benefits li::marker { content: none; }
-.darc-card__benefits li::before {
-    content: "";
-    position: absolute;
-    left: 0; top: .15rem;
-    width: 1.1rem; height: 1.1rem;
-    background: no-repeat center/contain
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2316294a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 13l4 4L19 7'/%3E%3C/svg%3E");
-}
-.darc-card__cta { width: 100%; justify-content: center; }
-
-/* Schmale Sidebar-Variante (max. 240px) ---------------------------------- */
-.darc-card--sidebar {
-    max-width: 240px;
-    padding: 1rem;
-    border-radius: 14px;
-}
-.darc-card--sidebar .darc-card__head {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: .5rem;
-}
-.darc-card--sidebar .darc-card__icon { width: 2.1rem; height: 2.1rem; }
-.darc-card--sidebar .darc-card__headline {
-    font-size: .95rem;
-    line-height: 1.2;
-    hyphens: none;
-    text-wrap: balance; /* falls doch zwei Zeilen: ausgewogen statt einzelnes Wort */
-}
-.darc-card--sidebar .darc-card__sub { margin-top: .55rem; font-size: .85rem; }
-.darc-card--sidebar .darc-card__benefits {
-    margin: .85rem 0 1rem;
-    gap: .4rem;
-}
-.darc-card--sidebar .darc-card__benefits li {
-    padding-left: 1.4rem;
-    font-size: .82rem;
-    line-height: 1.35;
-}
-.darc-card--sidebar .darc-card__benefits li::before {
-    width: .95rem; height: .95rem; top: .1rem;
-}
-.darc-card--sidebar .darc-card__cta {
-    padding: .6em 1em;
-    font-size: .92rem;
-}
-
-/* ==========================================================================
-   Text-Link (dezent)
-   ========================================================================== */
-.darc-inline-link {
-    display: inline-flex;
-    align-items: center;
-    gap: .4em;
-    color: var(--darc-navy);
-    font-weight: 600;
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-}
-.darc-inline-link .darc-icon { width: 1.1em; height: 1.1em; }
-.darc-inline-link__arrow { width: 1em; height: 1em; transition: transform .12s ease; }
-.darc-inline-link:hover { border-bottom-color: currentColor; }
-.darc-inline-link:hover .darc-inline-link__arrow { transform: translateX(3px); }
-
-/* ==========================================================================
-   Floating CTA (mitlaufend)
-   ========================================================================== */
 .darc-floating {
     position: fixed;
     bottom: 1.25rem;
     z-index: 9999;
-    display: inline-flex;
-    align-items: stretch;
-    border-radius: 8px;
-    background: var(--darc-blue);
-    color: var(--darc-navy);
     transform: translateY(140%);
     opacity: 0;
-    transition: transform .35s cubic-bezier(.2, .8, .2, 1), opacity .35s ease, background-color .12s ease;
+    transition: transform .35s cubic-bezier(.2, .8, .2, 1), opacity .35s ease;
 }
+
 .darc-floating--right { right: 1.25rem; }
-.darc-floating--left  { left: 1.25rem; }
-.darc-floating.is-visible { transform: translateY(0); opacity: 1; }
+.darc-floating--left { left: 1.25rem; }
+
+.darc-floating.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+}
+
 .darc-floating[hidden] { display: none; }
-.darc-floating:hover { background: var(--darc-blue-hover); }
 
 .darc-floating__link {
     display: inline-flex;
     align-items: center;
-    gap: .55em;
-    padding: 0.8em 1.3em;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 8px;
+    gap: .5rem;
 }
-.darc-floating__icon .darc-icon { width: 1.3em; height: 1.3em; }
-.darc-floating__close {
+
+.darc-floating__icon {
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.2em;
-    padding: 0 .6em 0 .2em;
-    background: transparent;
-    border: 0;
-    border-left: 1px solid rgba(22, 41, 74, .3);
-    color: #fff;
-    cursor: pointer;
-    border-radius: 0 8px 8px 0;
 }
-.darc-floating__close svg { width: 1.1em; height: 1.1em; }
-.darc-floating__close:hover { background: rgba(22, 41, 74, .12); }
-.darc-floating :focus-visible { outline: 2px solid var(--darc-navy); outline-offset: 2px; }
+
+.darc-floating__icon svg {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+.darc-floating__close {
+    min-width: 2.5rem;
+    line-height: 1;
+}
 
 @media (max-width: 480px) {
-    .darc-floating { left: 1rem; right: 1rem; justify-content: center; }
-    .darc-floating__label { font-size: .95rem; }
+    .darc-floating { left: 1rem; right: 1rem; }
+    .darc-floating .btn-group { width: 100%; }
+    .darc-floating .btn { flex: 1 1 auto; }
+    .darc-floating__close { flex: 0 0 auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .darc-btn, .darc-btn__arrow, .darc-floating, .darc-inline-link__arrow { transition: none; }
-    .darc-btn:hover { transform: none; }
+    .darc-floating { transition: none; }
 }
