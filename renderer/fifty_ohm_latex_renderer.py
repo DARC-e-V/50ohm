@@ -3,10 +3,9 @@ from mistletoe.latex_renderer import LaTeXRenderer
 from .comment import BlockComment
 from .dash import Dash
 from .halfwidth_spaces import HalfwidthSpaces
+from .image import Image
 from .index import Index
 from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
-from .photo import Photo
-from .picture import Picture
 from .question import Question
 from .quote import Quote
 from .table import Table, TableBody, TableCell, TableHeader, TableRow
@@ -26,8 +25,7 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
             NonbreakingSpaces,
             NonbreakingSpacesDots,
             Question,
-            Picture,
-            Photo,
+            Image,
             Table,
             TableBody,
             TableRow,
@@ -115,17 +113,18 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
 \captionof{{figure}}{{{text}}}
 \label{{{ref}}}"""
 
-    def render_picture(self, token):
-        return self.render_picture_helper(token.id, token.ref, token.text, token.number)
-
     @staticmethod
     def render_photo_helper(id, ref, text, number):
         return rf"""\includegraphics[width=1.0\linewidth]{{photo/{id}}}
 \captionof{{figure}}{{{text}}}
 \label{{{ref}}}"""
 
-    def render_photo(self, token):
-        return self.render_photo_helper(token.id, token.ref, token.text, token.number)
+    def render_image(self, token: Image):
+        if token.kind == "photo":
+            return self.render_photo_helper(token.id, token.marker, token.text, token.label)
+        if token.kind == "picture":
+            return self.render_picture_helper(token.id, token.marker, token.text, token.label)
+        return ""
 
     def render_table(self, token):
         table = "\\begin{DARCtabular}" + f"{self.render_inner(token)}" + "\\end{DARCtabular}"

@@ -1,9 +1,6 @@
-import mistletoe
 import pytest
 
-from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
-
-from .util import paragraph
+from .util import paragraph, render_html
 
 
 @pytest.mark.html
@@ -21,7 +18,7 @@ def test_basic_units_html():
     }
 
     for input, output in assertions.items():
-        assert mistletoe.markdown(input, FiftyOhmHtmlRenderer) == paragraph(output)
+        assert render_html(input) == paragraph(output)
 
 
 @pytest.mark.html
@@ -33,7 +30,7 @@ def test_translated_units_html():
     }
 
     for input, output in assertions.items():
-        assert mistletoe.markdown(input, FiftyOhmHtmlRenderer) == paragraph(output)
+        assert render_html(input) == paragraph(output)
 
 
 @pytest.mark.html
@@ -46,4 +43,4 @@ def test_special_units_html():
     }
 
     for input, output in assertions.items():
-        assert mistletoe.markdown(input, FiftyOhmHtmlRenderer) == paragraph(output)
+        assert render_html(input) == paragraph(output)
