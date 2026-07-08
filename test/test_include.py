@@ -1,6 +1,6 @@
 import pytest
-from mistletoe import Document
 
+from renderer.document import Document
 from renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 
 
