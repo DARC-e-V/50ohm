@@ -294,6 +294,11 @@ section.has-dark-background h6 {
     border-bottom: none;
 }
 
+.reveal table caption {
+    caption-side: bottom;
+    font-size: 0.5em;
+}
+
 .reveal sup {
     vertical-align: super;
     font-size: smaller;
@@ -509,7 +514,7 @@ body:after {
 /* photos and pictures */
 .photo,
 .picture {
-    margin-bottom: 6ex;
+    margin-bottom: 1ex;
 }
 
 .photo img,
