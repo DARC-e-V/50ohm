@@ -1,0 +1,51 @@
+/* Minimal CSS for floating CTA positioning/animation only. Uses Bootstrap button styles. */
+
+.darc-floating {
+    position: fixed;
+    bottom: 1.25rem;
+    z-index: 9999;
+    transform: translateY(140%);
+    opacity: 0;
+    transition: transform .35s cubic-bezier(.2, .8, .2, 1), opacity .35s ease;
+}
+
+.darc-floating--right { right: 1.25rem; }
+.darc-floating--left { left: 1.25rem; }
+
+.darc-floating.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.darc-floating[hidden] { display: none; }
+
+.darc-floating__link {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.darc-floating__icon {
+    display: inline-flex;
+}
+
+.darc-floating__icon svg {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+.darc-floating__close {
+    min-width: 2.5rem;
+    line-height: 1;
+}
+
+@media (max-width: 480px) {
+    .darc-floating { left: 1rem; right: 1rem; }
+    .darc-floating .btn-group { width: 100%; }
+    .darc-floating .btn { flex: 1 1 auto; }
+    .darc-floating__close { flex: 0 0 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .darc-floating { transition: none; }
+}
