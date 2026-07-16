@@ -397,3 +397,13 @@ td.right {
 .feature-icon svg path {
   fill: #fff;
 }
+
+/* Marks Germany-specific content flagged for review during hr translation
+   (not upstream 50ohm.de markup -- see CLAUDE.md's hr-review convention). */
+.hr-review {
+  background-color: #fff3cd;
+  border-left: 3px solid #dc3545;
+  padding: 0.05em 0.4em;
+  border-radius: 2px;
+  color: #842029;
+}
