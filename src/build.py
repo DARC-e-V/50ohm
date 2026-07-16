@@ -32,6 +32,11 @@ class Build:
         self.index_entries = {}
         self.index_token_pattern = Index.pattern
 
+        # Parsed once and reused everywhere page.html (and the slide templates) are
+        # rendered, so locale-specific chrome text (nav labels, footer, etc.) is
+        # available regardless of which build_* entrypoint is called.
+        self.snippets = self.__parse_snippets()
+
     def __parse_katalog(self):
         with self.config.p_data_fragenkatalog.open(encoding="utf-8") as file:
             fragenkatalog = json.load(file)
@@ -126,6 +131,7 @@ class Build:
                 alt_text_answers=alt_text_answers,
                 alt_text_question=alt_text_question,
                 has_solution=solution_file.exists(),
+                snippets=self.snippets,
             )
 
     def __build_question_slide(self, input):
@@ -133,7 +139,9 @@ class Build:
 
     def __build_page(self, content, course_wrapper=False, sidebar=None):
         page_template = self.env.get_template("html/page.html")
-        return page_template.render(content=content, course_wrapper=course_wrapper, sidebar=sidebar)
+        return page_template.render(
+            content=content, course_wrapper=course_wrapper, sidebar=sidebar, snippets=self.snippets
+        )
 
     def __copy_picture(self, id):
         file = f"{id}.svg"
@@ -263,7 +271,7 @@ class Build:
 
             result = "<section>\n"
             result += f'<section data-background="#DAEEFA">\n<h1>{chapter["title"]}</h1>\n</section>\n'
-            result += help_template.render()
+            result += help_template.render(snippets=self.snippets)
             result += "</section>\n"
 
             section_counter = 0
@@ -302,9 +310,10 @@ class Build:
                 edition=edition,
                 next_chapter=next_chapter,
                 chapter=chapter,
+                snippets=self.snippets,
             )
 
-            result = slide_template.render(content=result)
+            result = slide_template.render(content=result, snippets=self.snippets)
             file.write(result)
 
     def __filter_shuffle_answers(self, seq):
@@ -333,6 +342,7 @@ class Build:
         with (self.config.p_build / f"{book['edition']}_slide_index.html").open("w", encoding="utf-8") as file:
             result = template.render(
                 book=book,
+                snippets=self.snippets,
             )
             result = self.__build_page(result)
             file.write(result)
@@ -500,12 +510,11 @@ class Build:
     def build_website(self):
         self.config.p_build.mkdir(exist_ok=True)
 
-        snippets = self.__parse_snippets()
         contents = self.__parse_contents()
-        self.__build_index(snippets)
-        self.__build_course_page(snippets, "kurse-karte", "kurse_vor_ort_karte")
-        self.__build_course_page(snippets, "kurse-liste", "kurse_vor_ort_liste")
-        self.__build_course_page(snippets, "patenkarte", "patenkarte")
+        self.__build_index(self.snippets)
+        self.__build_course_page(self.snippets, "kurse-karte", "kurse_vor_ort_karte")
+        self.__build_course_page(self.snippets, "kurse-liste", "kurse_vor_ort_liste")
+        self.__build_course_page(self.snippets, "patenkarte", "patenkarte")
         self.__build_html_page(contents, "pruefung")
         self.__build_html_page(contents, "infos")
         self.__build_html_page(contents, "suche")
