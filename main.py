@@ -12,12 +12,8 @@ app = typer.Typer()
 @app.command()
 def main(
     edition: Annotated[list[Edition], typer.Option(help="Edition to build, can be specified multiple times.")] = [  # noqa: B006 -- default value is required for typer
-        Edition.n,
-        Edition.e,
+        Edition.p,
         Edition.a,
-        Edition.ne,
-        Edition.ea,
-        Edition.nea,
     ],
     input: Annotated[str | None, typer.Option("--input", "-i", help="Content source directory.")] = None,
     output: Annotated[str | None, typer.Option("--output", "-o", help="Destination directory to build to.")] = None,
