@@ -179,12 +179,14 @@ class Build:
                 name=edition_name,
                 number=number,
                 chapter=chapter,
+                snippets=self.snippets,
             )
 
             if next_chapter is not None:
                 result += next_chapter_template.render(
                     url=f"{edition}_chapter_{next_chapter['ident']}.html",
                     title=next_chapter["title"],
+                    snippets=self.snippets,
                 )
 
             result = self.__build_page(result, course_wrapper=True)
@@ -238,17 +240,20 @@ class Build:
                     section=section,
                     section_id=section_id,
                     chapter=chapter,
+                    snippets=self.snippets,
                 )
 
                 if next_section is not None:
                     result += next_section_template.render(
                         url=f"{edition}_{next_section['ident']}.html",
                         title=next_section["title"],
+                        snippets=self.snippets,
                     )
                 elif next_chapter is not None:
                     result += next_chapter_template.render(
                         url=f"{edition}_chapter_{next_chapter['ident']}.html",
                         title=next_chapter["title"],
+                        snippets=self.snippets,
                     )
 
                 result = self.__build_page(result, course_wrapper=True)
@@ -535,7 +540,9 @@ class Build:
                         )
                         solution_template = self.env.get_template("html/solution.html")
                         solution = renderer.render(Document(content))
-                        page = solution_template.render(question=question, solution=solution, number=solution_file.stem)
+                        page = solution_template.render(
+                            question=question, solution=solution, number=solution_file.stem, snippets=self.snippets
+                        )
                         page = self.__build_page(page, course_wrapper=False)
                         file.write(page)
 

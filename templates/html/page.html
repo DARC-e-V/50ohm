@@ -18,6 +18,15 @@
     <script defer src="assets/katex/katex.min.js"></script>
     <script defer src="assets/katex/auto-render.min.js"></script>
     <script defer src="assets/latex.js"></script>
+    <script>
+      // Localized strings consumed by assets/script.js (a plain static asset,
+      // not passed through Jinja) so its UI text isn't hardcoded German either.
+      window.FIFTYOHM_I18N = {
+        quizModeShowAll: {{ snippets.quiz_mode_toggle_all_title | default('Alles anzeigen') | tojson }},
+        quizModeShowQuestions: {{ snippets.quiz_mode_toggle_title | default('Nur Fragen anzeigen') | tojson }},
+        quizModeNoQuestionsNotice: {{ snippets.quiz_mode_no_questions_notice | default('Keine Fragen auf dieser Seite gefunden.') | tojson }}
+      };
+    </script>
     <script defer src="assets/script.js"></script>
     {% if snippets.membership_cta_label %}
     <script defer src="assets/antrag/floating-cta.js"></script>
