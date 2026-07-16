@@ -407,3 +407,18 @@ td.right {
   border-radius: 2px;
   color: #842029;
 }
+
+/* Marks an entire question as untranslated placeholder content (still the
+   original German question bank) rather than something needing review --
+   distinct from .hr-review, which flags translated-but-uncertain content. */
+.question-placeholder-notice {
+  display: inline-block;
+  background-color: #e2e3e5;
+  border: 1px dashed #6c757d;
+  border-radius: 3px;
+  padding: 0.15em 0.5em;
+  margin-bottom: 0.5em;
+  font-size: 0.85em;
+  font-style: italic;
+  color: #41464b;
+}

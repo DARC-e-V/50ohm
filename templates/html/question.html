@@ -1,4 +1,7 @@
 <div class="question layout-{{ layout }}" id="{{ number }}" data-quiz-shown>
+  {% if snippets.question_placeholder_notice %}
+  <div class="question-placeholder-notice">{{ snippets.question_placeholder_notice }}</div>
+  {% endif %}
   <div class="question-text">
     {{ number }}: {{ question }}
   </div>
