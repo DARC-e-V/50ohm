@@ -231,6 +231,8 @@ class Build:
                 chapter=chapter_num,
                 section=section_num,
                 section_url=section_filename,
+                figure_label=self.snippets.get("figure_label", "Abbildung"),
+                table_label=self.snippets.get("table_label", "Tabelle"),
             ) as renderer:
                 section["content"] = renderer.render(Document(section["content"]))
 
@@ -534,6 +536,8 @@ class Build:
                         picture_handler=self.__picture_handler,
                         photo_handler=self.__photo_handler,
                         include_handler=self.__include_handler,
+                        figure_label=self.snippets.get("figure_label", "Abbildung"),
+                        table_label=self.snippets.get("table_label", "Tabelle"),
                     ) as renderer:
                         question = self.__build_question(
                             solution_file.stem, template_file="html/solution_question.html"
