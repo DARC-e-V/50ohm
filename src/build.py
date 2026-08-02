@@ -511,7 +511,9 @@ class Build:
         self.__build_html_page(contents, "suche")
 
     def build_solutions(self):
-        for solution_file in self.config.p_data_solutions.glob("*.md"):
+        solution_files = list(self.config.p_data_solutions.glob("*.md"))
+        print(f"{len(solution_files)} Solution files found.")
+        for solution_file in solution_files:
             with solution_file.open(encoding="utf-8") as file:
                 content = file.read()
                 with (self.config.p_build / f"{solution_file.stem}.html").open("w", encoding="utf-8") as file:

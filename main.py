@@ -31,14 +31,14 @@ def main(
     # Build surrounding website
     bd.build_website()
 
+    if render_solutions:
+        # Build solution pages
+        bd.build_solutions()
+
     if render_editions:
         # Build individual editions
         for e in edition:
             bd.build_edition(e)
-
-    if render_solutions:
-        # Build solution pages
-        bd.build_solutions()
 
     # Copy assets to build folder
     bd.build_assets()
