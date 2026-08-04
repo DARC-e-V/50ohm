@@ -1,0 +1,190 @@
+<div id="exam-simulator" class="exam-simulator" v-cloak>
+  <div v-if="loading" class="exam-loading" role="status">
+    <div class="spinner-border text-primary" aria-hidden="true"></div>
+    <span>Prüfungsfragen werden geladen …</span>
+  </div>
+
+  <div v-else-if="loadError" class="alert alert-danger" role="alert">
+    <h1 class="h4">Der Prüfungssimulator konnte nicht geladen werden</h1>
+    <p class="mb-0" v-text="loadError"></p>
+  </div>
+
+  <section v-else-if="!session" class="exam-start" aria-labelledby="exam-heading">
+    <p class="exam-kicker">Probeprüfung</p>
+    <h1 id="exam-heading">Prüfungssimulator für Funkamateure</h1>
+    <p class="lead">Wähle die Prüfung, die du unter möglichst realistischen Bedingungen üben möchtest.</p>
+
+    <div class="exam-choice-groups">
+      <div>
+        <h2 class="h4">Erstprüfung</h2>
+        <div class="exam-choice-grid exam-choice-grid-primary">
+          <button v-for="choice in primaryChoices" :key="choice.id" type="button" class="exam-choice"
+                  :style="{ '--exam-choice-color': choice.color }" @click="startExam(choice)">
+            <strong v-text="choice.shortLabel"></strong>
+            <span v-text="choice.label"></span>
+            <small v-text="partSummary(choice.parts)"></small>
+          </button>
+        </div>
+      </div>
+      <div>
+        <h2 class="h4">Aufstockungsprüfung</h2>
+        <div class="exam-choice-grid">
+          <button v-for="choice in upgradeChoices" :key="choice.id" type="button" class="exam-choice"
+                  :style="{ '--exam-choice-color': choice.color }" @click="startExam(choice)">
+            <strong v-text="choice.shortLabel"></strong>
+            <span v-text="choice.label"></span>
+            <small v-text="partSummary(choice.parts)"></small>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="exam-start-note">
+      <strong>So läuft die Simulation:</strong> Jeder Prüfungsteil enthält 25 Fragen. Für B, V, N und E
+      stehen jeweils 45 Minuten zur Verfügung, für Technik A 60 Minuten. Ein Teil ist ab 19 Punkten bestanden.
+    </div>
+  </section>
+
+  <section v-else-if="view === 'summary'" class="exam-summary" aria-labelledby="summary-heading">
+    <p class="exam-kicker">Gesamtergebnis</p>
+    <h1 id="summary-heading" v-text="currentChoice.label"></h1>
+    <div class="exam-overall" :class="overallClass">
+      <span class="material-icons" aria-hidden="true" v-text="overallIcon"></span>
+      <div>
+        <strong v-text="overallTitle"></strong>
+        <p class="mb-0" v-text="overallText"></p>
+      </div>
+    </div>
+    <div class="exam-result-list">
+      <article v-for="(part, index) in session.parts" :key="part.code" class="exam-result-card">
+        <div>
+          <span class="exam-result-code" v-text="part.code"></span>
+          <strong v-text="partDefinitions[part.code].label"></strong>
+        </div>
+        <template v-if="part.status === 'evaluated'">
+          <span class="exam-score"><b v-text="part.score"></b>/25</span>
+          <span class="exam-status" :class="resultClass(part)" v-text="resultLabel(part)"></span>
+          <button type="button" class="btn btn-outline-dark btn-sm" @click="reviewPart(index)">Auswertung ansehen</button>
+        </template>
+        <span v-else class="text-secondary">Nicht bearbeitet</span>
+      </article>
+    </div>
+    <button type="button" class="btn btn-primary" @click="newExam">Neue Probeprüfung</button>
+  </section>
+
+  <section v-else class="exam-session" aria-labelledby="part-heading">
+    <header class="exam-toolbar">
+      <div>
+        <p class="exam-kicker" v-text="currentChoice.label"></p>
+        <h1 id="part-heading" v-text="currentPartDefinition.label"></h1>
+        <div class="exam-progress-label">
+          Prüfungsteil <span v-text="displayedPartIndex + 1"></span> von <span v-text="session.parts.length"></span>
+        </div>
+      </div>
+      <div class="exam-toolbar-actions">
+        <div v-if="currentPart.status === 'running'" class="exam-timer" :class="{ 'exam-timer-warning': remainingSeconds <= 300 }"
+             role="timer" aria-live="off">
+          <span class="material-icons" aria-hidden="true">timer</span>
+          <span v-text="formattedTime"></span>
+        </div>
+        <div v-else class="exam-timer exam-timer-finished">
+          <span class="material-icons" aria-hidden="true">task_alt</span>
+          abgegeben
+        </div>
+        <button type="button" class="btn btn-outline-secondary btn-sm" @click="abortExam">Prüfung abbrechen</button>
+      </div>
+    </header>
+
+    <div v-if="currentPart.status === 'evaluated'" class="exam-part-result" :class="resultClass(currentPart)">
+      <span class="material-icons" aria-hidden="true" v-text="resultIcon(currentPart)"></span>
+      <div>
+        <strong><span v-text="currentPart.score"></span> von 25 Punkten – <span v-text="resultLabel(currentPart)"></span></strong>
+        <p class="mb-0" v-text="resultDescription(currentPart)"></p>
+      </div>
+    </div>
+
+    <div class="exam-paper-layout">
+      <aside class="exam-answer-sheet" aria-label="Antwortbogen">
+        <div class="answer-sheet-paper">
+          <h2>Antwortbogen</h2>
+          <div class="answer-sheet-part">
+            <span>Prüfungsteil</span>
+            <strong v-text="currentPartDefinition.formLabel"></strong>
+            <small><span v-text="currentPartDefinition.minutes"></span> Minuten · 25 Fragen</small>
+          </div>
+          <p class="answer-sheet-hint">Kreuze pro Frage genau eine Antwort an. Korrigierte Antworten werden wie auf dem Papierbogen mit Linien markiert.</p>
+          <table class="answer-table">
+            <thead><tr><th>Nr.</th><th v-for="label in answerLabels" :key="label" v-text="label"></th></tr></thead>
+            <tbody>
+              <tr v-for="(question, questionIndex) in currentPart.questions" :key="question.id">
+                <th scope="row">
+                  <button type="button" class="answer-number" @click="scrollToQuestion(questionIndex)"
+                          :aria-label="'Zu Frage ' + (questionIndex + 1)" v-text="padNumber(questionIndex + 1)"></button>
+                </th>
+                <td v-for="(_, answerIndex) in answerLabels" :key="answerIndex"
+                    :class="answerCellClass(questionIndex, answerIndex)">
+                  <button type="button" class="answer-mark" :disabled="currentPart.status !== 'running'"
+                          @click="selectAnswer(questionIndex, answerIndex)"
+                          :aria-label="'Frage ' + (questionIndex + 1) + ', Antwort ' + answerLabels[answerIndex]"
+                          v-html="answerMark(questionIndex, answerIndex)"></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="answer-sheet-count"><b v-text="answeredCount"></b> von 25 beantwortet</div>
+        </div>
+      </aside>
+
+      <main class="exam-questions course">
+        <article v-for="(questionState, questionIndex) in currentPart.questions" :key="questionState.id"
+                 class="question exam-question" :class="'layout-' + questionData(questionState).layout"
+                 :id="'exam-question-' + questionIndex">
+          <div class="question-text">
+            <span v-text="padNumber(questionIndex + 1) + ': '"></span><span v-html="questionData(questionState).question"></span>
+          </div>
+          <div v-if="questionData(questionState).picture" class="question-picture">
+            <img :src="'pictures/' + questionData(questionState).picture + '.svg'" :alt="questionData(questionState).pictureAlt">
+          </div>
+          <div class="answers" data-no-shuffle>
+            <button v-for="(sourceIndex, answerIndex) in questionState.order" :key="answerIndex" type="button"
+                    :disabled="currentPart.status !== 'running'" :class="questionAnswerClass(questionIndex, answerIndex)"
+                    @click="selectAnswer(questionIndex, answerIndex)">
+              <b class="exam-answer-label" v-text="answerLabels[answerIndex] + ':'"></b>
+              <span v-if="questionData(questionState).answers[sourceIndex].text"
+                    v-html="questionData(questionState).answers[sourceIndex].text"></span>
+              <span v-if="questionData(questionState).answers[sourceIndex].picture" class="question-picture">
+                <img :src="'pictures/' + questionData(questionState).answers[sourceIndex].picture + '.svg'"
+                     :alt="questionData(questionState).answers[sourceIndex].pictureAlt">
+              </span>
+              <span v-if="currentPart.status === 'evaluated' && sourceIndex === 0" class="result material-icons">check</span>
+              <span v-else-if="currentPart.status === 'evaluated' && questionState.selected === answerIndex" class="result material-icons">clear</span>
+            </button>
+          </div>
+          <div v-if="currentPart.status === 'evaluated' && questionData(questionState).hasSolution" class="solution">
+            <a class="btn btn-warning btn-sm d-inline-flex align-items-center" :href="questionState.id + '.html'" target="_blank"
+               :aria-label="'Lösungshinweis zu Frage ' + questionState.id">
+              <span class="material-icons exam-solution-icon" aria-hidden="true">lightbulb</span> Lösungsweg anzeigen
+            </a>
+          </div>
+        </article>
+
+        <div class="exam-submit-panel">
+          <template v-if="currentPart.status === 'running'">
+            <p><b v-text="answeredCount"></b> von 25 Fragen beantwortet.</p>
+            <button type="button" class="btn btn-primary btn-lg" @click="requestSubmit">Prüfungsteil abgeben</button>
+          </template>
+          <template v-else-if="isReviewing">
+            <button type="button" class="btn btn-primary" @click="view = 'summary'">Zurück zum Gesamtergebnis</button>
+          </template>
+          <template v-else-if="hasNextPart">
+            <button type="button" class="btn btn-primary btn-lg" @click="startNextPart">Nächsten Prüfungsteil starten</button>
+            <button type="button" class="btn btn-outline-secondary" @click="finishExamEarly">Prüfung hier beenden</button>
+          </template>
+          <template v-else>
+            <button type="button" class="btn btn-primary btn-lg" @click="showSummary">Gesamtergebnis anzeigen</button>
+          </template>
+        </div>
+      </main>
+    </div>
+  </section>
+</div>
