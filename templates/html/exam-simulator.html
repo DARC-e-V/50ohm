@@ -104,10 +104,16 @@
             <path d="M192 112L304 112L304 200C304 239.8 336.2 272 376 272L464 272L464 512C464 520.8 456.8 528 448 528L192 528C183.2 528 176 520.8 176 512L176 128C176 119.2 183.2 112 192 112zM352 131.9L444.1 224L376 224C362.7 224 352 213.3 352 200L352 131.9zM192 64C156.7 64 128 92.7 128 128L128 512C128 547.3 156.7 576 192 576L448 576C483.3 576 512 547.3 512 512L512 250.5C512 233.5 505.3 217.2 493.3 205.2L370.7 82.7C358.7 70.7 342.5 64 325.5 64L192 64zM248 320C234.7 320 224 330.7 224 344C224 357.3 234.7 368 248 368L392 368C405.3 368 416 357.3 416 344C416 330.7 405.3 320 392 320L248 320zM248 416C234.7 416 224 426.7 224 440C224 453.3 234.7 464 248 464L392 464C405.3 464 416 453.3 416 440C416 426.7 405.3 416 392 416L248 416z"/>
           </svg>
         </a>
-        <span v-if="currentPart.status === 'running'" class="btn btn-sm d-inline-flex align-items-center"
-              :class="remainingSeconds <= 300 ? 'btn-danger' : 'btn-secondary'" role="timer">
-          <span v-text="formattedTime"></span>
-        </span>
+        <button v-if="currentPart.status === 'running'" type="button"
+                class="btn btn-sm d-inline-flex align-items-center"
+                :class="currentPart.paused ? 'btn-warning' : (remainingSeconds <= 300 ? 'btn-danger' : 'btn-secondary')"
+                @click="toggleTimer"
+                :title="currentPart.paused ? 'Timer fortsetzen' : 'Timer pausieren'"
+                :aria-label="(currentPart.paused ? 'Timer fortsetzen, verbleibende Zeit ' : 'Timer pausieren, verbleibende Zeit ') + formattedTime">
+          <span class="material-icons fs-6 me-1" aria-hidden="true"
+                v-text="currentPart.paused ? 'play_arrow' : 'pause'"></span>
+          <span role="timer" v-text="formattedTime"></span>
+        </button>
         <span v-else class="btn btn-secondary btn-sm d-inline-flex align-items-center">Abgegeben</span>
         <button v-if="currentPart.status === 'evaluated' && !isReviewing && hasNextPart"
                 type="button" class="btn btn-primary btn-sm" @click="startNextPart">Nächsten Teil starten</button>
@@ -142,7 +148,8 @@
             </div>
             <div class="answers">
               <button v-for="(sourceIndex, answerIndex) in questionState.order" :key="answerIndex" type="button"
-                      :disabled="currentPart.status !== 'running'" :class="questionAnswerClass(questionIndex, answerIndex)"
+                      :disabled="currentPart.status !== 'running' || currentPart.paused"
+                      :class="questionAnswerClass(questionIndex, answerIndex)"
                       @click="selectAnswer(questionIndex, answerIndex)">
                 <span v-if="questionData(questionState).answers[sourceIndex].text"
                       v-html="questionData(questionState).answers[sourceIndex].text"></span>
@@ -199,7 +206,8 @@
                 </th>
                 <td v-for="(_, answerIndex) in answerLabels" :key="answerIndex"
                     :class="answerCellClass(questionIndex, answerIndex)">
-                  <button type="button" class="answer-mark" :disabled="currentPart.status !== 'running'"
+                  <button type="button" class="answer-mark"
+                          :disabled="currentPart.status !== 'running' || currentPart.paused"
                           @click="selectAnswer(questionIndex, answerIndex)"
                           :aria-label="'Frage ' + (questionIndex + 1) + ', Antwort ' + answerLabels[answerIndex]"
                           v-html="answerMark(questionIndex, answerIndex)"></button>

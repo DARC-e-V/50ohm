@@ -198,6 +198,7 @@
       });
       var remainingSeconds = computed(function () {
         if (!currentPart.value || currentPart.value.status !== "running") return 0;
+        if (currentPart.value.paused) return currentPart.value.pausedRemainingSeconds;
         return Math.max(0, Math.ceil((currentPart.value.deadline - now.value) / 1000));
       });
       var formattedTime = computed(function () {
@@ -286,6 +287,8 @@
           code: code,
           status: "pending",
           deadline: null,
+          paused: false,
+          pausedRemainingSeconds: null,
           score: null,
           autoSubmitted: false,
           questions: picked.map(function (question) {
@@ -297,7 +300,30 @@
       function activatePart(part) {
         part.status = "running";
         part.deadline = Date.now() + PART_DEFINITIONS[part.code].minutes * 60 * 1000;
+        part.paused = false;
+        part.pausedRemainingSeconds = null;
         now.value = Date.now();
+      }
+
+      function toggleTimer() {
+        var part = currentPart.value;
+        if (!part || part.status !== "running") return;
+        if (part.paused) {
+          part.deadline = Date.now() + part.pausedRemainingSeconds * 1000;
+          part.pausedRemainingSeconds = null;
+          part.paused = false;
+          now.value = Date.now();
+          return;
+        }
+
+        var seconds = remainingSeconds.value;
+        if (seconds <= 0) {
+          submitPart(true);
+          return;
+        }
+        part.pausedRemainingSeconds = seconds;
+        part.paused = true;
+        part.deadline = null;
       }
 
       function startExam(choice) {
@@ -320,7 +346,7 @@
       }
 
       function selectAnswer(questionIndex, answerIndex) {
-        if (currentPart.value.status !== "running") return;
+        if (currentPart.value.status !== "running" || currentPart.value.paused) return;
         var question = currentPart.value.questions[questionIndex];
         if (question.selected === answerIndex) return;
         var firstAnswer = question.selected === null;
@@ -372,6 +398,8 @@
         currentPart.value.score = score;
         currentPart.value.status = "evaluated";
         currentPart.value.deadline = null;
+        currentPart.value.paused = false;
+        currentPart.value.pausedRemainingSeconds = null;
         currentPart.value.autoSubmitted = Boolean(autoSubmitted);
         renderMathSoon(Vue);
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -494,9 +522,14 @@
             clearStoredSession();
             return;
           }
+          stored.session.parts.forEach(function (part) {
+            part.paused = Boolean(part.paused);
+            if (!part.paused) part.pausedRemainingSeconds = null;
+          });
           session.value = stored.session;
           view.value = stored.view === "summary" ? "summary" : "exam";
           if (session.value.parts[session.value.currentPart].status === "running" &&
+              !session.value.parts[session.value.currentPart].paused &&
               session.value.parts[session.value.currentPart].deadline <= Date.now()) {
             submitPart(true);
           }
@@ -521,7 +554,8 @@
       });
 
       watch(remainingSeconds, function (seconds) {
-        if (session.value && currentPart.value && currentPart.value.status === "running" && seconds <= 0) submitPart(true);
+        if (session.value && currentPart.value && currentPart.value.status === "running" &&
+            !currentPart.value.paused && seconds <= 0) submitPart(true);
       });
 
       function loadCatalog() {
@@ -595,6 +629,7 @@
         answerLabels: ANSWER_LABELS,
         remainingSeconds: remainingSeconds,
         formattedTime: formattedTime,
+        toggleTimer: toggleTimer,
         answeredCount: answeredCount,
         hasNextPart: hasNextPart,
         isReviewing: isReviewing,
