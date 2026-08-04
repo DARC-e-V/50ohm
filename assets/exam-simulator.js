@@ -7,21 +7,66 @@
   var ANSWER_LABELS = ["A", "B", "C", "D"];
 
   var PART_DEFINITIONS = {
-    B: { label: "Betriebliche Kenntnisse", formLabel: "Betriebliche Kenntnisse", minutes: 45 },
-    V: { label: "Kenntnisse von Vorschriften", formLabel: "Kenntnisse von Vorschriften", minutes: 45 },
-    N: { label: "Technische Kenntnisse Klasse N", formLabel: "Technische Kenntnisse Klasse N", minutes: 45 },
-    E: { label: "Technische Kenntnisse Klasse E", formLabel: "Technische Kenntnisse Klasse E", minutes: 45 },
-    A: { label: "Technische Kenntnisse Klasse A", formLabel: "Technische Kenntnisse Klasse A", minutes: 60 }
+    B: { label: "Betriebliche Kenntnisse", minutes: 45 },
+    V: { label: "Kenntnisse von Vorschriften", minutes: 45 },
+    N: { label: "Technische Kenntnisse Klasse N", minutes: 45 },
+    E: { label: "Technische Kenntnisse Klasse E", minutes: 45 },
+    A: { label: "Technische Kenntnisse Klasse A", minutes: 60 }
   };
 
   var EXAM_CHOICES = [
-    { id: "N", group: "primary", shortLabel: "N", label: "Prüfung Klasse N", parts: ["B", "V", "N"], color: "#47ABE8" },
-    { id: "E", group: "primary", shortLabel: "N + E", label: "Prüfung Klasse E", parts: ["B", "V", "N", "E"], color: "#FE756C" },
-    { id: "A", group: "primary", shortLabel: "N + E + A", label: "Prüfung Klasse A", parts: ["B", "V", "N", "E", "A"], color: "#3BB583" },
-    { id: "N-E", group: "upgrade", shortLabel: "N → E", label: "Aufstockung von N auf E", parts: ["E"], color: "#FE756C" },
-    { id: "E-A", group: "upgrade", shortLabel: "E → A", label: "Aufstockung von E auf A", parts: ["A"], color: "#3BB583" },
-    { id: "N-A", group: "upgrade", shortLabel: "N → A", label: "Aufstockung von N auf A", parts: ["E", "A"], color: "#3BB583" }
+    { id: "N", group: "primary", label: "Klasse N", detail: "B + V + N", parts: ["B", "V", "N"], color: "#47ABE8" },
+    { id: "E", group: "primary", label: "Klasse E", detail: "B + V + N + E", parts: ["B", "V", "N", "E"], color: "#FE756C" },
+    { id: "A", group: "primary", label: "Klasse A", detail: "B + V + N + E + A", parts: ["B", "V", "N", "E", "A"], color: "#3BB583" },
+    { id: "N-E", group: "upgrade", label: "N → E", detail: "Technik E", parts: ["E"], color: "#FE756C" },
+    { id: "N-A", group: "upgrade", label: "N → A", detail: "Technik E + A", parts: ["E", "A"], color: "#3BB583" },
+    { id: "E-A", group: "upgrade", label: "E → A", detail: "Technik A", parts: ["A"], color: "#3BB583" }
   ];
+
+  function normalizeCatalog(rawCatalog, metadata, questionIndex) {
+    var questions = {};
+    var partForSection = { 1: "B", 2: "V" };
+    var partForClass = { "1": "N", "2": "E", "3": "A" };
+
+    function pictureId(value) {
+      return value ? String(value) : "";
+    }
+
+    function walk(section, sectionIndex, category) {
+      (section.questions || []).forEach(function (question) {
+        var part = sectionIndex === 0
+          ? partForClass[String(question.class)]
+          : partForSection[sectionIndex];
+        if (!part) return;
+
+        var questionMetadata = metadata[question.number] || {};
+        questions[question.number] = {
+          id: question.number,
+          part: part,
+          category: category.slice(),
+          question: question.question,
+          layout: questionMetadata.layout || "default",
+          picture: pictureId(questionMetadata.picture_question),
+          answers: ["a", "b", "c", "d"].map(function (letter) {
+            return {
+              text: question["answer_" + letter] || "",
+              picture: pictureId(questionMetadata["picture_" + letter])
+            };
+          }),
+          hasSolution: Boolean(questionIndex[question.number] && questionIndex[question.number].has_solution)
+        };
+      });
+
+      (section.sections || []).forEach(function (child, childIndex) {
+        walk(child, sectionIndex, category.concat(childIndex));
+      });
+    }
+
+    (rawCatalog.sections || []).forEach(function (section, sectionIndex) {
+      walk(section, sectionIndex, []);
+    });
+    return questions;
+  }
 
   function shuffled(values) {
     var result = values.slice();
@@ -120,6 +165,8 @@
       var loading = ref(true);
       var loadError = ref("");
       var catalog = ref({});
+      var altTexts = Vue.reactive({});
+      var requestedAltTexts = new Set();
       var session = ref(null);
       var view = ref("exam");
       var reviewPartIndex = ref(null);
@@ -199,12 +246,36 @@
         return catalog.value[questionState.id];
       }
 
-      function partSummary(parts) {
-        return parts.join(" + ");
-      }
-
       function padNumber(number) {
         return String(number).padStart(2, "0");
+      }
+
+      function pictureAlt(picture, fallback) {
+        return altTexts[picture] || fallback;
+      }
+
+      function loadAltText(picture) {
+        if (!picture || requestedAltTexts.has(picture)) return;
+        requestedAltTexts.add(picture);
+        fetch("pictures/" + encodeURIComponent(picture) + ".txt")
+          .then(function (response) {
+            if (!response.ok) return "";
+            return response.text();
+          })
+          .then(function (description) {
+            if (description && description.trim()) altTexts[picture] = description.trim();
+          })
+          .catch(function () { /* the generic alternative text remains available */ });
+      }
+
+      function loadPartAltTexts(part) {
+        if (!part) return;
+        part.questions.forEach(function (questionState) {
+          var question = questionData(questionState);
+          if (!question) return;
+          loadAltText(question.picture);
+          question.answers.forEach(function (answer) { loadAltText(answer.picture); });
+        });
       }
 
       function createPart(code) {
@@ -351,8 +422,7 @@
         try { window.localStorage.removeItem(STORAGE_KEY); } catch (error) { /* storage can be unavailable */ }
       }
 
-      function abortExam() {
-        if (!window.confirm("Möchtest du diese Simulation abbrechen? Der gespeicherte Prüfungsstand wird gelöscht.")) return;
+      function resetExam() {
         clearStoredSession();
         session.value = null;
         view.value = "exam";
@@ -360,12 +430,13 @@
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
+      function abortExam() {
+        if (!window.confirm("Möchtest du diese Simulation abbrechen? Der gespeicherte Prüfungsstand wird gelöscht.")) return;
+        resetExam();
+      }
+
       function newExam() {
-        clearStoredSession();
-        session.value = null;
-        view.value = "exam";
-        reviewPartIndex.value = null;
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        resetExam();
       }
 
       function scrollToQuestion(index) {
@@ -445,18 +516,29 @@
         } catch (error) { /* simulator remains usable without persistence */ }
       }, { deep: true });
 
+      watch(currentPart, function (part) {
+        loadPartAltTexts(part);
+      });
+
       watch(remainingSeconds, function (seconds) {
         if (session.value && currentPart.value && currentPart.value.status === "running" && seconds <= 0) submitPart(true);
       });
 
       function loadCatalog() {
-        fetch("assets/exam-questions.json")
-          .then(function (response) {
-            if (!response.ok) throw new Error("Fragenkatalog nicht gefunden (HTTP " + response.status + ").");
-            return response.json();
+        Promise.all([
+          fetch("assets/fragenkatalog.json"),
+          fetch("assets/metadata.json"),
+          fetch("assets/question_index.json")
+        ])
+          .then(function (responses) {
+            var names = ["Fragenkatalog", "Metadaten", "Fragenindex"];
+            responses.forEach(function (response, index) {
+              if (!response.ok) throw new Error(names[index] + " nicht gefunden (HTTP " + response.status + ").");
+            });
+            return Promise.all(responses.map(function (response) { return response.json(); }));
           })
           .then(function (data) {
-            catalog.value = data.questions || {};
+            catalog.value = normalizeCatalog(data[0], data[1] || {}, data[2] || {});
             if (Object.keys(catalog.value).length === 0) throw new Error("Der Fragenkatalog ist leer.");
             restoreSession();
             loading.value = false;
@@ -520,8 +602,8 @@
         overallIcon: overallIcon,
         overallTitle: overallTitle,
         overallText: overallText,
-        partSummary: partSummary,
         padNumber: padNumber,
+        pictureAlt: pictureAlt,
         questionData: questionData,
         startExam: startExam,
         selectAnswer: selectAnswer,
