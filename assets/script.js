@@ -5,7 +5,7 @@ function shuffleChildren(el) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-  var els = document.querySelectorAll(".answers:not([data-no-shuffle])");
+  var els = document.querySelectorAll(".answers");
   for (var i = 0; i < els.length; i++) {
     shuffleChildren(els[i]);
   }
