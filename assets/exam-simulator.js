@@ -236,7 +236,7 @@
         return { passed: "Prüfung bestanden", oral: "Mündliche Nachprüfung möglich", failed: "Prüfung nicht bestanden", incomplete: "Prüfung vorzeitig beendet" }[overallState.value];
       });
       var overallText = computed(function () {
-        if (overallState.value === "passed") return "Du hast jeden Prüfungsteil mit mindestens 19 Punkten bestanden.";
+        if (overallState.value === "passed") return "Gratulation! Du hast jeden Prüfungsteil mit mindestens 19 Punkten bestanden.";
         if (overallState.value === "oral") return "In genau einem Prüfungsteil wurden 17 oder 18 Punkte erreicht; nach den Prüfungsregeln kann eine mündliche Nachprüfung möglich sein.";
         if (overallState.value === "failed") return "Mindestens ein Prüfungsteil wurde nicht bestanden.";
         return evaluatedParts().length + " von " + session.value.parts.length + " Prüfungsteilen wurden abgeschlossen.";
@@ -599,6 +599,7 @@
         hasNextPart: hasNextPart,
         isReviewing: isReviewing,
         overallAlertClass: overallAlertClass,
+        overallState: overallState,
         overallIcon: overallIcon,
         overallTitle: overallTitle,
         overallText: overallText,
