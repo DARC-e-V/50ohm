@@ -95,12 +95,12 @@
 .answer-table td.answer-cell-solution,
 .answer-table td.answer-cell-correct .answer-mark,
 .answer-table td.answer-cell-solution .answer-mark {
-  background-color: #3bb583;
+  background-color: #3bb583 !important;
 }
 
 .answer-table td.answer-cell-wrong,
 .answer-table td.answer-cell-wrong .answer-mark {
-  background-color: #fe756c;
+  background-color: #fe756c !important;
 }
 
 .exam-question {

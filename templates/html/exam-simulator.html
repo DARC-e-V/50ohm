@@ -127,7 +127,8 @@
       </div>
     </div>
 
-    <div class="exam-paper-layout" :key="'exam-part-' + displayedPartIndex + '-' + currentPart.code">
+    <div class="exam-paper-layout"
+         :key="'exam-part-' + displayedPartIndex + '-' + currentPart.code + '-' + currentPart.status">
       <main class="exam-questions course">
         <template v-for="(questionState, questionIndex) in currentPart.questions" :key="questionState.id">
           <article class="question exam-question" :class="'layout-' + questionData(questionState).layout"

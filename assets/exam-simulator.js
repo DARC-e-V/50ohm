@@ -344,7 +344,7 @@
       }
 
       function answerCellClass(questionIndex, answerIndex) {
-        if (currentPart.value.status !== "evaluated") return "";
+        if (currentPart.value.status === "running") return "";
         var question = currentPart.value.questions[questionIndex];
         var sourceIndex = question.order[answerIndex];
         if (question.selected === answerIndex && sourceIndex === 0) return "answer-cell-correct";
