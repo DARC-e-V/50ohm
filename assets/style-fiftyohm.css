@@ -111,6 +111,37 @@ h1, h2, h3, h4, h5, h6 {
   .fiftyohm-layout-right {
     flex: 0 0 10px;
   }
+
+  .fiftyohm-footer-content {
+    flex-direction: column;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center;
+  }
+
+  .fiftyohm-footer-logo {
+    max-width: 100%;
+  }
+
+  .fiftyohm-footer-logo img,
+  .fiftyohm-footer-sponsor img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-inline: auto;
+  }
+
+  .fiftyohm-footer-info,
+  .fiftyohm-footer-sponsor {
+    width: 100%;
+    text-align: center !important;
+  }
+
+  .fiftyohm-footer-team,
+  .fiftyohm-footer-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 
 .fiftyohm-layout-outer-head {
