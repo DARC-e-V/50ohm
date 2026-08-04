@@ -131,9 +131,102 @@ class Build:
     def __build_question_slide(self, input):
         return self.__build_question(input, template_file="slide/question.html")
 
-    def __build_page(self, content, course_wrapper=False, sidebar=None):
+    def __build_page(
+        self,
+        content,
+        course_wrapper=False,
+        sidebar=None,
+        page_stylesheets=None,
+        page_scripts=None,
+    ):
         page_template = self.env.get_template("html/page.html")
-        return page_template.render(content=content, course_wrapper=course_wrapper, sidebar=sidebar)
+        return page_template.render(
+            content=content,
+            course_wrapper=course_wrapper,
+            sidebar=sidebar,
+            page_stylesheets=page_stylesheets or [],
+            page_scripts=page_scripts or [],
+        )
+
+    @staticmethod
+    def __walk_exam_questions(section, category=()):
+        for question in section.get("questions", []):
+            yield category, question
+        for index, child in enumerate(section.get("sections", [])):
+            yield from Build.__walk_exam_questions(child, (*category, index))
+
+    def __build_exam_catalog(self):
+        """Create the compact client-side catalog used by the exam simulator."""
+        with (
+            self.config.p_data_fragenkatalog.open(encoding="utf-8") as catalog_file,
+            self.config.p_data_metadata.open(encoding="utf-8") as metadata_file,
+        ):
+            catalog = json.load(catalog_file)
+            metadata = json.load(metadata_file)
+
+        part_for_section = {1: "B", 2: "V"}
+        part_for_class = {"1": "N", "2": "E", "3": "A"}
+        questions = {}
+
+        def picture_data(picture_id):
+            if not picture_id:
+                return {"picture": "", "pictureAlt": ""}
+            return {
+                "picture": picture_id,
+                "pictureAlt": self.__picture_handler(picture_id) or "Bildbeschreibung noch nicht verfügbar",
+            }
+
+        for section_index, section in enumerate(catalog["sections"]):
+            for category, question in self.__walk_exam_questions(section):
+                if section_index == 0:
+                    part = part_for_class.get(str(question.get("class")))
+                else:
+                    part = part_for_section.get(section_index)
+                if part is None:
+                    continue
+
+                question_metadata = metadata.get(question["number"], {})
+                question_picture = picture_data(question_metadata.get("picture_question", ""))
+                answers = []
+                for answer_letter in "abcd":
+                    answer_picture = picture_data(question_metadata.get(f"picture_{answer_letter}", ""))
+                    answers.append(
+                        {
+                            "text": question.get(f"answer_{answer_letter}", ""),
+                            **answer_picture,
+                        }
+                    )
+
+                questions[question["number"]] = {
+                    "id": question["number"],
+                    "part": part,
+                    "category": list(category),
+                    "question": question["question"],
+                    "layout": question_metadata.get("layout", "") or "default",
+                    "answers": answers,
+                    "hasSolution": self.__has_solution(question["number"]),
+                    **question_picture,
+                }
+
+        self.config.p_build_assets.mkdir(parents=True, exist_ok=True)
+        with (self.config.p_build_assets / "exam-questions.json").open("w", encoding="utf-8") as file:
+            json.dump({"version": 1, "questions": questions}, file, ensure_ascii=False, separators=(",", ":"))
+            file.write("\n")
+
+    def __build_exam_simulator(self):
+        self.__build_exam_catalog()
+        exam_template = self.env.get_template("html/exam-simulator.html")
+        content = exam_template.render()
+        page = self.__build_page(
+            content,
+            page_stylesheets=["assets/exam-simulator.css"],
+            page_scripts=["assets/vue.global.prod.js", "assets/exam-simulator.js"],
+        )
+        legacy_path = self.config.p_build / "probeprüfung.html"
+        if legacy_path.exists():
+            legacy_path.unlink()
+        with (self.config.p_build / "simulation.html").open("w", encoding="utf-8") as file:
+            file.write(page)
 
     def __copy_picture(self, id):
         file = f"{id}.svg"
@@ -509,6 +602,7 @@ class Build:
         self.__build_html_page(contents, "pruefung")
         self.__build_html_page(contents, "infos")
         self.__build_html_page(contents, "suche")
+        self.__build_exam_simulator()
 
     def build_solutions(self):
         for solution_file in self.config.p_data_solutions.glob("*.md"):

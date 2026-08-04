@@ -2,7 +2,7 @@
   "use strict";
 
   var STORAGE_KEY = "50ohm-exam-simulator-v1";
-  var STORAGE_VERSION = 1;
+  var STORAGE_VERSION = 3;
   var QUESTION_COUNT = 25;
   var ANSWER_LABELS = ["A", "B", "C", "D"];
 
@@ -104,9 +104,8 @@
 
   function renderMathSoon(VueApi) {
     VueApi.nextTick(function () {
-      if (typeof window.renderFiftyOhmMath === "function") {
-        window.renderFiftyOhmMath(document.getElementById("exam-simulator"));
-      }
+      if (typeof window.renderFiftyOhmMath !== "function") return;
+      window.renderFiftyOhmMath(document.getElementById("exam-simulator"));
     });
   }
 
@@ -126,6 +125,8 @@
       var reviewPartIndex = ref(null);
       var now = ref(Date.now());
       var timerId = null;
+      var catalogLoadHandler = null;
+      var headerObserver = null;
 
       var primaryChoices = computed(function () {
         return EXAM_CHOICES.filter(function (choice) { return choice.group === "primary"; });
@@ -178,7 +179,9 @@
         if (failed.length === 1 && failed[0].score >= 17) return "oral";
         return "failed";
       });
-      var overallClass = computed(function () { return "result-" + overallState.value; });
+      var overallAlertClass = computed(function () {
+        return { passed: "alert-success", oral: "alert-warning", failed: "alert-danger", incomplete: "alert-danger" }[overallState.value];
+      });
       var overallIcon = computed(function () {
         return { passed: "verified", oral: "record_voice_over", failed: "cancel", incomplete: "stop_circle" }[overallState.value];
       });
@@ -249,8 +252,12 @@
         if (currentPart.value.status !== "running") return;
         var question = currentPart.value.questions[questionIndex];
         if (question.selected === answerIndex) return;
+        var firstAnswer = question.selected === null;
         question.selected = answerIndex;
         question.history.push(answerIndex);
+        if (firstAnswer && questionIndex < currentPart.value.questions.length - 1) {
+          window.setTimeout(function () { scrollToQuestion(questionIndex + 1); }, 150);
+        }
       }
 
       function answerMark(questionIndex, answerIndex) {
@@ -308,10 +315,16 @@
       }
 
       function startNextPart() {
-        if (!hasNextPart.value) return;
-        session.value.currentPart += 1;
-        activatePart(session.value.parts[session.value.currentPart]);
+        var nextIndex = session.value.currentPart + 1;
+        var nextPart = session.value.parts[nextIndex];
+        if (!nextPart) {
+          showSummary();
+          return;
+        }
+        session.value.currentPart = nextIndex;
         reviewPartIndex.value = null;
+        view.value = "exam";
+        activatePart(nextPart);
         renderMathSoon(Vue);
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -339,7 +352,7 @@
       }
 
       function abortExam() {
-        if (!window.confirm("Möchtest du diese Probeprüfung abbrechen? Der gespeicherte Prüfungsstand wird gelöscht.")) return;
+        if (!window.confirm("Möchtest du diese Simulation abbrechen? Der gespeicherte Prüfungsstand wird gelöscht.")) return;
         clearStoredSession();
         session.value = null;
         view.value = "exam";
@@ -366,10 +379,16 @@
         return "Nicht bestanden";
       }
 
-      function resultClass(part) {
-        if (part.score >= 19) return "result-passed";
-        if (part.score >= 17) return "result-oral";
-        return "result-failed";
+      function resultAlertClass(part) {
+        if (part.score >= 19) return "alert-success";
+        if (part.score >= 17) return "alert-warning";
+        return "alert-danger";
+      }
+
+      function resultBadgeClass(part) {
+        if (part.score >= 19) return "text-bg-success";
+        if (part.score >= 17) return "text-bg-warning";
+        return "text-bg-danger";
       }
 
       function resultIcon(part) {
@@ -390,7 +409,10 @@
           var raw = window.localStorage.getItem(STORAGE_KEY);
           if (!raw) return;
           var stored = JSON.parse(raw);
-          if (!stored || stored.version !== STORAGE_VERSION || !stored.session) return;
+          if (!stored || stored.version !== STORAGE_VERSION || !stored.session) {
+            clearStoredSession();
+            return;
+          }
           var choice = EXAM_CHOICES.find(function (item) { return item.id === stored.session.choiceId; });
           var valid = choice && stored.session.parts.every(function (part) {
             return Array.isArray(part.questions) && part.questions.length === QUESTION_COUNT && part.questions.every(function (question) {
@@ -427,7 +449,7 @@
         if (session.value && currentPart.value && currentPart.value.status === "running" && seconds <= 0) submitPart(true);
       });
 
-      onMounted(function () {
+      function loadCatalog() {
         fetch("assets/exam-questions.json")
           .then(function (response) {
             if (!response.ok) throw new Error("Fragenkatalog nicht gefunden (HTTP " + response.status + ").");
@@ -444,11 +466,36 @@
             loadError.value = error.message || "Unbekannter Ladefehler";
             loading.value = false;
           });
+      }
+
+      function updateHeaderHeight() {
+        var header = document.querySelector(".fiftyohm-layout-outer-head");
+        if (!header) return;
+        document.documentElement.style.setProperty("--exam-header-height", header.offsetHeight + "px");
+      }
+
+      onMounted(function () {
+        document.body.classList.add("exam-simulator-page");
+        updateHeaderHeight();
+        if (typeof window.ResizeObserver === "function") {
+          headerObserver = new window.ResizeObserver(updateHeaderHeight);
+          headerObserver.observe(document.querySelector(".fiftyohm-layout-outer-head"));
+        }
+        if (document.readyState === "loading") {
+          catalogLoadHandler = function () { window.setTimeout(loadCatalog, 0); };
+          document.addEventListener("DOMContentLoaded", catalogLoadHandler, { once: true });
+        } else {
+          loadCatalog();
+        }
         timerId = window.setInterval(function () { now.value = Date.now(); }, 1000);
       });
 
       onBeforeUnmount(function () {
         if (timerId !== null) window.clearInterval(timerId);
+        if (catalogLoadHandler !== null) document.removeEventListener("DOMContentLoaded", catalogLoadHandler);
+        if (headerObserver !== null) headerObserver.disconnect();
+        document.documentElement.style.removeProperty("--exam-header-height");
+        document.body.classList.remove("exam-simulator-page");
       });
 
       return {
@@ -469,7 +516,7 @@
         answeredCount: answeredCount,
         hasNextPart: hasNextPart,
         isReviewing: isReviewing,
-        overallClass: overallClass,
+        overallAlertClass: overallAlertClass,
         overallIcon: overallIcon,
         overallTitle: overallTitle,
         overallText: overallText,
@@ -490,7 +537,8 @@
         newExam: newExam,
         scrollToQuestion: scrollToQuestion,
         resultLabel: resultLabel,
-        resultClass: resultClass,
+        resultAlertClass: resultAlertClass,
+        resultBadgeClass: resultBadgeClass,
         resultIcon: resultIcon,
         resultDescription: resultDescription
       };
