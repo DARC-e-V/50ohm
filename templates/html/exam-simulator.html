@@ -164,7 +164,7 @@
           </div>
         </template>
 
-        <div class="border-top pt-3 mb-5 d-flex flex-wrap gap-2 align-items-center">
+        <div class="border-top pt-3 mb-5 d-flex flex-wrap gap-2 align-items-center justify-content-end">
           <template v-if="currentPart.status === 'running'">
             <span class="me-auto"><b v-text="answeredCount"></b> von 25 Fragen beantwortet.</span>
             <button type="button" class="btn btn-primary" @click="requestSubmit">Prüfungsteil abgeben</button>
