@@ -11,14 +11,15 @@
 
   <section v-else-if="!session" class="mx-auto mb-5 exam-start" aria-labelledby="exam-heading">
     <h1 id="exam-heading">Prüfungssimulation</h1>
-    <p class="lead">Wähle die Prüfung, die du unter möglichst realistischen Bedingungen üben möchtest.</p>
+    <p class="lead">Welche Prüfung möchtest du simulieren?</p>
 
     <h2 class="h4 mt-5">Erstprüfung</h2>
     <div class="row row-cols-1 row-cols-md-3 g-2">
       <div v-for="choice in primaryChoices" :key="choice.id" class="col">
         <button type="button" class="btn w-100 h-100 py-3 text-white"
                 :style="{ backgroundColor: choice.color, borderColor: choice.color }" @click="startExam(choice)">
-          <span v-text="choice.label + ' (' + partSummary(choice.parts) + ')' "></span>
+          <span class="d-block" v-text="choice.label"></span>
+          <small class="d-block" v-text="choice.detail"></small>
         </button>
       </div>
     </div>
@@ -28,7 +29,8 @@
       <div v-for="choice in upgradeChoices" :key="choice.id" class="col">
         <button type="button" class="btn w-100 h-100 py-3 text-white"
                 :style="{ backgroundColor: choice.color, borderColor: choice.color }" @click="startExam(choice)">
-          <span v-text="choice.label + ' (' + partSummary(choice.parts) + ')' "></span>
+          <span class="d-block" v-text="choice.label"></span>
+          <small class="d-block" v-text="choice.detail"></small>
         </button>
       </div>
     </div>
@@ -115,7 +117,8 @@
               <span v-text="padNumber(questionIndex + 1) + ': '"></span><span v-html="questionData(questionState).question"></span>
             </div>
             <div v-if="questionData(questionState).picture" class="question-picture">
-              <img :src="'pictures/' + questionData(questionState).picture + '.svg'" :alt="questionData(questionState).pictureAlt">
+              <img :src="'pictures/' + questionData(questionState).picture + '.svg'"
+                   :alt="pictureAlt(questionData(questionState).picture, 'Abbildung zu Frage ' + questionState.id)">
             </div>
             <div class="answers">
               <button v-for="(sourceIndex, answerIndex) in questionState.order" :key="answerIndex" type="button"
@@ -125,7 +128,8 @@
                       v-html="questionData(questionState).answers[sourceIndex].text"></span>
                 <span v-if="questionData(questionState).answers[sourceIndex].picture" class="question-picture">
                   <img :src="'pictures/' + questionData(questionState).answers[sourceIndex].picture + '.svg'"
-                       :alt="questionData(questionState).answers[sourceIndex].pictureAlt">
+                       :alt="pictureAlt(questionData(questionState).answers[sourceIndex].picture,
+                         'Abbildung zu Antwort ' + answerLabels[answerIndex] + ' bei Frage ' + questionState.id)">
                 </span>
                 <span v-if="currentPart.status === 'evaluated' && sourceIndex === 0" class="result material-icons">check</span>
                 <span v-else-if="currentPart.status === 'evaluated' && questionState.selected === answerIndex" class="result material-icons">clear</span>
@@ -162,7 +166,7 @@
         <div class="border border-dark bg-white p-2">
           <h2 class="h5 text-center">Antwortbogen</h2>
           <div class="border-top border-bottom border-dark py-1 mb-2">
-            <strong class="d-block" v-text="currentPartDefinition.formLabel"></strong>
+            <strong class="d-block" v-text="currentPartDefinition.label"></strong>
             <small><span v-text="currentPartDefinition.minutes"></span> Minuten · 25 Fragen</small>
           </div>
           <table class="answer-table">
