@@ -24,7 +24,11 @@ class Build:
 
         self.env = Environment(loader=FileSystemLoader(self.config.p_templates))
         self.env.filters["shuffle_answers"] = self.__filter_shuffle_answers
-        self.questions = self.__parse_katalog()
+        with self.config.p_data_fragenkatalog.open(encoding="utf-8") as file:
+            self.fragenkatalog = json.load(file)
+        with self.config.p_data_metadata.open(encoding="utf-8") as file:
+            self.question_metadata = json.load(file)
+        self.questions = self.__parse_katalog(self.fragenkatalog)
 
         self.question_index = {}
         self.question_token_pattern = re.compile(r"^\s*\[question:([\w\d]+)\]", re.MULTILINE)
@@ -32,115 +36,143 @@ class Build:
         self.index_entries = {}
         self.index_token_pattern = Index.pattern
 
-    def __parse_katalog(self):
-        with self.config.p_data_fragenkatalog.open(encoding="utf-8") as file:
-            fragenkatalog = json.load(file)
+    @staticmethod
+    def __parse_katalog(fragenkatalog):
+        questions = {}
 
-            questions = {}
+        def collect(section):
+            for question in section.get("questions", []):
+                questions[question["number"]] = question
+            for child in section.get("sections", []):
+                collect(child)
 
-            for exampart in fragenkatalog["sections"]:
-                for chapter in exampart["sections"]:
-                    if "questions" in chapter:
-                        for question in chapter["questions"]:
-                            questions[question["number"]] = question
-                    if "sections" in chapter:
-                        for section in chapter["sections"]:
-                            for question in section["questions"]:
-                                questions[question["number"]] = question
-
-            return questions
+        for exam_part in fragenkatalog["sections"]:
+            collect(exam_part)
+        return questions
 
     def __build_question(self, number, template_file="html/question.html"):
         """Combines the original question dataset from BNetzA with our internal metadata"""
 
         question_template = self.env.get_template(template_file)
 
-        with (self.config.p_data_metadata).open(encoding="utf-8") as file:
-            metadata_json = json.load(file)
+        question = self.questions.get(number)
+        metadata = self.question_metadata.get(number)
 
-            question = None
-            metadata = None
-
-            if number in self.questions:
-                question = self.questions[number]
-
-            if number in metadata_json:
-                metadata = metadata_json[number]
-
-            if question is None or metadata is None:
-                tqdm.write(
-                    f"\033[31mQuestion #{number} is missing"
-                    + (" (Question not in question pool)" if question is None else "")
-                    + (" (Question not in metadata)" if metadata is None else "")
-                    + "\033[0m"
-                )
-                metadata = {"layout": "not-found", "picture_a": ""}
-                number = 404
-                question = {"question": f"Frage {input} nicht gefunden"}
-
-            if "answer_a" in question:
-                answers = [question["answer_a"], question["answer_b"], question["answer_c"], question["answer_d"]]
-            else:
-                answers = []
-
-            if metadata["picture_a"] != "":
-                alt_text_a = self.__picture_handler(metadata["picture_a"])
-                alt_text_b = self.__picture_handler(metadata["picture_b"])
-                alt_text_c = self.__picture_handler(metadata["picture_c"])
-                alt_text_d = self.__picture_handler(metadata["picture_d"])
-
-                answer_pictures = [
-                    metadata["picture_a"],
-                    metadata["picture_b"],
-                    metadata["picture_c"],
-                    metadata["picture_d"],
-                ]
-
-                alt_text_answers = [
-                    alt_text_a,
-                    alt_text_b,
-                    alt_text_c,
-                    alt_text_d,
-                ]
-
-            else:
-                answer_pictures = []
-                alt_text_answers = []
-
-            if "picture_question" in question and metadata["picture_question"] != "":
-                picture_question = metadata["picture_question"]
-                alt_text_question = self.__picture_handler(picture_question)
-            else:
-                picture_question = ""
-                alt_text_question = ""
-
-            solution_file = self.config.p_data_solutions / f"{number}.md"
-
-            return question_template.render(
-                question=question["question"],
-                number=number,
-                layout=metadata["layout"],
-                picture_question=picture_question,
-                answers=answers,
-                answer_pictures=answer_pictures,
-                alt_text_answers=alt_text_answers,
-                alt_text_question=alt_text_question,
-                has_solution=solution_file.exists(),
+        if question is None or metadata is None:
+            tqdm.write(
+                f"\033[31mQuestion #{number} is missing"
+                + (" (Question not in question pool)" if question is None else "")
+                + (" (Question not in metadata)" if metadata is None else "")
+                + "\033[0m"
             )
+            metadata = {"layout": "not-found", "picture_a": ""}
+            number = 404
+            question = {"question": f"Frage {input} nicht gefunden"}
+
+        if "answer_a" in question:
+            answers = [question["answer_a"], question["answer_b"], question["answer_c"], question["answer_d"]]
+        else:
+            answers = []
+
+        if metadata["picture_a"] != "":
+            alt_text_a = self.__picture_handler(metadata["picture_a"])
+            alt_text_b = self.__picture_handler(metadata["picture_b"])
+            alt_text_c = self.__picture_handler(metadata["picture_c"])
+            alt_text_d = self.__picture_handler(metadata["picture_d"])
+
+            answer_pictures = [
+                metadata["picture_a"],
+                metadata["picture_b"],
+                metadata["picture_c"],
+                metadata["picture_d"],
+            ]
+
+            alt_text_answers = [
+                alt_text_a,
+                alt_text_b,
+                alt_text_c,
+                alt_text_d,
+            ]
+
+        else:
+            answer_pictures = []
+            alt_text_answers = []
+
+        if "picture_question" in question and metadata["picture_question"] != "":
+            picture_question = metadata["picture_question"]
+            alt_text_question = self.__picture_handler(picture_question)
+        else:
+            picture_question = ""
+            alt_text_question = ""
+
+        solution_file = self.config.p_data_solutions / f"{number}.md"
+
+        return question_template.render(
+            question=question["question"],
+            number=number,
+            layout=metadata["layout"],
+            picture_question=picture_question,
+            answers=answers,
+            answer_pictures=answer_pictures,
+            alt_text_answers=alt_text_answers,
+            alt_text_question=alt_text_question,
+            has_solution=solution_file.exists(),
+        )
 
     def __build_question_slide(self, input):
         return self.__build_question(input, template_file="slide/question.html")
 
-    def __build_page(self, content, course_wrapper=False, sidebar=None):
+    def __build_page(
+        self,
+        content,
+        course_wrapper=False,
+        sidebar=None,
+        page_stylesheets=None,
+        page_scripts=None,
+    ):
         page_template = self.env.get_template("html/page.html")
-        return page_template.render(content=content, course_wrapper=course_wrapper, sidebar=sidebar)
+        return page_template.render(
+            content=content,
+            course_wrapper=course_wrapper,
+            sidebar=sidebar,
+            page_stylesheets=page_stylesheets or [],
+            page_scripts=page_scripts or [],
+        )
+
+    def __build_exam_simulator(self):
+        self.config.p_build_assets.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(self.config.p_data_fragenkatalog, self.config.p_build_assets / "fragenkatalog.json")
+        shutil.copyfile(self.config.p_data_metadata, self.config.p_build_assets / "metadata.json")
+        (self.config.p_build_assets / "exam-questions.json").unlink(missing_ok=True)
+
+        picture_fields = ("picture_question", "picture_a", "picture_b", "picture_c", "picture_d")
+        picture_ids = {
+            metadata[field]
+            for metadata in self.question_metadata.values()
+            for field in picture_fields
+            if metadata.get(field)
+        }
+        for picture_id in picture_ids:
+            self.__picture_handler(picture_id)
+
+        exam_template = self.env.get_template("html/exam-simulator.html")
+        content = exam_template.render()
+        page = self.__build_page(
+            content,
+            page_stylesheets=["assets/exam-simulator.css?ts=202608051415"],
+            page_scripts=["assets/vue.global.prod.js", "assets/exam-simulator.js?ts=202608051500"],
+        )
+        with (self.config.p_build / "simulation.html").open("w", encoding="utf-8") as file:
+            file.write(page)
 
     def __copy_picture(self, id):
         file = f"{id}.svg"
         try:
             shutil.copyfile(self.config.p_data_pictures / file, self.config.p_build_pictures / file)
-            if (self.config.p_data_pictures / f"{id}.txt").exists():
-                return (self.config.p_data_pictures / f"{id}.txt").read_text(encoding="utf-8")
+            description_source = self.config.p_data_pictures / f"{id}.txt"
+            if description_source.exists():
+                shutil.copyfile(description_source, self.config.p_build_pictures / description_source.name)
+                return description_source.read_text(encoding="utf-8")
             else:
                 return "Bildbeschreibung noch nicht verfügbar"
         except FileNotFoundError:
@@ -509,6 +541,7 @@ class Build:
         self.__build_html_page(contents, "pruefung")
         self.__build_html_page(contents, "infos")
         self.__build_html_page(contents, "suche")
+        self.__build_exam_simulator()
 
     def build_solutions(self):
         for solution_file in self.config.p_data_solutions.glob("*.md"):
