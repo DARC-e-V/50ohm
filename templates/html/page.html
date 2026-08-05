@@ -10,12 +10,15 @@
     <link rel="mask-icon" href="assets/favicon/mask-icon.svg" color="#00ADEF">
     <link href="assets/bootstrap-5.2.0-beta1-dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/antrag/darc-antrag.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/style-fiftyohm.css?ts=202312172012">
+    <link rel="stylesheet" href="assets/style-fiftyohm.css?ts=20260805">
     <link rel="stylesheet" href="assets/style-course.css?ts=202608051345">
     <link rel="stylesheet" href="assets/katex/katex.min.css">
+    {% for stylesheet in page_stylesheets|default([]) %}
+    <link rel="stylesheet" href="{{ stylesheet }}">
+    {% endfor %}
     <script defer src="assets/katex/katex.min.js"></script>
     <script defer src="assets/katex/auto-render.min.js"></script>
-    <script defer src="assets/latex.js"></script>  
+    <script defer src="assets/latex.js?ts=20260805"></script>
     <script defer src="assets/script.js"></script>  
     <script defer src="assets/antrag/floating-cta.js"></script>  
     <style>
@@ -84,6 +87,12 @@
               <a href="pruefung.html">
                 <span class="material-icons">fact_check</span>
                 Prüfung
+              </a>
+            </li>
+            <li>
+              <a href="simulation.html">
+                <span class="material-icons">quiz</span>
+                Simulation
               </a>
             </li>
 <!--            <li>
@@ -188,6 +197,9 @@
   </div>
 
   <script src="assets/bootstrap-5.2.0-beta1-dist/js/bootstrap.bundle.min.js"></script>
+  {% for script in page_scripts|default([]) %}
+  <script src="{{ script }}"></script>
+  {% endfor %}
 </body>
 
 </html>
