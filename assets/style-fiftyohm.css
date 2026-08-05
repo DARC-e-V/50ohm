@@ -190,6 +190,12 @@ ul.fiftyohm-navbar {
   display: flex;
 }
 
+@media (min-width: 940px) {
+  ul.fiftyohm-navbar {
+    gap: 1rem;
+  }
+}
+
 .fiftyohm-navbar li {
   list-style-type: none;
   margin: 2ex 0;
