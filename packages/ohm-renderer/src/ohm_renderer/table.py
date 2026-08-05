@@ -1,107 +1,95 @@
 import re
-from enum import Enum
+from enum import StrEnum
+from itertools import zip_longest
 
-from mistletoe import span_token
-from mistletoe.block_token import BlockToken
+from mistletoe import block_token
 
 from ohm_renderer.referenced_token import ReferencedToken
 
 
-class CellAlignment(Enum):
+class CellAlignment(StrEnum):
+    """Column alignments, with tabularx identifiers for simplified LaTeX support."""
+
     LEFT = "l"
     CENTER = "c"
     RIGHT = "r"
     EXPAND = "X"
 
 
-class TableCell(BlockToken):
-    alignment: CellAlignment
-    header: bool
-
-    @staticmethod
-    def start(_):
-        return False
-
-    def __init__(self, match, alignment: CellAlignment, header=False):
-        super().__init__(match, span_token.tokenize_inner)
-        self.alignment, self.header = alignment, header
+# Mistletoe encodes alignment as None (left), 0 (center) and 1 (right).
+MISTLETOE_ALIGNMENT = {CellAlignment.CENTER: 0, CellAlignment.RIGHT: 1}
 
 
-class TableRow(BlockToken):
-    @staticmethod
-    def start(_):
-        return False
-
-    @classmethod
-    def parse(cls, line) -> list[str]:
-        line = line.strip().strip("|")
-        return [col.strip() for col in line.split("|")]
-
-    def __init__(self, match, alignment: list[CellAlignment]):
-        self.children = [TableCell(cell, alignment[i]) for i, cell in enumerate(self.parse(match))]
+class TableCell(block_token.TableCell):
+    def __init__(self, content, alignment: CellAlignment | None = None, line_number=None):
+        self.alignment = alignment
+        super().__init__(content, MISTLETOE_ALIGNMENT.get(alignment), line_number)
 
 
-class TableHeader(TableRow):
-    alignment: list[CellAlignment]
+class TableRow(block_token.TableRow):
+    def __init__(
+        self,
+        cells: list[str],
+        row_alignment: list[CellAlignment | None] | None = None,
+        line_number=None,
+    ):
+        self.row_alignment = row_alignment or [None]
+        self.line_number = line_number
+        self.children = [
+            TableCell(cell or "", alignment, line_number) for cell, alignment in zip_longest(cells, self.row_alignment)
+        ]
 
-    @staticmethod
-    def start(_):
-        return False
+    @property
+    def row_align(self) -> list[int | None]:
+        """The row alignment in mistletoe's encoding, for its own render functions."""
+        return [MISTLETOE_ALIGNMENT.get(alignment) for alignment in self.row_alignment]
 
     @classmethod
-    def parse(cls, line) -> list[str]:
-        alignment: list[CellAlignment] = []
-        columns: list[str] = []
-        for column in super().parse(line):
-            attr: CellAlignment
-            value: str
-            attr, value = re.match(r"^ ?(?:([lcrX]):)? ?(.*)", column).group(1, 2)
-
-            alignment.append(attr)
-            columns.append(value)
-
-        return columns, alignment
-
-    def __init__(self, match):
-        columns, self.alignment = self.parse(match)
-        self.children = [TableCell(cell, self.alignment[i], True) for i, cell in enumerate(columns)]
+    def split(cls, line: str) -> list[str]:
+        """Splits a table line into its cell contents, honouring escaped pipes."""
+        return [
+            cls.escaped_pipe_pattern.sub("\\1|", cell.strip())
+            for cell in filter(None, cls.split_pattern.split(line.strip()))
+        ]
 
 
-class TableBody(BlockToken):
-    header: bool
-
-    @staticmethod
-    def start(_):
-        return False
-
-    def __init__(self, rows: TableRow, header=False):
-        self.children, self.header = rows, header
-
-
-class Table(ReferencedToken):
-    name: str
-    caption: str
-    header: list[TableHeader]
-    rows: list[TableRow]
+class Table(ReferencedToken, block_token.Table):
+    alignment_pattern = re.compile(r"^ ?(?:([lcrX]):)? ?(.*)")
+    caption_pattern = re.compile(r"\[table:([^:\]]+):([^:\]]+)\]")
 
     @staticmethod
     def start(line):
         return line.lstrip().startswith("|")
 
     @classmethod
+    def parse_alignment(cls, line: str) -> tuple[list[str], list[CellAlignment | None]]:
+        cells: list[str] = []
+        alignment: list[CellAlignment | None] = []
+        for cell in TableRow.split(line):
+            prefix, content = cls.alignment_pattern.match(cell).group(1, 2)
+            cells.append(content)
+            alignment.append(CellAlignment(prefix) if prefix else None)
+
+        return cells, alignment
+
+    @classmethod
     def read(cls, lines):
-        header = TableHeader(next(lines))
-        alignment = header.alignment
+        # Mistletoe probes for an interrupting table by calling read() on any
+        # paragraph line, so a line that starts no table has to be rejected here.
+        next_line = lines.peek()
+        if next_line is None or not cls.start(next_line):
+            return None
+
+        line_buffer = [next(lines)]
+        start_line = lines.line_number()
 
         name = ""
         caption = ""
-        children = [TableBody([header], True)]
 
         # Read table until the end: No more column definitions, caption, or empty line.
-        line_buffer = []
         next_line = lines.peek()
         while next_line is not None and next_line.strip() != "":
-            maybe_caption = re.match(r"\[table:([^:\]]+):([^:\]]+)\]", next_line)
+            maybe_caption = cls.caption_pattern.match(next_line)
             if maybe_caption is not None:
                 name, caption = maybe_caption.group(1, 2)
                 next(lines)
@@ -112,13 +100,21 @@ class Table(ReferencedToken):
                 line_buffer.append(next(lines))
                 next_line = lines.peek()
 
-        children.append(TableBody([TableRow(line, alignment) for line in line_buffer]))
-
-        return children, name, caption
+        return line_buffer, start_line, name, caption
 
     def __init__(self, match):
-        children, name, caption = match
+        lines, start_line, name, caption = match
         super().__init__(name)
-        self.children = children
         self.name = name
         self.caption = caption
+
+        cells, self.column_alignment = self.parse_alignment(lines[0])
+        self.header = TableRow(cells, self.column_alignment, start_line)
+        self.children = [
+            TableRow(TableRow.split(line), self.column_alignment, start_line + offset)
+            for offset, line in enumerate(lines[1:], start=1)
+        ]
+
+    @property
+    def column_align(self) -> list[int | None]:
+        return [MISTLETOE_ALIGNMENT.get(alignment) for alignment in self.column_alignment]

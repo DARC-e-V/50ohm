@@ -18,12 +18,18 @@ from .qso import Qso
 from .question import Question
 from .quote import Quote
 from .reference import Reference
-from .table import Table, TableBody, TableCell, TableHeader, TableRow
+from .table import CellAlignment, Table, TableCell
 from .tag import Tag
 from .underline import Underline
 from .unit import Unit
 
-table_alignment = {"l": "left", "c": "center", "r": "right"}
+# Columns without an explicit alignment and the expanding column have no HTML
+# counterpart and stay unaligned, so look this up with ``get``.
+table_alignment = {
+    CellAlignment.LEFT: "left",
+    CellAlignment.CENTER: "center",
+    CellAlignment.RIGHT: "right",
+}
 
 
 class FiftyOhmHtmlRenderer(HtmlRenderer):
@@ -58,10 +64,6 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             Question,
             Image,
             Table,
-            TableHeader,
-            TableRow,
-            TableCell,
-            TableBody,
             Qso,
             Include,
             Formula,
@@ -270,7 +272,10 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         if token.name:
             table_attrs = f' id="ref_{token.name}" name="{token.name}"'
 
-        table = f'<table class="table table-hover"{table_attrs}>\n{self.render_inner(token)}'
+        table = f'<table class="table table-hover"{table_attrs}>\n'
+        table += f"<thead>\n{self.render_table_row(token.header, is_header=True)}</thead>\n"
+        if token.children:
+            table += f"<tbody>\n{self.render_inner(token)}</tbody>\n"
 
         if token.caption != "":
             # Include hierarchical number in caption if the table is named.
@@ -284,25 +289,11 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
         return table
 
-    def render_table_row(self, token: TableRow):
-        return f"<tr>\n{self.render_inner(token)}</tr>\n"
-
-    def render_table_header(self, token: TableHeader):
-        return self.render_table_row(token)
-
-    def render_table_cell(self, token: TableCell):
-        type = "th" if token.header else "td"
-        style = ""
-        if token.alignment in table_alignment:
-            style = f' style="text-align: {table_alignment[token.alignment]};"'
-        return f"<{type}{style}>{self.render_inner(token)}</{type}>\n"
-
-    def render_table_body(self, token: TableBody):
-        if token.children is None or len(token.children) == 0:
-            return None
-        else:
-            type = "thead" if token.header else "tbody"
-            return f"<{type}>\n{self.render_inner(token)}</{type}>\n"
+    def render_table_cell(self, token: TableCell, in_header=False):
+        tag = "th" if in_header else "td"
+        alignment = table_alignment.get(token.alignment)
+        style = f' style="text-align: {alignment};"' if alignment else ""
+        return f"<{tag}{style}>{self.render_inner(token)}</{tag}>\n"
 
     def render_include(self, token):
         return self.include_handler(token.ident)

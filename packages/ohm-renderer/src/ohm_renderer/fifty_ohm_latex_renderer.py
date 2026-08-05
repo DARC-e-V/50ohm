@@ -8,7 +8,7 @@ from .index import Index
 from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
 from .question import Question
 from .quote import Quote
-from .table import Table, TableBody, TableCell, TableHeader, TableRow
+from .table import CellAlignment, Table, TableRow
 from .tag import Tag
 from .underline import Underline
 
@@ -27,10 +27,6 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
             Question,
             Image,
             Table,
-            TableBody,
-            TableRow,
-            TableHeader,
-            TableCell,
             Index,
         )
         self.question_renderer = question_renderer
@@ -126,29 +122,25 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
             return self.render_picture_helper(token.id, token.marker, token.text, token.label)
         return ""
 
-    def render_table(self, token):
-        table = "\\begin{DARCtabular}" + f"{self.render_inner(token)}" + "\\end{DARCtabular}"
+    def render_table(self, token: Table):
+        # The alignment values are the tabularx column specifiers; columns without
+        # an explicit alignment are typeset left aligned.
+        align = "".join(alignment or CellAlignment.LEFT for alignment in token.column_alignment)
+
+        table = "\\begin{DARCtabular}" + f"{{{align}}}\n"
+        table += self.render_table_row(token.header)
+        table += self.render_inner(token)
+        table += "\\end{DARCtabular}"
+
         if token.caption != "":
             table += f"\\captionof{{figure}}{{{token.caption}}}\n"
             table += f"\\label{{{token.name}}}\n"
 
         return table
 
-    def render_table_body(self, token: TableBody):
-        return self.render_inner(token)
-
     def render_table_row(self, token: TableRow):
+        # Mistletoe puts a space in front of the row separator, DARCdown does not.
         return rf"{self.render_inner(token, ' & ')}\\" + "\n"
-
-    def render_table_header(self, token: TableHeader):
-        align = ""
-        for alignment in token.alignment:
-            align += alignment
-
-        return f"{{{align}}}\n{self.render_table_row(token)}"
-
-    def render_table_cell(self, token: TableCell):
-        return self.render_inner(token)
 
     def render_index(self, token):
         if token.second:
