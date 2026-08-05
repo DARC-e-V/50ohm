@@ -254,8 +254,31 @@ ul.fiftyohm-navbar {
 }
 
 .fiftyohm-navbar .material-icons {
-  width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   font-size: 32px;
+}
+
+.fiftyohm-navbar .icon-start {
+  font-size: 30px;
+}
+.fiftyohm-navbar .icon-lernen {
+  font-size: 26px;
+}
+.fiftyohm-navbar .icon-suche {
+  font-size: 31px;
+}
+.fiftyohm-navbar .icon-infos {
+  font-size: 30px;
+}
+.fiftyohm-navbar .icon-pruefung {
+  font-size: 31px;
+}
+.fiftyohm-navbar .icon-simulation {
+  font-size: 30px;
 }
 
 @keyframes fadeIn {
