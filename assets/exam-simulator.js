@@ -20,7 +20,12 @@
     { id: "A", group: "primary", label: "Klasse A", detail: "B + V + N + E + A", parts: ["B", "V", "N", "E", "A"], color: "#3BB583" },
     { id: "N-E", group: "upgrade", label: "N → E", detail: "Technik E", parts: ["E"], color: "#FE756C" },
     { id: "N-A", group: "upgrade", label: "N → A", detail: "Technik E + A", parts: ["E", "A"], color: "#3BB583" },
-    { id: "E-A", group: "upgrade", label: "E → A", detail: "Technik A", parts: ["A"], color: "#3BB583" }
+    { id: "E-A", group: "upgrade", label: "E → A", detail: "Technik A", parts: ["A"], color: "#3BB583" },
+    { id: "part-B", group: "single", label: "B", detail: "Betriebliche Kenntnisse", parts: ["B"], color: "#47ABE8" },
+    { id: "part-V", group: "single", label: "V", detail: "Kenntnisse von Vorschriften", parts: ["V"], color: "#47ABE8" },
+    { id: "part-N", group: "single", label: "N", detail: "Technik Klasse N", parts: ["N"], color: "#47ABE8" },
+    { id: "part-E", group: "single", label: "E", detail: "Technik Klasse E", parts: ["E"], color: "#FE756C" },
+    { id: "part-A", group: "single", label: "A", detail: "Technik Klasse A", parts: ["A"], color: "#3BB583" }
   ];
 
   function normalizeCatalog(rawCatalog, metadata, questionIndex) {
@@ -180,6 +185,9 @@
       });
       var upgradeChoices = computed(function () {
         return EXAM_CHOICES.filter(function (choice) { return choice.group === "upgrade"; });
+      });
+      var singlePartChoices = computed(function () {
+        return EXAM_CHOICES.filter(function (choice) { return choice.group === "single"; });
       });
       var currentChoice = computed(function () {
         if (!session.value) return null;
@@ -621,6 +629,7 @@
         view: view,
         primaryChoices: primaryChoices,
         upgradeChoices: upgradeChoices,
+        singlePartChoices: singlePartChoices,
         currentChoice: currentChoice,
         currentPart: currentPart,
         currentPartDefinition: currentPartDefinition,

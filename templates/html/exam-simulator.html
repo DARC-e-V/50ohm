@@ -14,6 +14,7 @@
     <p class="lead">Welche Prüfung möchtest du simulieren?</p>
 
     <h2 class="h4 mt-5">Erstprüfung</h2>
+    <p class="mb-2">Du hast noch keine Amateurfunkprüfung abgelegt? Dann ist das die richtige Simulation für Dich.</p>
     <div class="row row-cols-1 row-cols-md-3 g-2">
       <div v-for="choice in primaryChoices" :key="choice.id" class="col">
         <button type="button" class="btn w-100 h-100 py-3 text-white"
@@ -25,8 +26,21 @@
     </div>
 
     <h2 class="h4 mt-4">Aufstockungsprüfung</h2>
+    <p class="mb-2">Du hast bereits eine Zulassung zum Amateurfunkdienst und möchtest in eine höhere Klasse aufstocken? Dann wähle hier die passende Prüfung.</p>
     <div class="row row-cols-1 row-cols-md-3 g-2">
       <div v-for="choice in upgradeChoices" :key="choice.id" class="col">
+        <button type="button" class="btn w-100 h-100 py-3 text-white"
+                :style="{ backgroundColor: choice.color, borderColor: choice.color }" @click="startExam(choice)">
+          <span class="d-block" v-text="choice.label"></span>
+          <small class="d-block" v-text="choice.detail"></small>
+        </button>
+      </div>
+    </div>
+
+    <h2 class="h4 mt-4">Einzelne Prüfungsteile</h2>
+    <p class="mb-2">Übe gezielt einen Prüfungsteil unter Prüfungsbedingungen.</p>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-5 g-2">
+      <div v-for="choice in singlePartChoices" :key="choice.id" class="col">
         <button type="button" class="btn w-100 h-100 py-3 text-white"
                 :style="{ backgroundColor: choice.color, borderColor: choice.color }" @click="startExam(choice)">
           <span class="d-block" v-text="choice.label"></span>
