@@ -159,7 +159,7 @@ class Build:
         content = exam_template.render()
         page = self.__build_page(
             content,
-            page_stylesheets=["assets/exam-simulator.css?ts=20260804"],
+            page_stylesheets=["assets/exam-simulator.css?ts=202608051415"],
             page_scripts=["assets/vue.global.prod.js", "assets/exam-simulator.js?ts=20260805"],
         )
         with (self.config.p_build / "simulation.html").open("w", encoding="utf-8") as file:

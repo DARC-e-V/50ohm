@@ -7,6 +7,10 @@
   max-width: 900px;
 }
 
+.exam-beta {
+  top: -1.5em;
+}
+
 .exam-simulator-page .fiftyohm-layout-outer-head {
   width: 100%;
   position: fixed;
