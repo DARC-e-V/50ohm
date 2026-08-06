@@ -1,9 +1,9 @@
 import pytest
 from mistletoe.markdown_renderer import MarkdownRenderer
 from ohm_renderer.document import Document
-from ohm_renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 from ohm_renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
 from ohm_renderer.table import Table
+from util import render_html
 
 
 @pytest.mark.html
@@ -35,9 +35,8 @@ def test_table_html():
         "erste\nzweite": "<p>erste\nzweite</p>\n",
     }
 
-    with FiftyOhmHtmlRenderer() as renderer:
-        for assertion in assertions:
-            assert renderer.render(Document(assertion)) == assertions[assertion]
+    for assertion in assertions:
+        assert render_html(assertion) == assertions[assertion]
 
 
 @pytest.mark.latex
