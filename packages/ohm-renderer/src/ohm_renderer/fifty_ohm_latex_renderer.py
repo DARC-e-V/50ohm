@@ -8,7 +8,7 @@ from .index import Index
 from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
 from .question import Question
 from .quote import Quote
-from .table import CellAlignment, Table, TableRow
+from .table import CellAlignment, Table, TableRow, unregister_gfm_table
 from .tag import Tag
 from .underline import Underline
 
@@ -29,6 +29,8 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
             Table,
             Index,
         )
+        unregister_gfm_table()
+
         self.question_renderer = question_renderer
 
     def render_inner(self, token, base="") -> str:

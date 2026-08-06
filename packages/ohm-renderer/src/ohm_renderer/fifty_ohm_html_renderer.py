@@ -18,7 +18,7 @@ from .qso import Qso
 from .question import Question
 from .quote import Quote
 from .reference import Reference
-from .table import CellAlignment, Table, TableCell
+from .table import CellAlignment, Table, TableCell, unregister_gfm_table
 from .tag import Tag
 from .underline import Underline
 from .unit import Unit
@@ -71,6 +71,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             *extras,
             **kwargs,
         )
+        unregister_gfm_table()
 
         self.question_renderer = question_renderer
         self.picture_handler = picture_handler
@@ -273,9 +274,6 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             table_attrs = f' id="ref_{token.name}" name="{token.name}"'
 
         table = f'<table class="table table-hover"{table_attrs}>\n'
-        table += f"<thead>\n{self.render_table_row(token.header, is_header=True)}</thead>\n"
-        if token.children:
-            table += f"<tbody>\n{self.render_inner(token)}</tbody>\n"
 
         if token.caption != "":
             # Include hierarchical number in caption if the table is named.
@@ -283,7 +281,12 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             label = self._format_reference_label(token.name)
             if label:
                 caption_text = f"Tabelle {label}: {token.caption}"
+            # HTML requires the caption to be the first child of the table.
             table += f"<caption>{caption_text}</caption>\n"
+
+        table += f"<thead>\n{self.render_table_row(token.header, is_header=True)}</thead>\n"
+        if token.children:
+            table += f"<tbody>\n{self.render_inner(token)}</tbody>\n"
 
         table += "</table>"
 
