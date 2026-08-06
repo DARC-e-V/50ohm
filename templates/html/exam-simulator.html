@@ -9,6 +9,49 @@
     <p class="mb-0" v-text="loadError"></p>
   </div>
 
+  <section v-else-if="view === 'shared' && sharedResult" class="mx-auto mb-5 exam-summary" aria-labelledby="shared-heading">
+    <h1 id="shared-heading">Geteiltes Ergebnis</h1>
+    <template v-if="sharedResult.kind === 'homework'">
+      <p class="lead">Hausaufgabe auf 50ohm.de</p>
+      <div class="alert alert-primary">
+        <strong><span v-text="sharedResult.score"></span> von <span v-text="sharedResult.total"></span> Fragen richtig beantwortet</strong>
+      </div>
+    </template>
+    <template v-else>
+      <p class="lead" v-text="sharedResult.choice.label"></p>
+      <div class="alert" :class="sharedResult.passed ? 'alert-success' : 'alert-danger'">
+        <strong v-text="sharedResult.passed ? 'Prüfung bestanden' : 'Prüfung nicht bestanden'"></strong>
+      </div>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead><tr><th>Teil</th><th>Ergebnis</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr v-for="(part, index) in sharedResult.choice.parts" :key="part">
+              <td><b v-text="part + ' – ' + partDefinitions[part].label"></b></td>
+              <td><b v-text="sharedResult.scores[index]"></b>/25</td>
+              <td><span class="badge" :class="sharedResult.scores[index] >= 19 ? 'text-bg-success' : 'text-bg-danger'"
+                        v-text="sharedResult.scores[index] >= 19 ? 'Bestanden' : 'Nicht bestanden'"></span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </template>
+    <div v-if="resultForSharing" class="border-top pt-3 mt-3">
+      <h2 class="h5">Ergebnis teilen</h2>
+      <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm" @click="shareNative">Teilen …</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" @click="copyResultLink">Link kopieren</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" @click="shareMatrix" title="Über die Teilen-Funktion an Element senden">Matrix / Element</button>
+        <a class="btn btn-outline-secondary btn-sm" :href="socialShareLinks.mastodon" target="_blank" rel="noopener noreferrer">Mastodon</a>
+        <a class="btn btn-outline-secondary btn-sm" :href="socialShareLinks.bluesky" target="_blank" rel="noopener noreferrer">Bluesky</a>
+        <a class="btn btn-outline-secondary btn-sm" :href="socialShareLinks.facebook" target="_blank" rel="noopener noreferrer">Facebook</a>
+        <a class="btn btn-outline-secondary btn-sm" :href="socialShareLinks.x" target="_blank" rel="noopener noreferrer">X</a>
+      </div>
+      <small v-if="shareMessage" class="d-block mt-2" role="status" v-text="shareMessage"></small>
+    </div>
+    <button type="button" class="btn btn-primary mt-4" @click="newExam">Eigene Simulation starten</button>
+  </section>
+
   <section v-else-if="!session" class="mx-auto mb-5 exam-start" aria-labelledby="exam-heading">
     <h1 id="exam-heading">Prüfungssimulation <sup class="exam-beta fs-6">BETA</sup></h1>
     <p class="lead">Welche Prüfung möchtest du simulieren?</p>
@@ -56,7 +99,7 @@
   </section>
 
   <section v-else-if="view === 'summary'" class="mx-auto mb-5 exam-summary" aria-labelledby="summary-heading">
-    <h1 id="summary-heading">Gesamtergebnis</h1>
+    <h1 id="summary-heading" v-text="isHomework ? 'Ergebnis der Hausaufgabe' : 'Gesamtergebnis'"></h1>
     <p class="lead" v-text="currentChoice.label"></p>
     <div class="alert d-flex align-items-center gap-2" :class="overallAlertClass">
       <span class="material-icons" aria-hidden="true" v-text="overallIcon"></span>
@@ -91,7 +134,7 @@
           <tr v-for="(part, index) in session.parts" :key="part.code">
             <td><b v-text="part.code + ' – ' + partDefinitions[part.code].label"></b></td>
             <template v-if="part.status === 'evaluated'">
-              <td><b v-text="part.score"></b>/25</td>
+              <td><b v-text="part.score"></b>/<span v-text="part.questions.length"></span></td>
               <td><span class="badge" :class="resultBadgeClass(part)" v-text="resultLabel(part)"></span></td>
               <td><button type="button" class="btn btn-outline-dark btn-sm" @click="reviewPart(index)">Auswertung</button></td>
             </template>
@@ -102,13 +145,30 @@
         </tbody>
       </table>
     </div>
-    <button type="button" class="btn btn-primary" @click="newExam">Neue Simulation</button>
+    <div v-if="resultForSharing" class="border-top pt-3 mt-3">
+      <h2 class="h5">Ergebnis teilen</h2>
+      <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm" @click="shareNative">Teilen …</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" @click="copyResultLink">Link kopieren</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" @click="shareMatrix" title="Über die Teilen-Funktion an Element senden">Matrix / Element</button>
+        <a class="btn btn-outline-secondary btn-sm" :href="socialShareLinks.mastodon" target="_blank" rel="noopener noreferrer">Mastodon</a>
+        <a class="btn btn-outline-secondary btn-sm" :href="socialShareLinks.bluesky" target="_blank" rel="noopener noreferrer">Bluesky</a>
+        <a class="btn btn-outline-secondary btn-sm" :href="socialShareLinks.facebook" target="_blank" rel="noopener noreferrer">Facebook</a>
+        <a class="btn btn-outline-secondary btn-sm" :href="socialShareLinks.x" target="_blank" rel="noopener noreferrer">X</a>
+      </div>
+      <small v-if="shareMessage" class="d-block mt-2" role="status" v-text="shareMessage"></small>
+    </div>
+    <div class="d-flex flex-wrap gap-2 mt-4">
+      <button v-if="isHomework" type="button" class="btn btn-primary" @click="retryHomework">Hausaufgabe wiederholen</button>
+      <button type="button" class="btn btn-outline-secondary" @click="newExam">Neue Simulation</button>
+    </div>
   </section>
 
   <section v-else class="exam-session" aria-labelledby="part-heading">
     <header class="exam-toolbar bg-white border-bottom py-2 mb-3">
       <div>
-        <small class="text-secondary" v-text="currentChoice.label + ' · Teil ' + (displayedPartIndex + 1) + ' von ' + session.parts.length"></small>
+        <small class="text-secondary"
+               v-text="isHomework ? currentQuestionCount + ' ausgewählte Fragen' : currentChoice.label + ' · Teil ' + (displayedPartIndex + 1) + ' von ' + session.parts.length"></small>
         <h1 id="part-heading" class="h4 mb-0" v-text="currentPartDefinition.label"></h1>
       </div>
       <div class="d-flex align-items-center flex-wrap gap-2">
@@ -118,7 +178,7 @@
             <path d="M192 112L304 112L304 200C304 239.8 336.2 272 376 272L464 272L464 512C464 520.8 456.8 528 448 528L192 528C183.2 528 176 520.8 176 512L176 128C176 119.2 183.2 112 192 112zM352 131.9L444.1 224L376 224C362.7 224 352 213.3 352 200L352 131.9zM192 64C156.7 64 128 92.7 128 128L128 512C128 547.3 156.7 576 192 576L448 576C483.3 576 512 547.3 512 512L512 250.5C512 233.5 505.3 217.2 493.3 205.2L370.7 82.7C358.7 70.7 342.5 64 325.5 64L192 64zM248 320C234.7 320 224 330.7 224 344C224 357.3 234.7 368 248 368L392 368C405.3 368 416 357.3 416 344C416 330.7 405.3 320 392 320L248 320zM248 416C234.7 416 224 426.7 224 440C224 453.3 234.7 464 248 464L392 464C405.3 464 416 453.3 416 440C416 426.7 405.3 416 392 416L248 416z"/>
           </svg>
         </a>
-        <button v-if="currentPart.status === 'running'" type="button"
+        <button v-if="currentPart.status === 'running' && !isHomework" type="button"
                 class="btn btn-sm d-inline-flex align-items-center"
                 :class="currentPart.paused ? 'btn-warning' : (remainingSeconds <= 300 ? 'btn-danger' : 'btn-secondary')"
                 @click="toggleTimer"
@@ -128,13 +188,14 @@
                 v-text="currentPart.paused ? 'play_arrow' : 'pause'"></span>
           <span role="timer" v-text="formattedTime"></span>
         </button>
-        <span v-else class="btn btn-secondary btn-sm d-inline-flex align-items-center">Abgegeben</span>
+        <span v-else-if="currentPart.status !== 'running'" class="btn btn-secondary btn-sm d-inline-flex align-items-center">Abgegeben</span>
         <button v-if="currentPart.status === 'evaluated' && !isReviewing && hasNextPart"
                 type="button" class="btn btn-primary btn-sm" @click="startNextPart">Nächsten Teil starten</button>
         <button v-else-if="currentPart.status === 'evaluated' && !isReviewing"
-                type="button" class="btn btn-primary btn-sm" @click="showSummary">Gesamtergebnis</button>
+                type="button" class="btn btn-primary btn-sm" @click="showSummary" v-text="isHomework ? 'Ergebnis' : 'Gesamtergebnis'"></button>
         <button v-else-if="isReviewing" type="button" class="btn btn-primary btn-sm" @click="showSummary">Gesamtergebnis</button>
-        <button type="button" class="btn btn-secondary btn-sm d-inline-flex align-items-center" @click="abortExam">Simulation abbrechen</button>
+        <button type="button" class="btn btn-secondary btn-sm d-inline-flex align-items-center" @click="abortExam"
+                v-text="isHomework ? 'Hausaufgabe abbrechen' : 'Simulation abbrechen'"></button>
       </div>
     </header>
 
@@ -142,7 +203,7 @@
          :class="resultAlertClass(currentPart)">
       <span class="material-icons" aria-hidden="true" v-text="resultIcon(currentPart)"></span>
       <div>
-        <strong><span v-text="currentPart.score"></span> von 25 Punkten – <span v-text="resultLabel(currentPart)"></span></strong>
+        <strong><span v-text="currentPart.score"></span> von <span v-text="currentQuestionCount"></span> Punkten – <span v-text="resultLabel(currentPart)"></span></strong>
         <div v-text="resultDescription(currentPart)"></div>
       </div>
     </div>
@@ -154,7 +215,7 @@
           <article class="question exam-question" :class="'layout-' + questionData(questionState).layout"
                    :id="'exam-question-' + questionIndex">
             <div class="question-text">
-              <span v-text="padNumber(questionIndex + 1) + ': '"></span><span v-html="questionData(questionState).question"></span>
+              <span v-text="displayQuestionNumber(questionState, questionIndex) + ': '"></span><span v-html="questionData(questionState).question"></span>
             </div>
             <div v-if="questionData(questionState).picture" class="question-picture">
               <img :src="'pictures/' + questionData(questionState).picture + '.svg'"
@@ -187,8 +248,8 @@
 
         <div class="border-top pt-3 mb-5 d-flex flex-wrap gap-2 align-items-center justify-content-end">
           <template v-if="currentPart.status === 'running'">
-            <span class="me-auto"><b v-text="answeredCount"></b> von 25 Fragen beantwortet.</span>
-            <button type="button" class="btn btn-primary" @click="requestSubmit">Prüfungsteil abgeben</button>
+            <span class="me-auto"><b v-text="answeredCount"></b> von <span v-text="currentQuestionCount"></span> Fragen beantwortet.</span>
+            <button type="button" class="btn btn-primary" @click="requestSubmit" v-text="isHomework ? 'Hausaufgabe abgeben' : 'Prüfungsteil abgeben'"></button>
           </template>
           <template v-else-if="isReviewing">
             <button type="button" class="btn btn-primary" @click="showSummary">Zurück zum Gesamtergebnis</button>
@@ -198,17 +259,18 @@
             <button type="button" class="btn btn-outline-secondary" @click="finishExamEarly">Simulation hier beenden</button>
           </template>
           <template v-else>
-            <button type="button" class="btn btn-primary" @click="showSummary">Gesamtergebnis anzeigen</button>
+            <button type="button" class="btn btn-primary" @click="showSummary" v-text="isHomework ? 'Ergebnis anzeigen' : 'Gesamtergebnis anzeigen'"></button>
           </template>
         </div>
       </main>
 
-      <aside class="exam-answer-sheet" aria-label="Antwortbogen">
+      <aside class="exam-answer-sheet" :class="{ 'exam-answer-sheet-homework': isHomework }" aria-label="Antwortbogen">
         <div class="border border-dark bg-white p-2">
           <h2 class="h5 text-center">Antwortbogen</h2>
           <div class="border-top border-bottom border-dark py-1 mb-2">
             <strong class="d-block" v-text="currentPartDefinition.label"></strong>
-            <small><span v-text="currentPartDefinition.minutes"></span> Minuten · 25 Fragen</small>
+            <small v-if="isHomework"><span v-text="currentQuestionCount"></span> Fragen · ohne Zeitlimit</small>
+            <small v-else><span v-text="currentPartDefinition.minutes"></span> Minuten · 25 Fragen</small>
           </div>
           <table class="answer-table">
             <thead><tr><th>Nr.</th><th v-for="label in answerLabels" :key="label" v-text="label"></th></tr></thead>
@@ -216,20 +278,20 @@
               <tr v-for="(question, questionIndex) in currentPart.questions" :key="question.id">
                 <th scope="row">
                   <button type="button" class="answer-number" @click="scrollToQuestion(questionIndex)"
-                          :aria-label="'Zu Frage ' + (questionIndex + 1)" v-text="padNumber(questionIndex + 1)"></button>
+                          :aria-label="'Zu Frage ' + displayQuestionNumber(question, questionIndex)" v-text="displayQuestionNumber(question, questionIndex)"></button>
                 </th>
                 <td v-for="(_, answerIndex) in answerLabels" :key="answerIndex"
                     :class="answerCellClass(questionIndex, answerIndex)">
                   <button type="button" class="answer-mark"
                           :disabled="currentPart.status !== 'running' || currentPart.paused"
                           @click="selectAnswer(questionIndex, answerIndex)"
-                          :aria-label="'Frage ' + (questionIndex + 1) + ', Antwort ' + answerLabels[answerIndex]"
+                          :aria-label="'Frage ' + displayQuestionNumber(question, questionIndex) + ', Antwort ' + answerLabels[answerIndex]"
                           v-html="answerMark(questionIndex, answerIndex)"></button>
                 </td>
               </tr>
             </tbody>
           </table>
-          <small class="d-block text-end mt-1"><b v-text="answeredCount"></b> von 25 beantwortet</small>
+          <small class="d-block text-end mt-1"><b v-text="answeredCount"></b> von <span v-text="currentQuestionCount"></span> beantwortet</small>
         </div>
       </aside>
     </div>
