@@ -165,7 +165,7 @@ class Build:
             page_scripts=[
                 "assets/vue.global.prod.js",
                 "assets/question-catalog.js?ts=20260806",
-                "assets/exam-simulator.js?ts=202608063",
+                "assets/exam-simulator.js?ts=202608064",
             ],
         )
         with (self.config.p_build / "simulation.html").open("w", encoding="utf-8") as file:
@@ -180,7 +180,7 @@ class Build:
                 page_scripts=[
                     "assets/vue.global.prod.js",
                     "assets/question-catalog.js?ts=20260806",
-                    "assets/exam-simulator.js?ts=202608063",
+                    "assets/exam-simulator.js?ts=202608064",
                 ],
                 social_image=f"assets/images/{social_image.name}",
             )

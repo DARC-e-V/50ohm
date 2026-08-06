@@ -703,9 +703,13 @@
           }
           var homeworkMode = stored.session.mode === "homework";
           var choice = EXAM_CHOICES.find(function (item) { return item.id === stored.session.choiceId; });
+          var homeworkRequested = homeworkQuestionIds.length > 0;
           var homeworkMatches = homeworkMode && (allowHomeworkResult || (homeworkQuestionIds.length > 0 &&
             JSON.stringify(stored.session.homeworkIds) === JSON.stringify(homeworkQuestionIds)));
-          var valid = (homeworkMatches || choice) && stored.session.parts.every(function (part) {
+          var requestedSessionMatches = allowHomeworkResult
+            ? (homeworkMatches || choice)
+            : (homeworkRequested ? homeworkMatches : (!homeworkMode && choice));
+          var valid = requestedSessionMatches && stored.session.parts.every(function (part) {
             return Array.isArray(part.questions) && (homeworkMode || part.questions.length === QUESTION_COUNT) && part.questions.every(function (question) {
               return Boolean(catalog.value[question.id]);
             });
