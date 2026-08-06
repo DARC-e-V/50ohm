@@ -508,6 +508,12 @@
       function showSummary() {
         reviewPartIndex.value = null;
         view.value = "summary";
+        if (completedResultUrl.value) {
+          var target = new URL(completedResultUrl.value);
+          if (window.location.pathname !== target.pathname || window.location.search !== target.search) {
+            window.location.assign(target.toString());
+          }
+        }
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
@@ -548,6 +554,9 @@
         var questionIds = session.value && session.value.homeworkIds;
         if (!questionIds) return;
         clearStoredSession();
+        var homeworkUrl = new URL("simulation.html", window.location.href);
+        homeworkUrl.search = "?homework=" + questionIds.join("+");
+        window.history.replaceState(null, "", homeworkUrl.toString());
         startHomework(questionIds);
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -598,9 +607,18 @@
         return "1." + result.choice.id + "." + result.scores.join(".");
       }
 
-      var resultForSharing = computed(function () {
-        if (sharedResult.value) return sharedResult.value;
-        if (!session.value || view.value !== "summary") return null;
+      function resultImageCode(result) {
+        if (!result) return "";
+        if (result.kind === "homework") return result.score === result.total ? "aenbv" : "";
+        if (!result.passed) return "";
+        var order = ["A", "E", "N", "B", "V"];
+        return order.filter(function (part) {
+          return result.choice.parts.indexOf(part) !== -1;
+        }).join("").toLowerCase();
+      }
+
+      function shareableSessionResult() {
+        if (!session.value) return null;
         if (isHomework.value) {
           return { kind: "homework", score: session.value.parts[0].score, total: session.value.parts[0].questions.length };
         }
@@ -611,13 +629,33 @@
           scores: session.value.parts.map(function (part) { return part.score; }),
           passed: overallState.value === "passed"
         };
+      }
+
+      var resultForSharing = computed(function () {
+        if (sharedResult.value) return sharedResult.value;
+        if (view.value !== "summary") return null;
+        return shareableSessionResult();
+      });
+
+      function buildResultUrl(result) {
+        if (!result) return "";
+        var imageCode = resultImageCode(result);
+        var url = new URL(imageCode ? "result-" + imageCode + ".html" : "result.html", window.location.href);
+        url.search = "?result=" + encodedResult(result);
+        return url.toString();
+      }
+
+      var completedResultUrl = computed(function () {
+        return buildResultUrl(shareableSessionResult());
       });
 
       var resultShareUrl = computed(function () {
-        if (!resultForSharing.value) return "";
-        var url = new URL("simulation.html", window.location.href);
-        url.search = "?result=" + encodedResult(resultForSharing.value);
-        return url.toString();
+        return buildResultUrl(resultForSharing.value);
+      });
+
+      var resultImageUrl = computed(function () {
+        var imageCode = resultImageCode(resultForSharing.value);
+        return imageCode ? "assets/images/exam-" + imageCode + ".jpeg" : "";
       });
 
       var shareText = computed(function () {
@@ -654,17 +692,7 @@
         navigator.share({ title: "50ohm.de-Ergebnis", text: shareText.value, url: resultShareUrl.value }).catch(function () {});
       }
 
-      function shareMatrix() {
-        if (navigator.share) {
-          navigator.share({ title: "50ohm.de-Ergebnis", text: shareText.value, url: resultShareUrl.value }).catch(function () {});
-          return;
-        }
-        copyText(shareText.value + " " + resultShareUrl.value).finally(function () {
-          window.open("https://chat.darc.de", "_blank", "noopener");
-        });
-      }
-
-      function restoreSession(homeworkQuestionIds) {
+      function restoreSession(homeworkQuestionIds, allowHomeworkResult) {
         try {
           var raw = window.localStorage.getItem(STORAGE_KEY);
           if (!raw) return;
@@ -675,8 +703,8 @@
           }
           var homeworkMode = stored.session.mode === "homework";
           var choice = EXAM_CHOICES.find(function (item) { return item.id === stored.session.choiceId; });
-          var homeworkMatches = homeworkMode && homeworkQuestionIds.length > 0 &&
-            JSON.stringify(stored.session.homeworkIds) === JSON.stringify(homeworkQuestionIds);
+          var homeworkMatches = homeworkMode && (allowHomeworkResult || (homeworkQuestionIds.length > 0 &&
+            JSON.stringify(stored.session.homeworkIds) === JSON.stringify(homeworkQuestionIds)));
           var valid = (homeworkMatches || choice) && stored.session.parts.every(function (part) {
             return Array.isArray(part.questions) && (homeworkMode || part.questions.length === QUESTION_COUNT) && part.questions.every(function (question) {
               return Boolean(catalog.value[question.id]);
@@ -743,8 +771,16 @@
             var homeworkQuestionIds = parseHomeworkQuestionIds();
             if (queryValue("result")) {
               if (!parsedResult) throw new Error("Der Ergebnislink ist ungültig.");
-              sharedResult.value = parsedResult;
-              view.value = "shared";
+              restoreSession([], true);
+              var storedResult = shareableSessionResult();
+              if (storedResult && encodedResult(storedResult) === queryValue("result")) {
+                sharedResult.value = null;
+                view.value = "summary";
+              } else {
+                session.value = null;
+                sharedResult.value = parsedResult;
+                view.value = "shared";
+              }
             } else {
               restoreSession(homeworkQuestionIds);
               if (homeworkQuestionIds.length > 0 && !session.value) startHomework(homeworkQuestionIds);
@@ -841,12 +877,13 @@
         resultIcon: resultIcon,
         resultDescription: resultDescription,
         resultForSharing: resultForSharing,
+        completedResultUrl: completedResultUrl,
         resultShareUrl: resultShareUrl,
+        resultImageUrl: resultImageUrl,
         shareText: shareText,
         socialShareLinks: socialShareLinks,
         copyResultLink: copyResultLink,
-        shareNative: shareNative,
-        shareMatrix: shareMatrix
+        shareNative: shareNative
       };
     }
   });

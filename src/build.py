@@ -129,6 +129,7 @@ class Build:
         sidebar=None,
         page_stylesheets=None,
         page_scripts=None,
+        social_image=None,
     ):
         page_template = self.env.get_template("html/page.html")
         return page_template.render(
@@ -137,6 +138,7 @@ class Build:
             sidebar=sidebar,
             page_stylesheets=page_stylesheets or [],
             page_scripts=page_scripts or [],
+            social_image=social_image,
         )
 
     def __build_exam_simulator(self):
@@ -163,11 +165,28 @@ class Build:
             page_scripts=[
                 "assets/vue.global.prod.js",
                 "assets/question-catalog.js?ts=20260806",
-                "assets/exam-simulator.js?ts=20260806",
+                "assets/exam-simulator.js?ts=202608063",
             ],
         )
         with (self.config.p_build / "simulation.html").open("w", encoding="utf-8") as file:
             file.write(page)
+        with (self.config.p_build / "result.html").open("w", encoding="utf-8") as file:
+            file.write(page)
+
+        for social_image in sorted((self.config.p_assets / "images").glob("exam-*.jpeg")):
+            result_page = self.__build_page(
+                content,
+                page_stylesheets=["assets/exam-simulator.css?ts=20260806"],
+                page_scripts=[
+                    "assets/vue.global.prod.js",
+                    "assets/question-catalog.js?ts=20260806",
+                    "assets/exam-simulator.js?ts=202608063",
+                ],
+                social_image=f"assets/images/{social_image.name}",
+            )
+            result_name = f"result-{social_image.stem.removeprefix('exam-')}.html"
+            with (self.config.p_build / result_name).open("w", encoding="utf-8") as file:
+                file.write(result_page)
 
     def __build_homework_tool(self):
         toc_target = self.config.p_build_assets / "toc"
@@ -182,7 +201,7 @@ class Build:
             page_scripts=[
                 "assets/vue.global.prod.js",
                 "assets/question-catalog.js?ts=20260806",
-                "assets/homework.js?ts=20260806",
+                "assets/homework.js?ts=202608061",
             ],
         )
         with (self.config.p_build / "hausaufgabe.html").open("w", encoding="utf-8") as file:

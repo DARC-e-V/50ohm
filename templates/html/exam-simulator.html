@@ -36,16 +36,19 @@
         </table>
       </div>
     </template>
+    <img v-if="resultImageUrl" class="img-fluid border mb-4" :src="resultImageUrl"
+         alt="50ohm.de-Prüfungssimulation">
     <div v-if="resultForSharing" class="border-top pt-3 mt-3">
       <h2 class="h5">Ergebnis teilen</h2>
       <div class="d-flex flex-wrap gap-2">
-        <button type="button" class="btn btn-outline-secondary btn-sm" @click="shareNative">Teilen …</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center" @click="shareNative">
+          <span class="material-icons fs-6 me-1" aria-hidden="true">share</span> Teilen …
+        </button>
         <button type="button" class="btn btn-outline-secondary btn-sm" @click="copyResultLink">Link kopieren</button>
-        <button type="button" class="btn btn-outline-secondary btn-sm" @click="shareMatrix" title="Über die Teilen-Funktion an Element senden">Matrix / Element</button>
         <a class="btn btn-outline-secondary btn-sm" :href="socialShareLinks.mastodon" target="_blank" rel="noopener noreferrer">Mastodon</a>
         <a class="btn btn-outline-secondary btn-sm" :href="socialShareLinks.bluesky" target="_blank" rel="noopener noreferrer">Bluesky</a>
         <a class="btn btn-outline-secondary btn-sm" :href="socialShareLinks.facebook" target="_blank" rel="noopener noreferrer">Facebook</a>
-        <a class="btn btn-outline-secondary btn-sm" :href="socialShareLinks.x" target="_blank" rel="noopener noreferrer">X</a>
+        <a class="btn btn-outline-secondary btn-sm" :href="socialShareLinks.x" target="_blank" rel="noopener noreferrer">X (ehem. Twitter)</a>
       </div>
       <small v-if="shareMessage" class="d-block mt-2" role="status" v-text="shareMessage"></small>
     </div>
@@ -145,16 +148,19 @@
         </tbody>
       </table>
     </div>
+    <img v-if="resultImageUrl" class="img-fluid border mb-4" :src="resultImageUrl"
+         alt="50ohm.de-Prüfungssimulation">
     <div v-if="resultForSharing" class="border-top pt-3 mt-3">
       <h2 class="h5">Ergebnis teilen</h2>
       <div class="d-flex flex-wrap gap-2">
-        <button type="button" class="btn btn-outline-secondary btn-sm" @click="shareNative">Teilen …</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center" @click="shareNative">
+          <span class="material-icons fs-6 me-1" aria-hidden="true">share</span> Teilen …
+        </button>
         <button type="button" class="btn btn-outline-secondary btn-sm" @click="copyResultLink">Link kopieren</button>
-        <button type="button" class="btn btn-outline-secondary btn-sm" @click="shareMatrix" title="Über die Teilen-Funktion an Element senden">Matrix / Element</button>
         <a class="btn btn-outline-secondary btn-sm" :href="socialShareLinks.mastodon" target="_blank" rel="noopener noreferrer">Mastodon</a>
         <a class="btn btn-outline-secondary btn-sm" :href="socialShareLinks.bluesky" target="_blank" rel="noopener noreferrer">Bluesky</a>
         <a class="btn btn-outline-secondary btn-sm" :href="socialShareLinks.facebook" target="_blank" rel="noopener noreferrer">Facebook</a>
-        <a class="btn btn-outline-secondary btn-sm" :href="socialShareLinks.x" target="_blank" rel="noopener noreferrer">X</a>
+        <a class="btn btn-outline-secondary btn-sm" :href="socialShareLinks.x" target="_blank" rel="noopener noreferrer">X (ehem. Twitter)</a>
       </div>
       <small v-if="shareMessage" class="d-block mt-2" role="status" v-text="shareMessage"></small>
     </div>
@@ -191,8 +197,9 @@
         <span v-else-if="currentPart.status !== 'running'" class="btn btn-secondary btn-sm d-inline-flex align-items-center">Abgegeben</span>
         <button v-if="currentPart.status === 'evaluated' && !isReviewing && hasNextPart"
                 type="button" class="btn btn-primary btn-sm" @click="startNextPart">Nächsten Teil starten</button>
-        <button v-else-if="currentPart.status === 'evaluated' && !isReviewing"
-                type="button" class="btn btn-primary btn-sm" @click="showSummary" v-text="isHomework ? 'Ergebnis' : 'Gesamtergebnis'"></button>
+        <a v-else-if="currentPart.status === 'evaluated' && !isReviewing"
+           class="btn btn-primary btn-sm" :href="completedResultUrl"
+           v-text="isHomework ? 'Ergebnis' : 'Gesamtergebnis'"></a>
         <button v-else-if="isReviewing" type="button" class="btn btn-primary btn-sm" @click="showSummary">Gesamtergebnis</button>
         <button type="button" class="btn btn-secondary btn-sm d-inline-flex align-items-center" @click="abortExam"
                 v-text="isHomework ? 'Hausaufgabe abbrechen' : 'Simulation abbrechen'"></button>
@@ -259,7 +266,8 @@
             <button type="button" class="btn btn-outline-secondary" @click="finishExamEarly">Simulation hier beenden</button>
           </template>
           <template v-else>
-            <button type="button" class="btn btn-primary" @click="showSummary" v-text="isHomework ? 'Ergebnis anzeigen' : 'Gesamtergebnis anzeigen'"></button>
+            <a class="btn btn-primary" :href="completedResultUrl"
+               v-text="isHomework ? 'Ergebnis anzeigen' : 'Gesamtergebnis anzeigen'"></a>
           </template>
         </div>
       </main>
