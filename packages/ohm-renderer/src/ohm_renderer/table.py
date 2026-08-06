@@ -1,7 +1,7 @@
 import re
 from contextlib import suppress
 from enum import StrEnum
-from itertools import zip_longest
+from itertools import chain, repeat
 
 from mistletoe import block_token
 
@@ -51,23 +51,19 @@ class TableRow(block_token.TableRow):
         ``Table.parse_alignment`` first, and body cells must not go through that.
         """
         self.row_alignment = row_alignment or [None]
+        self.row_align = [MISTLETOE_ALIGNMENT.get(alignment) for alignment in self.row_alignment]
         self.line_number = line_number
-        # The header defines the column count, so a shorter row is padded with empty
-        # cells and any surplus cell is dropped.
+        # zip uses the column count from the header, chain + repeat("") fills up empty columns.
+        # Additional cells are dropped.
         self.children = [
-            TableCell(cell or "", alignment, line_number)
-            for cell, alignment in zip_longest(cells[: len(self.row_alignment)], self.row_alignment)
+            TableCell(cell, alignment, line_number)
+            for alignment, cell in zip(self.row_alignment, chain(cells, repeat("")), strict=False)
         ]
-
-    @property
-    def row_align(self) -> list[int | None]:
-        return [MISTLETOE_ALIGNMENT.get(alignment) for alignment in self.row_alignment]
 
     @classmethod
     def split(cls, line: str) -> list[str]:
         cells = cls.split_pattern.split(line.strip())
         # Outer pipes produce empty entries, but they are not real cells and need to be removed from the output.
-        # TODO: Check edge case ||cell| -> should generate 2 cells
         if cells and cells[0] == "":
             cells = cells[1:]
         if cells and cells[-1] == "":
@@ -77,7 +73,7 @@ class TableRow(block_token.TableRow):
 
 
 class Table(ReferencedToken, block_token.Table):
-    alignment_pattern = re.compile(r"^ ?(?:([lcrX]):)? ?(.*)")
+    alignment_pattern = re.compile(rf"^ ?(?:([{''.join(CellAlignment)}]):)? ?(.*)")
     caption_pattern = re.compile(r"\[table:([^:\]]+):([^:\]]+)\]")
 
     @staticmethod
@@ -108,38 +104,29 @@ class Table(ReferencedToken, block_token.Table):
         caption = ""
 
         # Read table until the end: No more column definitions, caption, or empty line.
-        next_line = lines.peek()
-        while next_line is not None and next_line.strip() != "":
-            maybe_caption = cls.caption_pattern.match(next_line.strip())
-            if maybe_caption is not None:
+        while (next_line := lines.peek()) is not None:
+            if maybe_caption := cls.caption_pattern.match(next_line.strip()):
                 name, caption = maybe_caption.group(1, 2)
                 next(lines)
                 break
-            elif "|" not in next_line:
+            if "|" not in next_line:
                 break
-            else:
-                line_buffer.append(next(lines))
-                next_line = lines.peek()
+            line_buffer.append(next(lines))
 
         return line_buffer, start_line, name, caption
 
     def __init__(self, match):
         lines, start_line, name, caption = match
         super().__init__(name)
-        self.name = name
         self.caption = caption
 
         cells, alignment = self.parse_alignment(lines[0])
         # A header without a single cell still spans one, unaligned column. Without this
         # the table would have no column at all and LaTeX an empty tabularx preamble.
-        # TODO: Check if it’s even possible to have an header without a cell.
         self.column_alignment = alignment or [None]
         self.header = TableRow(cells, self.column_alignment, start_line)
+        self.column_align = self.header.row_align
         self.children = [
             TableRow(TableRow.split(line), self.column_alignment, start_line + offset)
             for offset, line in enumerate(lines[1:], start=1)
         ]
-
-    @property
-    def column_align(self) -> list[int | None]:
-        return [MISTLETOE_ALIGNMENT.get(alignment) for alignment in self.column_alignment]

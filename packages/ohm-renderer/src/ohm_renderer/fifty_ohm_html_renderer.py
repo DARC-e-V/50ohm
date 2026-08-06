@@ -270,15 +270,15 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     def render_table(self, token: Table):
         # Add id and name attributes if table has a name
         table_attrs = ""
-        if token.name:
-            table_attrs = f' id="ref_{token.name}" name="{token.name}"'
+        if token.marker:
+            table_attrs = f' id="ref_{token.marker}" name="{token.marker}"'
 
         table = f'<table class="table table-hover"{table_attrs}>\n'
 
         if token.caption != "":
             # Include hierarchical number in caption if the table is named.
             caption_text = token.caption
-            label = self._format_reference_label(token.name)
+            label = self._format_reference_label(token.marker)
             if label:
                 caption_text = f"Tabelle {label}: {token.caption}"
             # HTML requires the caption to be the first child of the table.

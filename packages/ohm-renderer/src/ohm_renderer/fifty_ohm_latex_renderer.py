@@ -136,7 +136,7 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
 
         if token.caption != "":
             table += f"\\captionof{{figure}}{{{token.caption}}}\n"
-            table += f"\\label{{{token.name}}}\n"
+            table += f"\\label{{{token.marker}}}\n"
 
         return table
 
