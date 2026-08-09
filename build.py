@@ -16,4 +16,6 @@ bd.build_assets()
 bd.build_solutions()
 bd.build_question_index()
 bd.build_index()
+# Generate sitemap and robots.txt before packaging
+bd.build_sitemap()
 bd.build_zip()
