@@ -226,7 +226,13 @@ class Build:
                     title=next_chapter["title"],
                 )
 
-            result = self.__build_page(result, course_wrapper=True)
+            page_url = f"{edition}_chapter_{chapter['ident']}.html"
+            page_title = f"{edition_name} — {chapter.get('title', '')}"
+            breadcrumbs = [
+                {"name": edition_name, "url": f"{edition}_course_index.html"},
+                {"name": chapter.get('title', ''), "url": page_url},
+            ]
+            result = self.__build_page(result, course_wrapper=True, page_title=page_title, page_url=page_url, breadcrumbs=breadcrumbs)
             file.write(result)
 
     def __include_handler(self, include):
@@ -290,7 +296,15 @@ class Build:
                         title=next_chapter["title"],
                     )
 
-                result = self.__build_page(result, course_wrapper=True)
+                page_url = section_filename
+                page_title = f"{edition_name} — {chapter.get('title','')} — {section.get('title','')}"
+                breadcrumbs = [
+                    {"name": edition_name, "url": f"{edition}_course_index.html"},
+                    {"name": chapter.get('title',''), "url": f"{edition}_chapter_{chapter['ident']}.html"},
+                    {"name": section.get('title',''), "url": page_url},
+                ]
+
+                result = self.__build_page(result, course_wrapper=True, page_title=page_title, page_url=page_url, breadcrumbs=breadcrumbs)
                 file.write(result)
 
     def __build_chapter_slidedeck(
@@ -351,7 +365,15 @@ class Build:
                 chapter=chapter,
             )
 
+            page_url = slide_filename
+            page_title = f"{edition} Slides — {chapter.get('title','')}"
+            breadcrumbs = [
+                {"name": edition, "url": f"{edition}_slide_index.html"},
+                {"name": chapter.get('title',''), "url": page_url},
+            ]
             result = slide_template.render(content=result)
+            # slide_template produces full page HTML; inject SEO via __build_page to wrap it
+            result = self.__build_page(result, page_title=page_title, page_url=page_url, breadcrumbs=breadcrumbs)
             file.write(result)
 
     def __filter_shuffle_answers(self, seq):
@@ -372,7 +394,10 @@ class Build:
             result = template.render(
                 book=book,
             )
-            result = self.__build_page(result)
+            page_title = f"{book['title']}"
+            page_url = f"{book['edition']}_course_index.html"
+            breadcrumbs = [{"name": book['title'], "url": page_url}]
+            result = self.__build_page(result, page_title=page_title, page_url=page_url, breadcrumbs=breadcrumbs)
             file.write(result)
 
     def __build_slide_index(self, book):
@@ -381,7 +406,10 @@ class Build:
             result = template.render(
                 book=book,
             )
-            result = self.__build_page(result)
+            page_title = f"Slides — {book['title']}"
+            page_url = f"{book['edition']}_slide_index.html"
+            breadcrumbs = [{"name": book['title'], "url": page_url}]
+            result = self.__build_page(result, page_title=page_title, page_url=page_url, breadcrumbs=breadcrumbs)
             file.write(result)
 
     def build_edition(self, edition: str):
@@ -525,7 +553,9 @@ class Build:
         result = template.render({"snippets": snippets})
 
         with (self.config.p_build / "index.html").open("w", encoding="utf-8") as file:
-            result = self.__build_page(result)
+            page_title = "Startseite"
+            page_url = "index.html"
+            result = self.__build_page(result, page_title=page_title, page_url=page_url, breadcrumbs=[])
 
             file.write(result)
 
@@ -534,14 +564,20 @@ class Build:
         result = template.render({"snippets": snippets})
 
         with (self.config.p_build / f"{page}.html").open("w", encoding="utf-8") as file:
-            result = self.__build_page(result)
+            page_title = page.replace('_', ' ').capitalize()
+            page_url = f"{page}.html"
+            breadcrumbs = [{"name": page_title, "url": page_url}]
+            result = self.__build_page(result, page_title=page_title, page_url=page_url, breadcrumbs=breadcrumbs)
             file.write(result)
 
     def __build_html_page(self, contents, page):
         for content in contents:
             if content["url_part"] == page:
                 with (self.config.p_build / f"{page}.html").open("w", encoding="utf-8") as file:
-                    result = self.__build_page(content=content["content"], sidebar=content["sidebar"])
+                    page_title = page.replace('_', ' ').capitalize()
+                    page_url = f"{page}.html"
+                    breadcrumbs = [{"name": page_title, "url": page_url}]
+                    result = self.__build_page(content=content["content"], sidebar=content["sidebar"], page_title=page_title, page_url=page_url, breadcrumbs=breadcrumbs)
                     file.write(result)
 
     def build_website(self):
@@ -575,7 +611,10 @@ class Build:
                         solution_template = self.env.get_template("html/solution.html")
                         solution = renderer.render(Document(content))
                         page = solution_template.render(question=question, solution=solution, number=solution_file.stem)
-                        page = self.__build_page(page, course_wrapper=False)
+                        page_title = f"Lösung {solution_file.stem}"
+                        page_url = f"{solution_file.stem}.html"
+                        breadcrumbs = [{"name": page_title, "url": page_url}]
+                        page = self.__build_page(page, course_wrapper=False, page_title=page_title, page_url=page_url, breadcrumbs=breadcrumbs)
                         file.write(page)
 
     def __collect_question_occurrences(
