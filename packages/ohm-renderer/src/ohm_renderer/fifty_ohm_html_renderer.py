@@ -1,5 +1,6 @@
 import re
 from importlib.resources import files
+from textwrap import indent
 
 from jinja2 import Environment, FileSystemLoader
 from mistletoe import HtmlRenderer
@@ -7,6 +8,7 @@ from mistletoe import HtmlRenderer
 from .comment import BlockComment
 from .dash import Dash
 from .document import Document
+from .figure import Figure
 from .formula import Formula
 from .halfwidth_spaces import HalfwidthSpaces
 from .image import Image
@@ -86,14 +88,14 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         # Set section URL if provided, otherwise use default
         self.section_url = section_url if section_url is not None else "section.html"
 
-        self.references: dict[str, str] = {}
+        self.figures: dict[str, str] = {}
 
         # Keep track of index ids already emitted in this document.
         self.index_anchor_ids = set()
 
-    def _format_reference_label(self, marker: str):
-        if marker in self.references:
-            label = self.references[marker]
+    def _format_figure_label(self, marker: str):
+        if marker in self.figures:
+            label = self.figures[marker]
             if self.edition and self.chapter and self.section:
                 label = f"{self.edition}-{self.chapter}.{self.section}.{label}"
             return label
@@ -216,7 +218,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
 
     def render_reference(self, token: Reference):
         # Look up the figure number from the map
-        label = self._format_reference_label(token.marker) or "?"
+        label = self._format_figure_label(token.marker) or "?"
         return (
             f'<a href="{self.section_url}#ref_{token.marker}" onclick="highlightRef(\'{token.marker}\');">{label}</a>'
         )
@@ -225,7 +227,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return self.question_renderer(token.question_number)
 
     def render_document(self, token: Document) -> str:
-        self.references.update(token.references)
+        self.figures.update(token.figures)
         self.footnotes.update(token.footnotes)
         inner = self.render_inner(token, "\n")
         return f"{inner}\n" if inner else ""
@@ -234,63 +236,43 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         # Filter out None values, so block tokens can return None to not be rendered.
         return base.join(filter(lambda x: x is not None, [self.render(child) for child in token.children]))
 
-    def render_picture_helper(self, id, marker, text, label, alt_text):
-        return (
-            f'<figure class="picture" id="ref_{marker}" name="{marker}">\n'
-            f'  <img src="pictures/{id}.svg" alt="{alt_text}">\n'
-            f"  <figcaption>Abbildung {label}: {text}</figcaption>\n"
-            "</figure>\n"
-        )
+    def render_figure(self, token: Figure, inner: str, caption_prefix: str, css_class: str | None = None) -> str:
+        label = self._format_figure_label(token.marker) or "?"
 
-    @staticmethod
-    def render_photo_helper(id, ref, text, label, alt_text):
-        return f"""
-                <figure class="photo" id="ref_{ref}" name="{ref}">
-                    <img src="photos/{id}.png" alt="{alt_text}">
-                    <figcaption>Abbildung {label}: {text}</figcaption>
-                </figure>
-            """
+        attributes = f' class="{css_class}"' if css_class else ""
+        if token.marker:
+            attributes += f' id="ref_{token.marker}"'
+
+        body = f"{inner}\n<figcaption>{caption_prefix} {label}: {token.caption}</figcaption>"
+
+        return f"<figure{attributes}>\n{indent(body, '  ')}\n</figure>"
 
     def render_image(self, token: Image):
-        label = self._format_reference_label(token.marker) or "?"
-
         # Only supported kinds are photo and picture
         if token.kind == "photo":
-            alt_text = ""
-            if self.photo_handler is not None:
-                alt_text = self.photo_handler(token.id) or alt_text
-            return self.render_photo_helper(token.id, token.marker, token.text, label, alt_text)
-        if token.kind == "picture":
-            alt_text = ""
-            if self.picture_handler is not None:
-                alt_text = self.picture_handler(token.id)
-            return self.render_picture_helper(token.id, token.marker, token.text, label, alt_text)
-        return ""
+            handler, source = self.photo_handler, f"photos/{token.id}.png"
+        elif token.kind == "picture":
+            handler, source = self.picture_handler, f"pictures/{token.id}.svg"
+        else:
+            return ""
+
+        alt_text = handler(token.id) or "" if handler is not None else ""
+
+        # The kind doubles as the figure's class, so pictures and photos stay styleable apart.
+        return self.render_figure(token, f'<img src="{source}" alt="{alt_text}">', "Abbildung", token.kind)
 
     def render_table(self, token: Table):
-        # Add id and name attributes if table has a name
-        table_attrs = ""
-        if token.marker:
-            table_attrs = f' id="ref_{token.marker}" name="{token.marker}"'
-
-        table = f'<table class="table table-hover"{table_attrs}>\n'
-
-        if token.caption != "":
-            # Include hierarchical number in caption if the table is named.
-            caption_text = token.caption
-            label = self._format_reference_label(token.marker)
-            if label:
-                caption_text = f"Tabelle {label}: {token.caption}"
-            # HTML requires the caption to be the first child of the table.
-            table += f"<caption>{caption_text}</caption>\n"
-
+        table = '<table class="table table-hover">\n'
         table += f"<thead>\n{self.render_table_row(token.header, is_header=True)}</thead>\n"
         if token.children:
             table += f"<tbody>\n{self.render_inner(token)}</tbody>\n"
-
         table += "</table>"
 
-        return table
+        # Only a captioned table becomes a figure, the caption pattern always yields a marker too.
+        if token.caption == "":
+            return table
+
+        return self.render_figure(token, table, "Tabelle")
 
     def render_table_cell(self, token: TableCell, in_header=False):
         tag = "th" if in_header else "td"

@@ -442,10 +442,6 @@ body:after {
 }
 
 /* table settings */
-.table_label {
-    font-style: italic;
-}
-
 .table_inner {
     padding: 1ex;
     background: #ddd;
@@ -506,14 +502,12 @@ body:after {
     max-height: 25vh;
 }
 
-/* photos and pictures */
-.photo,
-.picture {
+/* photos, pictures and tables */
+figure {
     margin-bottom: 6ex;
 }
 
-.photo img,
-.picture img {
+figure img {
     display: block;
     max-width: min(89%, 800px);
     max-height: 60vh;
@@ -522,8 +516,7 @@ body:after {
     margin-right: auto;
 }
 
-.photo figcaption,
-.picture figcaption {
+figcaption {
     font-style: italic;
     font-size: 0.5em;
     text-align: center;

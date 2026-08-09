@@ -22,8 +22,8 @@ Reference to second: [ref:pic2]
     doc = Document(markdown_text)
 
     # Counter is assigned in document order during parsing.
-    assert doc.references["pic1"] == "1"
-    assert doc.references["pic2"] == "2"
+    assert doc.figures["pic1"] == "1"
+    assert doc.figures["pic2"] == "2"
 
     result = renderer.render(doc)
 
@@ -50,8 +50,8 @@ Reference: [ref:photo1]
     renderer = FiftyOhmHtmlRenderer(edition="N", chapter="1", section="2")
     doc = Document(markdown_text)
 
-    assert doc.references["photo1"] == "1"
-    assert doc.references["photo2"] == "2"
+    assert doc.figures["photo1"] == "1"
+    assert doc.figures["photo2"] == "2"
 
     result = renderer.render(doc)
 
@@ -78,8 +78,8 @@ Reference: [ref:table1]
     renderer = FiftyOhmHtmlRenderer(edition="A", chapter="3", section="1")
     doc = Document(markdown_text)
 
-    assert doc.references["table1"] == "1"
-    assert doc.references["table2"] == "2"
+    assert doc.figures["table1"] == "1"
+    assert doc.figures["table2"] == "2"
 
     result = renderer.render(doc)
 
@@ -109,10 +109,10 @@ References: [ref:pic1], [ref:photo1], [ref:tab1], [ref:pic2]
     doc = Document(markdown_text)
 
     # All types share the same counter, assigned in document order.
-    assert doc.references["pic1"] == "1"
-    assert doc.references["photo1"] == "2"
-    assert doc.references["tab1"] == "3"
-    assert doc.references["pic2"] == "4"
+    assert doc.figures["pic1"] == "1"
+    assert doc.figures["photo1"] == "2"
+    assert doc.figures["tab1"] == "3"
+    assert doc.figures["pic2"] == "4"
 
     result = renderer.render(doc)
 
@@ -187,7 +187,7 @@ def test_table_without_name_not_numbered():
     doc = Document(markdown_text)
 
     # Only the picture is registered.
-    assert doc.references == {"pic1": "1"}
+    assert doc.figures == {"pic1": "1"}
 
     result = renderer.render(doc)
 

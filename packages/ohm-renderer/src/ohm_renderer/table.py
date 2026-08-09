@@ -5,7 +5,7 @@ from itertools import chain, repeat
 
 from mistletoe import block_token
 
-from ohm_renderer.referenced_token import ReferencedToken
+from ohm_renderer.figure import Figure
 
 
 def unregister_gfm_table() -> None:
@@ -72,7 +72,7 @@ class TableRow(block_token.TableRow):
         return [cls.escaped_pipe_pattern.sub("\\1|", cell.strip()) for cell in cells]
 
 
-class Table(ReferencedToken, block_token.Table):
+class Table(Figure, block_token.Table):
     alignment_pattern = re.compile(rf"^ ?(?:([{''.join(CellAlignment)}]):)? ?(.*)")
     caption_pattern = re.compile(r"\[table:([^:\]]+):([^:\]]+)\]")
 
@@ -117,8 +117,7 @@ class Table(ReferencedToken, block_token.Table):
 
     def __init__(self, match):
         lines, start_line, name, caption = match
-        super().__init__(name)
-        self.caption = caption
+        super().__init__(name, caption)
 
         cells, alignment = self.parse_alignment(lines[0])
         # A header without a single cell still spans one, unaligned column. Without this

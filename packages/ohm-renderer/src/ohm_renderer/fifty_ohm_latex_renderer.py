@@ -119,9 +119,9 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
 
     def render_image(self, token: Image):
         if token.kind == "photo":
-            return self.render_photo_helper(token.id, token.marker, token.text, token.label)
+            return self.render_photo_helper(token.id, token.marker, token.caption, token.label)
         if token.kind == "picture":
-            return self.render_picture_helper(token.id, token.marker, token.text, token.label)
+            return self.render_picture_helper(token.id, token.marker, token.caption, token.label)
         return ""
 
     def render_table(self, token: Table):

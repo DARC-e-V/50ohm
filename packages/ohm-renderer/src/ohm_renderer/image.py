@@ -2,10 +2,10 @@ import re
 
 from mistletoe.block_tokenizer import FileWrapper
 
-from ohm_renderer.referenced_token import ReferencedToken
+from ohm_renderer.figure import Figure
 
 
-class Image(ReferencedToken):
+class Image(Figure):
     """
     Block token for pictures and photos.
     Examples:
@@ -34,7 +34,6 @@ class Image(ReferencedToken):
 
     def __init__(self, match):
         kind, id, marker, text = match
-        super().__init__(marker)
+        super().__init__(marker, text)
         self.kind = kind
         self.id = id
-        self.text = text

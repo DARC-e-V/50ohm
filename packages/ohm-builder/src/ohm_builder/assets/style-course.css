@@ -15,10 +15,6 @@
   padding-right: 0;
 }
 
-.table_label {
-  font-style: italic;
-}
-
 .question:not(.for-solution) {
   padding: 1ex;
   background: #ddd;
