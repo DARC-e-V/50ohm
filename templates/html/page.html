@@ -3,7 +3,46 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>50Ω Lernplattform für Amateurfunk</title>
+    <title>{{ page_title|default('50Ω Lernplattform für Amateurfunk') }}</title>
+    <meta name="description" content="{{ meta_description|default('50Ω Lernplattform für Amateurfunk – Online-Lernplattform mit Kursen, Prüfungsfragen und Lernmaterial für Amateurfunk.') }}">
+    <meta name="robots" content="{{ meta_robots|default('index, follow') }}">
+
+    {# JSON-LD structured data for Organization, WebSite and optional Breadcrumbs #}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "name": "50Ω Lernplattform",
+          "url": "{{ site_url }}",
+          "logo": "{{ site_url }}/assets/images/50ohm.svg",
+          "sameAs": ["https://social.darc.de/@AJW"]
+        },
+        {
+          "@type": "WebSite",
+          "url": "{{ site_url }}",
+          "name": "{{ page_title|default('50Ω Lernplattform für Amateurfunk') }}",
+          "description": "{{ meta_description|default('Online-Lernplattform für Amateurfunk.') }}",
+          "inLanguage": "de-DE"
+        }{% if breadcrumbs %},
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {% for crumb in breadcrumbs %}
+            {
+              "@type": "ListItem",
+              "position": {{ loop.index }},
+              "name": "{{ crumb.name|e }}",
+              "item": "{{ (crumb.url.startswith('http') and crumb.url) or (site_url.rstrip('/') ~ ('/' if not crumb.url.startswith('/') else '') ~ crumb.url) }}"
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+          ]
+        }
+        {% endif %}
+      ]
+    }
+    </script>
 
     <link rel="icon" href="assets/favicon/icon.png" type="image/png">
     <link rel="icon" href="assets/favicon/icon.svg" type="image/svg+xml">

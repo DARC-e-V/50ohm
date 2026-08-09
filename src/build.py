@@ -677,6 +677,60 @@ class Build:
             if edition not in index_entry["editions"]:
                 index_entry["editions"].append(edition)
 
+    def build_sitemap(self):
+        """Generate sitemap.xml and robots.txt in the build output directory.
+
+        Sitemap includes all .html files in the build directory (excluding assets/) and
+        uses site_url from configuration.
+        """
+        import os
+        from datetime import datetime
+        site_url = self.config.get_config_value("site_url", "https://50ohm.de").rstrip("/")
+        build_dir = self.config.p_build
+        urls = []
+        for root, dirs, files in os.walk(build_dir):
+            # Skip assets folder
+            rel_root = Path(root).relative_to(build_dir)
+            if str(rel_root).startswith("assets"):
+                continue
+            for fname in files:
+                if not fname.endswith(".html"):
+                    continue
+                file_path = Path(root) / fname
+                rel = file_path.relative_to(build_dir)
+                url_path = "/" + str(rel).replace("\\", "/")
+                if url_path.endswith("/index.html"):
+                    url_path = url_path[: -len("index.html")]
+                lastmod = file_path.stat().st_mtime
+
+                lastmod_iso = datetime.utcfromtimestamp(lastmod).strftime("%Y-%m-%dT%H:%M:%SZ")
+                urls.append({"loc": site_url + url_path, "lastmod": lastmod_iso})
+
+        # Build sitemap XML
+        sitemap_lines = [
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+            "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">",
+        ]
+        for entry in sorted(urls, key=lambda x: x["loc"]):
+            sitemap_lines.append("  <url>")
+            sitemap_lines.append(f"    <loc>{entry['loc']}</loc>")
+            sitemap_lines.append(f"    <lastmod>{entry['lastmod']}</lastmod>")
+            sitemap_lines.append("  </url>")
+        sitemap_lines.append("</urlset>")
+
+        sitemap_content = "\n".join(sitemap_lines) + "\n"
+        (build_dir / "sitemap.xml").write_text(sitemap_content, encoding="utf-8")
+
+        # Write robots.txt referencing sitemap
+        robots = [
+            "User-agent: *",
+            "Allow: /",
+            f"Sitemap: {site_url}/sitemap.xml",
+        ]
+        (build_dir / "robots.txt").write_text("\n".join(robots) + "\n", encoding="utf-8")
+
+        tqdm.write("Created sitemap.xml and robots.txt")
+
     def build_question_index(self):
         tqdm.write("Creating question index")
         for question_data in self.question_index.values():
