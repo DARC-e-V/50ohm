@@ -4,8 +4,6 @@ from collections.abc import Iterable, Iterator
 from mistletoe import span_token
 from mistletoe.markdown_renderer import Fragment, MarkdownRenderer
 
-from .comment import BlockComment
-from .dash import Dash
 from .document import Document
 from .figure import Figure
 from .formula import Formula
@@ -21,6 +19,7 @@ from .reference import Reference
 from .smartquote import Smartquote
 from .table import Table, unregister_gfm_table
 from .tag import Tag
+from .tokens import DARCDOWN_TOKENS
 from .underline import Underline
 from .unit import Unit
 
@@ -56,28 +55,7 @@ class FiftyOhmMdxRenderer(MarkdownRenderer):
         section=None,
         **kwargs,
     ):
-        super().__init__(
-            Dash,
-            BlockComment,
-            Smartquote,
-            Unit,
-            Underline,
-            Morse,
-            Tag,
-            HalfwidthSpaces,
-            NonbreakingSpaces,
-            NonbreakingSpacesDots,
-            Reference,
-            Question,
-            Image,
-            Table,
-            Qso,
-            Include,
-            Formula,
-            Index,
-            *extras,
-            **kwargs,
-        )
+        super().__init__(*DARCDOWN_TOKENS, *extras, **kwargs)
         unregister_gfm_table()
 
         self.picture_handler = picture_handler

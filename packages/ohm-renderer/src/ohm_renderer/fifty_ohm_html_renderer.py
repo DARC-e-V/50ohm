@@ -5,24 +5,13 @@ from textwrap import indent
 from jinja2 import Environment, FileSystemLoader
 from mistletoe import HtmlRenderer
 
-from .comment import BlockComment
-from .dash import Dash
 from .document import Document
 from .figure import Figure
-from .formula import Formula
-from .halfwidth_spaces import HalfwidthSpaces
 from .image import Image
-from .include import Include
-from .index import Index
 from .morse import Morse
-from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
-from .qso import Qso
-from .question import Question
 from .reference import Reference
-from .smartquote import Smartquote
 from .table import CellAlignment, Table, TableCell, unregister_gfm_table
-from .tag import Tag
-from .underline import Underline
+from .tokens import DARCDOWN_TOKENS
 from .unit import Unit
 
 # Columns without an explicit alignment and the expanding column have no HTML
@@ -51,28 +40,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         section_url=None,
         **kwargs,
     ):
-        super().__init__(
-            Dash,
-            BlockComment,
-            Smartquote,
-            Unit,
-            Underline,
-            Morse,
-            Tag,
-            HalfwidthSpaces,
-            NonbreakingSpaces,
-            NonbreakingSpacesDots,
-            Reference,
-            Question,
-            Image,
-            Table,
-            Qso,
-            Include,
-            Formula,
-            Index,
-            *extras,
-            **kwargs,
-        )
+        super().__init__(*DARCDOWN_TOKENS, *extras, **kwargs)
         unregister_gfm_table()
 
         self.question_renderer = question_renderer
