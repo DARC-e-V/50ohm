@@ -3,7 +3,7 @@
     {{ number }}: {{ question }}
   </div>
   {% if picture_question %}
-    <div class="question-picture"><img src="pictures/{{ picture_question }}.svg" alt="{{ alt_text_question }}"></div>
+    <div class="question-picture"><img loading="lazy" src="pictures/{{ picture_question }}.svg" alt="{{ alt_text_question }}"></div>
   {% endif %}
   <div class="answers">
     {% for i in range(4) %}
@@ -12,7 +12,7 @@
           {{ answers[i] }}
         {% endif %}
         {% if answer_pictures[i] %}
-          <div class="question-picture"><img src="pictures/{{ answer_pictures[i] }}.svg" alt="{{ alt_text_answers[i] }}"></div>
+          <div class="question-picture"><img loading="lazy" src="pictures/{{ answer_pictures[i] }}.svg" alt="{{ alt_text_answers[i] }}"></div>
         {% endif %}
         {% if i == 0 %}
           <div class="result material-icons">check</div>

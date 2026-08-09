@@ -6,6 +6,7 @@
          url('./source-sans-pro-regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
+    font-display: swap;
 }
 
 @font-face {
@@ -16,6 +17,7 @@
          url('./source-sans-pro-italic.ttf') format('truetype');
     font-weight: normal;
     font-style: italic;
+    font-display: swap;
 }
 
 @font-face {
@@ -26,6 +28,7 @@
          url('./source-sans-pro-semibold.ttf') format('truetype');
     font-weight: 600;
     font-style: normal;
+    font-display: swap;
 }
 
 @font-face {
@@ -36,4 +39,5 @@
          url('./source-sans-pro-semibolditalic.ttf') format('truetype');
     font-weight: 600;
     font-style: italic;
+    font-display: swap;
 }
