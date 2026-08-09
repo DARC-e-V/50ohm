@@ -93,14 +93,15 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         # Keep track of index ids already emitted in this document.
         self.index_anchor_ids = set()
 
-    def _format_figure_label(self, marker: str):
-        if marker in self.figures:
-            label = self.figures[marker]
-            if self.edition and self.chapter and self.section:
-                label = f"{self.edition}-{self.chapter}.{self.section}.{label}"
-            return label
-        else:
-            return None
+    def _format_figure_label(self, marker: str) -> str:
+        """Resolves a figure marker to its label, or to "?" when it is unknown."""
+        if marker not in self.figures:
+            return "?"
+
+        label = self.figures[marker]
+        if self.edition and self.chapter and self.section:
+            label = f"{self.edition}-{self.chapter}.{self.section}.{label}"
+        return label
 
     def render_dash(self, token):
         return " &ndash; "
@@ -217,8 +218,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return f"{lookup[token.first]}{token.second}{lookup[token.third]}"
 
     def render_reference(self, token: Reference):
-        # Look up the figure number from the map
-        label = self._format_figure_label(token.marker) or "?"
+        label = self._format_figure_label(token.marker)
         return (
             f'<a href="{self.section_url}#ref_{token.marker}" onclick="highlightRef(\'{token.marker}\');">{label}</a>'
         )
@@ -237,7 +237,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return base.join(filter(lambda x: x is not None, [self.render(child) for child in token.children]))
 
     def render_figure(self, token: Figure, inner: str, caption_prefix: str, css_class: str | None = None) -> str:
-        label = self._format_figure_label(token.marker) or "?"
+        label = self._format_figure_label(token.marker)
 
         attributes = f' class="{css_class}"' if css_class else ""
         if token.marker:
