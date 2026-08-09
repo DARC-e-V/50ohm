@@ -1,4 +1,4 @@
 <br/>
 <div data-quiz-shown>
-	Weiter zum nächsten Abschnitt: <a href="{{ url }}">{{ title }}</a>
+	{{ snippets.next_section_label | default('Weiter zum nächsten Abschnitt:') }} <a href="{{ url }}">{{ title }}</a>
 </div>

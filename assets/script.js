@@ -56,7 +56,10 @@ function answer(el, correct) {
     btn.setAttribute("aria-pressed", on ? "true" : "false");
     btn.classList.toggle("btn-primary", on);
     btn.classList.toggle("btn-secondary", !on);
-    btn.title = on ? "Alles anzeigen" : "Nur Fragen anzeigen";
+    var i18n = window.FIFTYOHM_I18N || {};
+    btn.title = on
+      ? (i18n.quizModeShowAll || "Alles anzeigen")
+      : (i18n.quizModeShowQuestions || "Nur Fragen anzeigen");
   }
 
   function setQuizMode(on) {
@@ -68,7 +71,8 @@ function answer(el, correct) {
     var btn = document.getElementById("quiz-mode-toggle");
     if (btn) updateButton(btn, on);
     if (on && !hasQ) {
-      showNotice("Keine Fragen auf dieser Seite gefunden.");
+      var i18n = window.FIFTYOHM_I18N || {};
+      showNotice(i18n.quizModeNoQuestionsNotice || "Keine Fragen auf dieser Seite gefunden.");
     } else {
       hideNotice();
     }

@@ -1,8 +1,8 @@
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-      <li class="breadcrumb-item"><a href="index.html#lernen">Lernen</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Ausbildungspaten</li>
+      <li class="breadcrumb-item"><a href="index.html#lernen">{{ snippets.nav_lernen | default('Lernen') }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ snippets.paten_title | default('Ausbildungspaten') }}</li>
     </ol>
   </nav>
 
@@ -11,8 +11,8 @@
       <iframe src="https://ajw.darc.de/patenkarte/" width="100%" height="800px"></iframe>
     </div>
     <div class="col-lg-5">
-      <h1>Ausbildungspaten</h1>
-      <p>Die DARC-Ausbildungspaten sind erfahrene Funkamateure und helfen dir gerne beim Einstieg in den Amateurfunk. Sie beantworten Fragen, Helfen beim Lernen und können mit dir praktischen Ausbildungsfunk machen.</p>
+      <h1>{{ snippets.paten_title | default('Ausbildungspaten') }}</h1>
+      <p>{{ snippets.paten_text | default('Die DARC-Ausbildungspaten sind erfahrene Funkamateure und helfen dir gerne beim Einstieg in den Amateurfunk. Sie beantworten Fragen, Helfen beim Lernen und können mit dir praktischen Ausbildungsfunk machen.') }}</p>
 
     </div>
 

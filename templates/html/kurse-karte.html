@@ -8,15 +8,15 @@
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-          <li class="breadcrumb-item active" aria-current="page">Kurse vor Ort</li>
+          <li class="breadcrumb-item active" aria-current="page">{{ snippets.kurse_vor_ort_title | default('Kurse vor Ort') }}</li>
         </ol>
       </nav>
-    
-      <h1>Kurse vor Ort</h1>
-      <p>Erfahrene Ausbilder halten &ndash; meist einmal in der Woche abends &ndash; Lektionen. Zwischen den Treffen solltest du selbständig den Lernstoff vertiefen und üben.</p>
+
+      <h1>{{ snippets.kurse_vor_ort_title | default('Kurse vor Ort') }}</h1>
+      <p>{{ snippets.kurse_vor_ort_text | default('Erfahrene Ausbilder halten &ndash; meist einmal in der Woche abends &ndash; Lektionen. Zwischen den Treffen solltest du selbständig den Lernstoff vertiefen und üben.') }}</p>
 
 
-      <a class="btn btn-outline-secondary btn-sm px-4 gap-3" href="kurse_vor_ort_liste.html">Online-Kurse</a>
+      <a class="btn btn-outline-secondary btn-sm px-4 gap-3" href="kurse_vor_ort_liste.html">{{ snippets.kurse_vor_ort_btn_online | default('Online-Kurse') }}</a>
 
       <hr class="col-md-12 mb-3">
 
@@ -47,6 +47,6 @@
           läuft
         </div>
       </div>
-      
+
     </div>
 </div>

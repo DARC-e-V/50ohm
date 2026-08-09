@@ -36,6 +36,11 @@ class Build:
         self.index_entries = {}
         self.index_token_pattern = Index.pattern
 
+        # Parsed once and reused everywhere page.html (and the slide templates) are
+        # rendered, so locale-specific chrome text (nav labels, footer, etc.) is
+        # available regardless of which build_* entrypoint is called.
+        self.snippets = self.__parse_snippets()
+
     @staticmethod
     def __parse_katalog(fragenkatalog):
         questions = {}
@@ -117,6 +122,7 @@ class Build:
             alt_text_answers=alt_text_answers,
             alt_text_question=alt_text_question,
             has_solution=solution_file.exists(),
+            snippets=self.snippets,
         )
 
     def __build_question_slide(self, input):
@@ -137,6 +143,7 @@ class Build:
             sidebar=sidebar,
             page_stylesheets=page_stylesheets or [],
             page_scripts=page_scripts or [],
+            snippets=self.snippets,
         )
 
     def __build_exam_simulator(self):
@@ -203,12 +210,14 @@ class Build:
                 name=edition_name,
                 number=number,
                 chapter=chapter,
+                snippets=self.snippets,
             )
 
             if next_chapter is not None:
                 result += next_chapter_template.render(
                     url=f"{edition}_chapter_{next_chapter['ident']}.html",
                     title=next_chapter["title"],
+                    snippets=self.snippets,
                 )
 
             result = self.__build_page(result, course_wrapper=True)
@@ -253,6 +262,8 @@ class Build:
                 chapter=chapter_num,
                 section=section_num,
                 section_url=section_filename,
+                figure_label=self.snippets.get("figure_label", "Abbildung"),
+                table_label=self.snippets.get("table_label", "Tabelle"),
             ) as renderer:
                 section["content"] = renderer.render(Document(section["content"]))
 
@@ -262,17 +273,20 @@ class Build:
                     section=section,
                     section_id=section_id,
                     chapter=chapter,
+                    snippets=self.snippets,
                 )
 
                 if next_section is not None:
                     result += next_section_template.render(
                         url=f"{edition}_{next_section['ident']}.html",
                         title=next_section["title"],
+                        snippets=self.snippets,
                     )
                 elif next_chapter is not None:
                     result += next_chapter_template.render(
                         url=f"{edition}_chapter_{next_chapter['ident']}.html",
                         title=next_chapter["title"],
+                        snippets=self.snippets,
                     )
 
                 result = self.__build_page(result, course_wrapper=True)
@@ -295,7 +309,7 @@ class Build:
 
             result = "<section>\n"
             result += f'<section data-background="#DAEEFA">\n<h1>{chapter["title"]}</h1>\n</section>\n'
-            result += help_template.render()
+            result += help_template.render(snippets=self.snippets)
             result += "</section>\n"
 
             section_counter = 0
@@ -334,9 +348,10 @@ class Build:
                 edition=edition,
                 next_chapter=next_chapter,
                 chapter=chapter,
+                snippets=self.snippets,
             )
 
-            result = slide_template.render(content=result)
+            result = slide_template.render(content=result, snippets=self.snippets)
             file.write(result)
 
     def __filter_shuffle_answers(self, seq):
@@ -365,6 +380,7 @@ class Build:
         with (self.config.p_build / f"{book['edition']}_slide_index.html").open("w", encoding="utf-8") as file:
             result = template.render(
                 book=book,
+                snippets=self.snippets,
             )
             result = self.__build_page(result)
             file.write(result)
@@ -532,12 +548,11 @@ class Build:
     def build_website(self):
         self.config.p_build.mkdir(exist_ok=True)
 
-        snippets = self.__parse_snippets()
         contents = self.__parse_contents()
-        self.__build_index(snippets)
-        self.__build_course_page(snippets, "kurse-karte", "kurse_vor_ort_karte")
-        self.__build_course_page(snippets, "kurse-liste", "kurse_vor_ort_liste")
-        self.__build_course_page(snippets, "patenkarte", "patenkarte")
+        self.__build_index(self.snippets)
+        self.__build_course_page(self.snippets, "kurse-karte", "kurse_vor_ort_karte")
+        self.__build_course_page(self.snippets, "kurse-liste", "kurse_vor_ort_liste")
+        self.__build_course_page(self.snippets, "patenkarte", "patenkarte")
         self.__build_html_page(contents, "pruefung")
         self.__build_html_page(contents, "infos")
         self.__build_html_page(contents, "suche")
@@ -553,13 +568,17 @@ class Build:
                         picture_handler=self.__picture_handler,
                         photo_handler=self.__photo_handler,
                         include_handler=self.__include_handler,
+                        figure_label=self.snippets.get("figure_label", "Abbildung"),
+                        table_label=self.snippets.get("table_label", "Tabelle"),
                     ) as renderer:
                         question = self.__build_question(
                             solution_file.stem, template_file="html/solution_question.html"
                         )
                         solution_template = self.env.get_template("html/solution.html")
                         solution = renderer.render(Document(content))
-                        page = solution_template.render(question=question, solution=solution, number=solution_file.stem)
+                        page = solution_template.render(
+                            question=question, solution=solution, number=solution_file.stem, snippets=self.snippets
+                        )
                         page = self.__build_page(page, course_wrapper=False)
                         file.write(page)
 

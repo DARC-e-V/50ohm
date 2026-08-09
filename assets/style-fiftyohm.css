@@ -463,3 +463,28 @@ td.right {
 .feature-icon svg path {
   fill: #fff;
 }
+
+/* Marks Germany-specific content flagged for review during hr translation
+   (not upstream 50ohm.de markup -- see CLAUDE.md's hr-review convention). */
+.hr-review {
+  background-color: #fff3cd;
+  border-left: 3px solid #dc3545;
+  padding: 0.05em 0.4em;
+  border-radius: 2px;
+  color: #842029;
+}
+
+/* Marks an entire question as untranslated placeholder content (still the
+   original German question bank) rather than something needing review --
+   distinct from .hr-review, which flags translated-but-uncertain content. */
+.question-placeholder-notice {
+  display: inline-block;
+  background-color: #e2e3e5;
+  border: 1px dashed #6c757d;
+  border-radius: 3px;
+  padding: 0.15em 0.5em;
+  margin-bottom: 0.5em;
+  font-size: 0.85em;
+  font-style: italic;
+  color: #41464b;
+}

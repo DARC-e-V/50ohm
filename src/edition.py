@@ -2,9 +2,5 @@ from enum import StrEnum
 
 
 class Edition(StrEnum):
-    n = "N"
-    e = "E"
+    p = "P"
     a = "A"
-    ne = "NE"
-    ea = "EA"
-    nea = "NEA"

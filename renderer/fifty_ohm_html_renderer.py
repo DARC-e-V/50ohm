@@ -40,6 +40,8 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         chapter=None,
         section=None,
         section_url=None,
+        figure_label="Abbildung",
+        table_label="Tabelle",
         **kwargs,
     ):
         super().__init__(
@@ -73,6 +75,8 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         self.picture_handler = picture_handler
         self.photo_handler = photo_handler
         self.include_handler = include_handler
+        self.figure_label = figure_label
+        self.table_label = table_label
 
         # Figure numbering context
         self.edition = edition
@@ -234,16 +238,15 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         return (
             f'<figure class="picture" id="ref_{marker}" name="{marker}">\n'
             f'  <img src="pictures/{id}.svg" alt="{alt_text}">\n'
-            f"  <figcaption>Abbildung {label}: {text}</figcaption>\n"
+            f"  <figcaption>{self.figure_label} {label}: {text}</figcaption>\n"
             "</figure>\n"
         )
 
-    @staticmethod
-    def render_photo_helper(id, ref, text, label, alt_text):
+    def render_photo_helper(self, id, ref, text, label, alt_text):
         return f"""
                 <figure class="photo" id="ref_{ref}" name="{ref}">
                     <img src="photos/{id}.png" alt="{alt_text}">
-                    <figcaption>Abbildung {label}: {text}</figcaption>
+                    <figcaption>{self.figure_label} {label}: {text}</figcaption>
                 </figure>
             """
 
@@ -276,7 +279,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
             caption_text = token.caption
             label = self._format_reference_label(token.name)
             if label:
-                caption_text = f"Tabelle {label}: {token.caption}"
+                caption_text = f"{self.table_label} {label}: {token.caption}"
             table += f"<caption>{caption_text}</caption>\n"
 
         table += "</table>"

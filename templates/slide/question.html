@@ -5,6 +5,9 @@
 {% else -%}
 <div class="question r-fit-text layout-{{ layout }}">
 {% endif -%}
+{% if snippets.question_placeholder_notice %}
+<div class="question-placeholder-notice">{{ snippets.question_placeholder_notice }}</div>
+{% endif %}
 <div class="question-text">{{ number }}: {{ question }}</div>
   {% if picture_question -%}
   <div class="question-picture"><img class="r-stretch" src="pictures/{{ picture_question }}.svg"></div>
