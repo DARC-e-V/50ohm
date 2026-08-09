@@ -68,7 +68,7 @@
 
 <a name="lernen"></a>
 
-<div class="row g-5 pt-5 mt-2 row-cols-1">
+<div class="row g-5 pt-5 mt-2 mx-0 row-cols-1">
   <div class="col col-lg-4">
     <div class="feature col">
       <div class="feature-icon bg-primary bg-gradient">
@@ -191,4 +191,4 @@
     {% endif %}
   </div>
 </div>
-{% if snippets.site_mastodon_url %}<a rel="me" href="{{ snippets.site_mastodon_url }}"></a>{% endif %}
+{% if snippets.site_mastodon_url %}<a rel="me" href="{{ snippets.site_mastodon_url }}"></a>{% else %}<a rel="me" href="https://social.darc.de/@AJW"></a>{% endif %}

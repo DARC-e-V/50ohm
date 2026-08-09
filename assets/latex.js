@@ -120,6 +120,7 @@ document.addEventListener("DOMContentLoaded", function() {
         "\\mol": "\\text{mol}",
         "\\bel": "\\text{B}",
         "\\dezibel": "\\text{dB}",
+        "\\decibel": "\\text{dB}",
         "\\dB": "\\text{dB}",
         "\\dBm": "\\text{dBm}",
         "\\dBu": "\\text{dBu}",
@@ -150,15 +151,19 @@ document.addEventListener("DOMContentLoaded", function() {
         "\\sps": "\\text{sps}",
     };
 
-    renderMathInElement(document.body, {
-        delimiters: [
-            { left: '$$', right: '$$', display: true }, // Note: $$ has to come before $
-            { left: '$', right: '$', display: false },
-            { left: '\\[', right: '\\]', display: true },
-            { left: "\\(", right: "\\)", display: false },
-        ],
-        throwOnError: false,
-        macros: macros
-    });
+    window.renderFiftyOhmMath = function(root) {
+        renderMathInElement(root || document.body, {
+            delimiters: [
+                { left: '$$', right: '$$', display: true }, // Note: $$ has to come before $
+                { left: '$', right: '$', display: false },
+                { left: '\\[', right: '\\]', display: true },
+                { left: "\\(", right: "\\)", display: false },
+            ],
+            throwOnError: false,
+            macros: macros
+        });
+    };
+
+    window.renderFiftyOhmMath(document.body);
 
 });
