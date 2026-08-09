@@ -3,9 +3,9 @@ import re
 from mistletoe.span_token import SpanToken
 
 
-class Quote(SpanToken):
+class Smartquote(SpanToken):
     """
-    Quote span token ("Eiersalat").
+    Smart quote span token ("Eiersalat").
     Identifies quoted text.
     """
 

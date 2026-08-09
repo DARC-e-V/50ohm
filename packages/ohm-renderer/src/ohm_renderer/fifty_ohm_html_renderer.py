@@ -18,8 +18,8 @@ from .morse import Morse
 from .nonbreaking_spaces import NonbreakingSpaces, NonbreakingSpacesDots
 from .qso import Qso
 from .question import Question
-from .quote import Quote
 from .reference import Reference
+from .smartquote import Smartquote
 from .table import CellAlignment, Table, TableCell, unregister_gfm_table
 from .tag import Tag
 from .underline import Underline
@@ -54,7 +54,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
         super().__init__(
             Dash,
             BlockComment,
-            Quote,
+            Smartquote,
             Unit,
             Underline,
             Morse,
@@ -108,7 +108,7 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     def render_block_comment(self, token):
         return None
 
-    def render_quote(self, token):
+    def render_smartquote(self, token):
         return f"„{self.render_inner(token)}“"
 
     def render_underline(self, token):
