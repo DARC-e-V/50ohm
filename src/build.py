@@ -129,14 +129,29 @@ class Build:
         sidebar=None,
         page_stylesheets=None,
         page_scripts=None,
+        page_title=None,
+        meta_description=None,
+        page_url=None,
+        breadcrumbs=None,
     ):
+        """Render the base page template and inject site/page-specific SEO and JSON-LD data.
+
+        page_title, meta_description, page_url and breadcrumbs are optional and passed
+        to the template. site_url is taken from configuration (falls back to https://50ohm.de).
+        """
         page_template = self.env.get_template("html/page.html")
+        site_url = self.config.get_config_value("site_url", "https://50ohm.de")
         return page_template.render(
             content=content,
             course_wrapper=course_wrapper,
             sidebar=sidebar,
             page_stylesheets=page_stylesheets or [],
             page_scripts=page_scripts or [],
+            page_title=page_title,
+            meta_description=meta_description,
+            page_url=page_url,
+            breadcrumbs=breadcrumbs or [],
+            site_url=site_url,
         )
 
     def __build_exam_simulator(self):
@@ -652,6 +667,59 @@ class Build:
         with (path).open("w", encoding="utf-8") as file:
             json.dump(entries, file, ensure_ascii=False, indent=2)
             file.write("\n")
+
+    def build_sitemap(self):
+        """Generate sitemap.xml and robots.txt in the build output directory.
+
+        Sitemap includes all .html files in the build directory (excluding assets/) and
+        uses site_url from configuration.
+        """
+        site_url = self.config.get_config_value("site_url", "https://50ohm.de").rstrip("/")
+        build_dir = self.config.p_build
+        urls = []
+        for root, dirs, files in os.walk(build_dir):
+            # Skip assets folder
+            rel_root = Path(root).relative_to(build_dir)
+            if str(rel_root).startswith("assets"):
+                continue
+            for fname in files:
+                if not fname.endswith(".html"):
+                    continue
+                file_path = Path(root) / fname
+                rel = file_path.relative_to(build_dir)
+                url_path = "/" + str(rel).replace("\\", "/")
+                if url_path.endswith("/index.html"):
+                    url_path = url_path[: -len("index.html")]
+                lastmod = file_path.stat().st_mtime
+                from datetime import datetime
+
+                lastmod_iso = datetime.utcfromtimestamp(lastmod).strftime("%Y-%m-%dT%H:%M:%SZ")
+                urls.append({"loc": site_url + url_path, "lastmod": lastmod_iso})
+
+        # Build sitemap XML
+        sitemap_lines = [
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+            "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">",
+        ]
+        for entry in sorted(urls, key=lambda x: x["loc"]):
+            sitemap_lines.append("  <url>")
+            sitemap_lines.append(f"    <loc>{entry['loc']}</loc>")
+            sitemap_lines.append(f"    <lastmod>{entry['lastmod']}</lastmod>")
+            sitemap_lines.append("  </url>")
+        sitemap_lines.append("</urlset>")
+
+        sitemap_content = "\n".join(sitemap_lines) + "\n"
+        (build_dir / "sitemap.xml").write_text(sitemap_content, encoding="utf-8")
+
+        # Write robots.txt referencing sitemap
+        robots = [
+            "User-agent: *",
+            "Allow: /",
+            f"Sitemap: {site_url}/sitemap.xml",
+        ]
+        (build_dir / "robots.txt").write_text("\n".join(robots) + "\n", encoding="utf-8")
+
+        tqdm.write("Created sitemap.xml and robots.txt")
 
     def build_zip(self, zip_name: str | None = None) -> Path:
         """Create a zip archive of the complete build output directory.
