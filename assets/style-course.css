@@ -274,7 +274,8 @@ span.formula {
     margin-bottom: 4ex;
   }
 
-  .course .margin .table {
+  .course .margin .table,
+  .course .margin .katex-display {
     width: 100%;
   }
 
