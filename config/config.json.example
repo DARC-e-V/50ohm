@@ -1,3 +1,4 @@
 {
-  "input" : "/home/your_path_to/50ohm-contents-dl"
+  "input" : "/home/your_path_to/50ohm-contents-dl",
+  "site_url": "https://50ohm.de"
 }
