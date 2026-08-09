@@ -1,5 +1,5 @@
 import re
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
 
 from mistletoe import span_token
 from mistletoe.markdown_renderer import Fragment, MarkdownRenderer
@@ -127,26 +127,24 @@ class FiftyOhmMdxRenderer(MarkdownRenderer):
         """Wraps Markdown content in a block-level element."""
         return [f"<{name}{attributes}>", *cls._trim_blank_lines(inner_lines), f"</{name}>"]
 
-    def render_document(self, token: Document, max_line_length: int) -> Iterable[str]:
-        self.figures.update(token.figures)
-        return self._trim_blank_lines(super().render_document(token, max_line_length))
-
-    def render_paragraph(self, token, max_line_length: int) -> Iterable[str]:
-        lines = super().render_paragraph(token, max_line_length)
-
+    @classmethod
+    def fragments_to_lines(cls, fragments: Iterable[Fragment], max_line_length: int | None = None) -> Iterator[str]:
         # Fold lines starting with { into the previous line, to avoid problems with MDX.
         # MDX treats lines starting with { as JSX expressions, which causes troubles for
         # our formulas containing curly braces.
         # TODO: This should be neutral to render, check once formulas are properly implemented.
-        # TODO: Find a smarter way to fold, to keep line lengths down. Perhaps fold the other way,
-        #  by appending the last word of the previous line. Or override fragments_to_lines.
+        # TODO: Try restpecting max_line_length.
         folded: list[str] = []
-        for line in lines:
+        for line in super().fragments_to_lines(fragments, max_line_length=max_line_length):
             if folded and line.startswith("{"):
                 folded[-1] = f"{folded[-1]} {line}"
             else:
                 folded.append(line)
-        return folded
+        yield from folded
+
+    def render_document(self, token: Document, max_line_length: int) -> Iterable[str]:
+        self.figures.update(token.figures)
+        return self._trim_blank_lines(super().render_document(token, max_line_length))
 
     def render_block_comment(self, token, max_line_length: int) -> Iterable[str]:
         # A comment interrupts a paragraph, so dropping it entirely would merge the two
