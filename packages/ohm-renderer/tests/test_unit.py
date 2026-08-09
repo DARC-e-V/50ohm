@@ -1,6 +1,7 @@
 import pytest
+from ohm_renderer.fifty_ohm_mdx_renderer import NARROW_NBSP
 
-from .util import paragraph, render_html
+from .util import paragraph, render_html, render_mdx
 
 
 @pytest.mark.html
@@ -44,3 +45,22 @@ def test_special_units_html():
 
     for input, output in assertions.items():
         assert render_html(input) == paragraph(output)
+
+
+@pytest.mark.mdx
+def test_units_mdx():
+    """The entities of the HTML renderer become literal characters in Markdown."""
+    assertions = {
+        "1 V": f"1{NARROW_NBSP}V\n",
+        "0,75 kW": f"0,75{NARROW_NBSP}kW\n",
+        "10 A/mm²": f"10{NARROW_NBSP}A/mm²\n",
+        "DL9MJ": "DL9MJ\n",
+        "50 Ohm": f"50{NARROW_NBSP}Ω\n",
+        "100 mOhm": f"100{NARROW_NBSP}mΩ\n",
+        # No space before ° and %.
+        "100 %": "100%\n",
+        "42,24°": "42,24°\n",
+    }
+
+    for input, output in assertions.items():
+        assert render_mdx(input) == output

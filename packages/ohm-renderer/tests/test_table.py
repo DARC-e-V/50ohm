@@ -3,7 +3,7 @@ from mistletoe.markdown_renderer import MarkdownRenderer
 from ohm_renderer.document import Document
 from ohm_renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
 from ohm_renderer.table import Table
-from util import render_html
+from util import render_html, render_mdx
 
 
 @pytest.mark.html
@@ -65,6 +65,35 @@ def test_table_latex():
     with FiftyOhmLaTeXRenderer() as renderer:
         for assertion in assertions:
             assert renderer.render(Document(assertion)) == assertions[assertion]
+
+
+@pytest.mark.mdx
+def test_table_mdx():
+    assertions = {
+        "| l: a | r: b |\n| c | d |": "| a   |   b |\n| --- | --: |\n| c   |   d |\n",
+        # The expanding column has no GFM counterpart and stays unaligned.
+        "| X: abc |\n| 1 |": "| abc |\n| --- |\n| 1   |\n",
+        # Pipes are unescaped while parsing, so they have to be escaped again on output.
+        "| a |\n| b \\| c |": "| a      |\n| ------ |\n| b \\| c |\n",
+        # A captioned table becomes a figure carrying the anchor and the caption.
+        "| l: a | r: b |\n| c | d |\n[table:n_ab:A und B]": (
+            '<figure id="ref_n_ab">\n'
+            "| a   |   b |\n| --- | --: |\n| c   |   d |\n"
+            # The blank line keeps the caption out of the table's block.
+            "\n<figcaption>Tabelle 1: A und B</figcaption>\n"
+            "</figure>\n"
+        ),
+        # A table interrupts a paragraph, so no blank line is needed before it.
+        "vorher\n| l: a |": "vorher\n| a   |\n| --- |\n",
+        # GFM ends a table body at a blank line, not at the first line without pipes, so a
+        # following paragraph would otherwise be swallowed as another row.
+        "| l: a |\n| b |\nnachher": "| a   |\n| --- |\n| b   |\n\nnachher\n",
+        # DARCdown has no GFM tables, such a block stays a paragraph.
+        "a | b\n--- | ---\nc | d": "a | b\n--- | ---\nc | d\n",
+    }
+
+    for assertion in assertions:
+        assert render_mdx(assertion) == assertions[assertion]
 
 
 @pytest.mark.markdown

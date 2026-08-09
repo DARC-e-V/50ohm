@@ -2,7 +2,7 @@ import mistletoe
 import pytest
 from ohm_renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 from ohm_renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
-from util import paragraph, render_html, render_slide
+from util import paragraph, render_html, render_mdx, render_slide
 
 
 @pytest.mark.html
@@ -60,6 +60,48 @@ def test_thematic_break_and_tag_html():
 
     for assertion in assertions:
         assert render_html(assertion) == assertions[assertion]
+
+
+@pytest.mark.mdx
+def test_thematic_break_mdx():
+    # A thematic break marks where a margin box may be anchored, it is not a rule.
+    assertions = {
+        "---": '<Anchor id="margin_1" />\n',
+        "---\n\n---": '<Anchor id="margin_1" />\n\n<Anchor id="margin_2" />\n',
+    }
+
+    for assertion in assertions:
+        assert render_mdx(assertion) == assertions[assertion]
+
+
+@pytest.mark.mdx
+def test_tag_mdx():
+    def tag(tagtype, inner="Foo"):
+        return f'<Tag type="{tagtype}">\n{inner}\n</Tag>\n'
+
+    assertions = {
+        "<margin>\nFoo\n</margin>": tag("margin"),
+        "<indepth>\nFoo\n</indepth>": tag("indepth"),
+        "<tip>\nFoo\n</tip>": tag("tip"),
+        "<person>\nFoo\n</person>": tag("person"),
+        "<unit>\nFoo\n</unit>": tag("unit"),
+        "<danger>\nFoo\n</danger>": tag("danger"),
+        "<wordorigin>\nFoo\n</wordorigin>": tag("wordorigin"),
+        "<fullwidth>\nFoo\n</fullwidth>": tag("fullwidth"),
+        # The web* variants collapse onto their base type.
+        "<webmargin>\nFoo\n</webmargin>": tag("margin"),
+        "<webtip>\nFoo\n</webtip>": tag("tip"),
+        "<webindepth>\nFoo\n</webindepth>": tag("indepth"),
+        "<webonly>\nFoo\n</webonly>": "Foo\n",
+        "<latexonly>\nFoo\n</latexonly>": "",
+        # The content stays Markdown, blank lines between its blocks included.
+        "<margin>\n*Foo*\n\nBar\n</margin>": tag("margin", "*Foo*\n\nBar"),
+        # A tag needs its own lines, inline it stays text.
+        "<margin>Foo</margin>": "<margin>Foo</margin>\n",
+    }
+
+    for assertion in assertions:
+        assert render_mdx(assertion) == assertions[assertion]
 
 
 @pytest.mark.latex

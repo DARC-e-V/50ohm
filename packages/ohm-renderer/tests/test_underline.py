@@ -1,7 +1,7 @@
 import mistletoe
 import pytest
 from ohm_renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
-from util import paragraph, render_html
+from util import paragraph, render_html, render_mdx
 
 
 @pytest.mark.html
@@ -14,6 +14,19 @@ def test_underline_html():
 
     for assertion in assertions:
         assert render_html(assertion) == paragraph(assertions[assertion])
+
+
+@pytest.mark.mdx
+def test_underline_mdx():
+    # <u> is valid JSX, so the markup survives and its children stay Markdown.
+    assertions = {
+        "<u>Text</u>": "<u>Text</u>\n",
+        "<u> Text Text </u>": "<u> Text Text </u>\n",
+        "<u> Text *Text* </u>": "<u> Text *Text* </u>\n",
+    }
+
+    for assertion in assertions:
+        assert render_mdx(assertion) == assertions[assertion]
 
 
 @pytest.mark.latex

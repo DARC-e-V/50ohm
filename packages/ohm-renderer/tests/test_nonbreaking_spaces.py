@@ -1,7 +1,8 @@
 import mistletoe
 import pytest
 from ohm_renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
-from util import paragraph, render_html
+from ohm_renderer.fifty_ohm_mdx_renderer import NBSP
+from util import paragraph, render_html, render_mdx
 
 
 @pytest.mark.html
@@ -39,6 +40,27 @@ def test_class_html():
     target = "Ich lerne für Klasse&#160;A, Klasse&#160;E und Klasse&#160;N."
 
     assert render_html(input) == paragraph(target)
+
+
+@pytest.mark.mdx
+def test_nonbreaking_spaces_mdx():
+    """The &#160; entities of the HTML renderer become literal no-break spaces in Markdown."""
+    assertions = {
+        "Der Test befindet sich unter §2 vielleicht aber auch § 3.": (
+            f"Der Test befindet sich unter §{NBSP}2 vielleicht aber auch §{NBSP}3.\n"
+        ),
+        "Der Test befindet sich unter Abs.2 vielleicht aber auch Abs. 3.": (
+            f"Der Test befindet sich unter Abs.{NBSP}2 vielleicht aber auch Abs.{NBSP}3.\n"
+        ),
+        "Ich lerne für Klasse A, Klasse E und Klasse N.": (
+            f"Ich lerne für Klasse{NBSP}A, Klasse{NBSP}E und Klasse{NBSP}N.\n"
+        ),
+        "Heute hatte ich ... zum Mittagessen.": f"Heute hatte ich{NBSP}...{NBSP}zum Mittagessen.\n",
+        "Haha .. . Hahaha": "Haha .. . Hahaha\n",
+    }
+
+    for key, value in assertions.items():
+        assert render_mdx(key) == value
 
 
 @pytest.mark.latex

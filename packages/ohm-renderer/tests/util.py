@@ -1,6 +1,7 @@
 from ohm_renderer.document import Document
 from ohm_renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 from ohm_renderer.fifty_ohm_html_slide_renderer import FiftyOhmHtmlSlideRenderer
+from ohm_renderer.fifty_ohm_mdx_renderer import FiftyOhmMdxRenderer
 
 
 def paragraph(text):
@@ -16,4 +17,10 @@ def render_html(markdown):
 def render_slide(markdown):
     """Render markdown with the slide renderer through the project's Document."""
     with FiftyOhmHtmlSlideRenderer() as renderer:
+        return renderer.render(Document(markdown))
+
+
+def render_mdx(markdown, **kwargs):
+    """Render markdown with the MDX renderer through the project's Document."""
+    with FiftyOhmMdxRenderer(**kwargs) as renderer:
         return renderer.render(Document(markdown))

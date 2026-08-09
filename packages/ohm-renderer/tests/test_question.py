@@ -4,7 +4,7 @@ import pytest
 from ohm_renderer.document import Document
 from ohm_renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 from ohm_renderer.fifty_ohm_latex_renderer import FiftyOhmLaTeXRenderer
-from util import paragraph
+from util import paragraph, render_mdx
 
 
 @pytest.mark.html
@@ -22,6 +22,21 @@ def test_question_html():
     with FiftyOhmHtmlRenderer(question_renderer=test_function) as renderer:
         for assertion in assertions:
             assert renderer.render(Document(assertion)) == assertions[assertion]
+
+
+@pytest.mark.mdx
+def test_question_mdx():
+    # No question_renderer needed, the frontend resolves the number itself.
+    assertions = {
+        "[question:123]": '<Question number="123" />\n',
+        "\n[question:123]\n": '<Question number="123" />\n',
+        "\n[question:123]\n[question:123]": '<Question number="123" />\n<Question number="123" />\n',
+        # A component interrupts a paragraph in MDX, so no blank line is needed around it.
+        "Foo\n[question:123]\nBar": 'Foo\n<Question number="123" />\nBar\n',
+    }
+
+    for assertion in assertions:
+        assert render_mdx(assertion) == assertions[assertion]
 
 
 @pytest.mark.skip("Requires special files")

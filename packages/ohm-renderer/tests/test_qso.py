@@ -1,6 +1,6 @@
 import pytest
 from ohm_renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
-from util import render_html, render_slide
+from util import render_html, render_mdx, render_slide
 
 
 @pytest.mark.html
@@ -20,6 +20,27 @@ def test_qso_html():
 
     for assertion in assertions:
         assert render_html(assertion) == assertions[assertion]
+
+
+@pytest.mark.mdx
+def test_qso_mdx():
+    # "received" is a JSX expression, not a string, so the frontend gets a real boolean.
+    assertions = {
+        "<qso>\nfoo\n</qso>": "<Qso>\n<QsoLine received={false}>foo</QsoLine>\n</Qso>\n",
+        "<qso>\nfoo\n> bar\n</qso>": (
+            "<Qso>\n<QsoLine received={false}>foo</QsoLine>\n<QsoLine received={true}>bar</QsoLine>\n</Qso>\n"
+        ),
+        "<qso>\n*foo*\n> bar\n</qso>": (
+            "<Qso>\n<QsoLine received={false}>*foo*</QsoLine>\n<QsoLine received={true}>bar</QsoLine>\n</Qso>\n"
+        ),
+        # Blank source lines become QsoLines too, and are dropped again on output.
+        "<qso>\nfoo\n\n> bar\n</qso>": (
+            "<Qso>\n<QsoLine received={false}>foo</QsoLine>\n<QsoLine received={true}>bar</QsoLine>\n</Qso>\n"
+        ),
+    }
+
+    for assertion in assertions:
+        assert render_mdx(assertion) == assertions[assertion]
 
 
 @pytest.mark.slide

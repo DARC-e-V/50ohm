@@ -54,7 +54,7 @@ select = [
 
 [tool.pytest.ini_options]
 addopts = ["--color=yes", "--import-mode=importlib"]
-markers = ["html", "latex", "markdown", "slide"]
+markers = ["html", "latex", "markdown", "mdx", "slide"]
 testpaths = ["packages/ohm-renderer/tests", "packages/ohm-builder/tests"]
 pythonpath = ["packages/ohm-renderer/tests"]
 
