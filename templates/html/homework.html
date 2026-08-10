@@ -1,0 +1,133 @@
+<div id="homework-generator" class="homework-generator mx-auto mb-5" v-cloak>
+  <div v-if="loading" class="d-flex align-items-center justify-content-center gap-3 py-5" role="status">
+    <div class="spinner-border text-primary" aria-hidden="true"></div>
+    <span>Kursdaten werden geladen …</span>
+  </div>
+
+  <div v-else-if="loadError" class="alert alert-danger" role="alert">
+    <h1 class="h4">Das Hausaufgabentool konnte nicht geladen werden</h1>
+    <p class="mb-0" v-text="loadError"></p>
+  </div>
+
+  <template v-else>
+    <h1>Hausaufgabe erstellen</h1>
+    <p class="lead">Stelle aus den behandelten Kapiteln und Sektionen eine Hausaufgabe zusammen.</p>
+
+    <ol class="homework-steps list-unstyled d-flex flex-wrap gap-2 mb-4" aria-label="Arbeitsschritte">
+      <li v-for="item in stepLabels" :key="item.number"
+          class="badge rounded-pill"
+          :class="step === item.number ? 'text-bg-primary' : (step > item.number ? 'text-bg-secondary' : 'bg-light text-dark border')"
+          v-text="item.number + '. ' + item.label"></li>
+    </ol>
+
+    <section v-if="step === 1" aria-labelledby="homework-course-heading">
+      <h2 id="homework-course-heading" class="h4">Kurs auswählen</h2>
+      <p>Welchen Kurs bietest du an?</p>
+      <div class="row row-cols-1 row-cols-md-3 g-2">
+        <div v-for="course in courseChoices" :key="course.edition" class="col">
+          <button type="button" class="btn w-100 h-100 py-3 text-white"
+                  :style="{ backgroundColor: course.color, borderColor: course.color }"
+                  @click="selectCourse(course)">
+            <span class="d-block" v-text="course.label"></span>
+            <small class="d-block" v-text="course.detail"></small>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section v-else-if="step === 2" aria-labelledby="homework-chapter-heading">
+      <h2 id="homework-chapter-heading" class="h4">Kapitel auswählen</h2>
+      <p><strong v-text="selectedCourse.label"></strong>: Wähle ein oder mehrere behandelte Kapitel aus.</p>
+      <div class="list-group mb-3">
+        <label v-for="chapter in toc.chapters" :key="chapter.ident"
+               class="list-group-item d-flex align-items-start gap-2"
+               :class="{ 'text-secondary bg-light': chapterQuestionCount(chapter) === 0 }">
+          <input class="form-check-input flex-shrink-0 mt-1" type="checkbox" :value="chapter.ident"
+                 v-model="selectedChapterIds" :disabled="chapterQuestionCount(chapter) === 0">
+          <span class="flex-grow-1">
+            <span class="d-block" v-text="chapter.title"></span>
+            <small v-if="chapterQuestionCount(chapter) > 0" class="text-secondary"
+                   v-text="chapterQuestionCount(chapter) + ' Prüfungsfragen'"></small>
+            <small v-else>Keine Prüfungsfragen vorhanden</small>
+          </span>
+        </label>
+      </div>
+      <div class="d-flex justify-content-between gap-2">
+        <button type="button" class="btn btn-outline-secondary" @click="goToStep(1)">Zurück</button>
+        <button type="button" class="btn btn-primary" :disabled="selectedChapterIds.length === 0"
+                @click="openSectionSelection">Weiter zu den Sektionen</button>
+      </div>
+    </section>
+
+    <section v-else-if="step === 3" aria-labelledby="homework-section-heading">
+      <h2 id="homework-section-heading" class="h4">Sektionen auswählen</h2>
+      <p>Wähle die Sektionen aus, die bereits behandelt wurden.</p>
+      <div v-for="chapter in selectedChapters" :key="chapter.ident" class="mb-4">
+        <h3 class="h5" v-text="chapter.title"></h3>
+        <div class="list-group">
+          <label v-for="section in chapter.sections" :key="section.ident"
+                 class="list-group-item d-flex align-items-start gap-2"
+                 :class="{ 'text-secondary bg-light': sectionQuestionIds(section).length === 0 }">
+            <input class="form-check-input flex-shrink-0 mt-1" type="checkbox" :value="section.ident"
+                   v-model="selectedSectionIds" :disabled="sectionQuestionIds(section).length === 0">
+            <span class="flex-grow-1">
+              <span class="d-block" v-text="section.title"></span>
+              <small v-if="sectionQuestionIds(section).length > 0" class="text-secondary"
+                     v-text="sectionQuestionIds(section).length + ' Prüfungsfragen'"></small>
+              <small v-else>Keine Prüfungsfragen vorhanden</small>
+            </span>
+          </label>
+        </div>
+      </div>
+      <div class="d-flex justify-content-between gap-2">
+        <button type="button" class="btn btn-outline-secondary" @click="goToStep(2)">Zurück</button>
+        <button type="button" class="btn btn-primary" :disabled="selectedSectionIds.length === 0"
+                @click="openQuestionSelection">Weiter zu den Fragen</button>
+      </div>
+    </section>
+
+    <section v-else-if="step === 4" aria-labelledby="homework-question-heading">
+      <h2 id="homework-question-heading" class="h4">Fragen auswählen</h2>
+      <p>Alle Fragen der gewählten Sektionen sind vorausgewählt. Nicht benötigte Fragen kannst du abwählen.</p>
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <button type="button" class="btn btn-outline-secondary btn-sm" @click="setAllQuestions(true)">Alle auswählen</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" @click="setAllQuestions(false)">Alle abwählen</button>
+        <span class="ms-auto"><strong v-text="selectedQuestionIds.length"></strong> von <span v-text="orderedQuestions.length"></span> ausgewählt</span>
+      </div>
+
+      <div class="course">
+        <div v-for="group in selectedSectionGroups" :key="group.section.ident" class="mb-4">
+          <h3 class="h5" v-text="group.chapter.title + ' – ' + group.section.title"></h3>
+          <label v-for="questionId in group.questionIds" :key="questionId"
+                 class="homework-question d-flex align-items-start gap-2 border p-2 mb-2">
+            <input class="form-check-input flex-shrink-0 mt-1" type="checkbox" v-model="questionSelection[questionId]">
+            <span>
+              <strong v-text="questionId + ': '"></strong><span v-html="catalog[questionId].question"></span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between gap-2">
+        <button type="button" class="btn btn-outline-secondary" @click="goToStep(3)">Zurück</button>
+        <button type="button" class="btn btn-primary" :disabled="selectedQuestionIds.length === 0"
+                @click="generateLink">Hausaufgabenlink erzeugen</button>
+      </div>
+    </section>
+
+    <section v-else aria-labelledby="homework-link-heading">
+      <h2 id="homework-link-heading" class="h4">Hausaufgabe ist bereit</h2>
+      <p>Der Link enthält <strong v-text="selectedQuestionIds.length"></strong> Fragen in der Reihenfolge des Kurses.</p>
+      <label for="homework-link" class="form-label">Hausaufgabenlink</label>
+      <div class="input-group mb-3">
+        <input id="homework-link" class="form-control" type="text" readonly :value="generatedUrl" @focus="$event.target.select()">
+        <button type="button" class="btn btn-outline-secondary" @click="copyLink">Link kopieren</button>
+      </div>
+      <div v-if="copyMessage" class="alert alert-success py-2" role="status" v-text="copyMessage"></div>
+      <div class="d-flex flex-wrap justify-content-between gap-2">
+        <button type="button" class="btn btn-outline-secondary" @click="goToStep(4)">Fragen ändern</button>
+        <a class="btn btn-primary" :href="generatedUrl" target="_blank" rel="noopener">Hausaufgabe öffnen</a>
+      </div>
+    </section>
+  </template>
+</div>

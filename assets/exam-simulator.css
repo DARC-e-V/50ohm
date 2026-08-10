@@ -64,6 +64,14 @@
   border-right-width: 2px;
 }
 
+.exam-answer-sheet-homework .answer-table tr > :first-child {
+  width: 28%;
+}
+
+.exam-answer-sheet-homework .answer-table {
+  font-size: 0.72rem;
+}
+
 .answer-number,
 .answer-mark {
   width: 100%;

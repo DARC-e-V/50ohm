@@ -11,7 +11,8 @@
     V: { label: "Kenntnisse von Vorschriften", minutes: 45 },
     N: { label: "Technische Kenntnisse Klasse N", minutes: 45 },
     E: { label: "Technische Kenntnisse Klasse E", minutes: 45 },
-    A: { label: "Technische Kenntnisse Klasse A", minutes: 60 }
+    A: { label: "Technische Kenntnisse Klasse A", minutes: 60 },
+    H: { label: "Hausaufgabe", minutes: null }
   };
 
   var EXAM_CHOICES = [
@@ -28,49 +29,50 @@
     { id: "part-A", group: "single", label: "A", detail: "Technik Klasse A", parts: ["A"], color: "#3BB583" }
   ];
 
-  function normalizeCatalog(rawCatalog, metadata, questionIndex) {
-    var questions = {};
-    var partForSection = { 1: "B", 2: "V" };
-    var partForClass = { "1": "N", "2": "E", "3": "A" };
+  function queryValue(name) {
+    return new URLSearchParams(window.location.search).get(name);
+  }
 
-    function pictureId(value) {
-      return value ? String(value) : "";
-    }
-
-    function walk(section, sectionIndex, category) {
-      (section.questions || []).forEach(function (question) {
-        var part = sectionIndex === 0
-          ? partForClass[String(question.class)]
-          : partForSection[sectionIndex];
-        if (!part) return;
-
-        var questionMetadata = metadata[question.number] || {};
-        questions[question.number] = {
-          id: question.number,
-          part: part,
-          category: category.slice(),
-          question: question.question,
-          layout: questionMetadata.layout || "default",
-          picture: pictureId(questionMetadata.picture_question),
-          answers: ["a", "b", "c", "d"].map(function (letter) {
-            return {
-              text: question["answer_" + letter] || "",
-              picture: pictureId(questionMetadata["picture_" + letter])
-            };
-          }),
-          hasSolution: Boolean(questionIndex[question.number] && questionIndex[question.number].has_solution)
-        };
-      });
-
-      (section.sections || []).forEach(function (child, childIndex) {
-        walk(child, sectionIndex, category.concat(childIndex));
-      });
-    }
-
-    (rawCatalog.sections || []).forEach(function (section, sectionIndex) {
-      walk(section, sectionIndex, []);
+  function parseHomeworkQuestionIds() {
+    var value = queryValue("homework");
+    if (!value) return [];
+    var seen = new Set();
+    return value.toUpperCase().split(/[\s+,]+/).filter(function (questionId) {
+      if (!/^[A-Z]{2}\d{3}$/.test(questionId) || seen.has(questionId)) return false;
+      seen.add(questionId);
+      return true;
     });
-    return questions;
+  }
+
+  function parseSharedResult() {
+    var fields = (queryValue("result") || "").split(".");
+    if (fields[0] !== "1") return null;
+    if (fields[1] === "H") {
+      var homeworkScore = Number(fields[2]);
+      var homeworkTotal = Number(fields[3]);
+      if (fields.length !== 4 || !Number.isInteger(homeworkScore) || !Number.isInteger(homeworkTotal) ||
+          homeworkTotal < 1 || homeworkScore < 0 || homeworkScore > homeworkTotal) return null;
+      return { kind: "homework", score: homeworkScore, total: homeworkTotal };
+    }
+    var choice = EXAM_CHOICES.find(function (item) { return item.id === fields[1]; });
+    if (!choice || fields.length !== choice.parts.length + 2) return null;
+    var scores = fields.slice(2).map(Number);
+    if (scores.some(function (score) { return !Number.isInteger(score) || score < 0 || score > QUESTION_COUNT; })) return null;
+    return { kind: "exam", choice: choice, scores: scores, passed: scores.every(function (score) { return score >= 19; }) };
+  }
+
+  function copyText(value) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(value);
+    var input = document.createElement("textarea");
+    input.value = value;
+    input.setAttribute("readonly", "");
+    input.style.position = "fixed";
+    input.style.opacity = "0";
+    document.body.appendChild(input);
+    input.select();
+    var copied = document.execCommand("copy");
+    input.remove();
+    return copied ? Promise.resolve() : Promise.reject(new Error("Kopieren nicht möglich"));
   }
 
   function shuffled(values) {
@@ -175,6 +177,8 @@
       var session = ref(null);
       var view = ref("exam");
       var reviewPartIndex = ref(null);
+      var sharedResult = ref(null);
+      var shareMessage = ref("");
       var now = ref(Date.now());
       var timerId = null;
       var catalogLoadHandler = null;
@@ -191,6 +195,9 @@
       });
       var currentChoice = computed(function () {
         if (!session.value) return null;
+        if (session.value.mode === "homework") {
+          return { id: "H", label: "Hausaufgabe", parts: ["H"] };
+        }
         return EXAM_CHOICES.find(function (choice) { return choice.id === session.value.choiceId; });
       });
       var displayedPartIndex = computed(function () {
@@ -204,8 +211,14 @@
         if (!currentPart.value) return null;
         return PART_DEFINITIONS[currentPart.value.code];
       });
+      var isHomework = computed(function () {
+        return Boolean(session.value && session.value.mode === "homework");
+      });
+      var currentQuestionCount = computed(function () {
+        return currentPart.value ? currentPart.value.questions.length : 0;
+      });
       var remainingSeconds = computed(function () {
-        if (!currentPart.value || currentPart.value.status !== "running") return 0;
+        if (isHomework.value || !currentPart.value || currentPart.value.status !== "running") return 0;
         if (currentPart.value.paused) return currentPart.value.pausedRemainingSeconds;
         return Math.max(0, Math.ceil((currentPart.value.deadline - now.value) / 1000));
       });
@@ -229,6 +242,7 @@
       }
 
       var overallState = computed(function () {
+        if (isHomework.value) return "homework";
         if (session.value.parts.some(function (part) { return part.status !== "evaluated"; })) return "incomplete";
         var failed = session.value.parts.filter(function (part) { return part.score < 19; });
         if (failed.length === 0) return "passed";
@@ -236,15 +250,19 @@
         return "failed";
       });
       var overallAlertClass = computed(function () {
-        return { passed: "alert-success", oral: "alert-warning", failed: "alert-danger", incomplete: "alert-danger" }[overallState.value];
+        return { homework: "alert-primary", passed: "alert-success", oral: "alert-warning", failed: "alert-danger", incomplete: "alert-danger" }[overallState.value];
       });
       var overallIcon = computed(function () {
-        return { passed: "verified", oral: "record_voice_over", failed: "cancel", incomplete: "stop_circle" }[overallState.value];
+        return { homework: "task_alt", passed: "verified", oral: "record_voice_over", failed: "cancel", incomplete: "stop_circle" }[overallState.value];
       });
       var overallTitle = computed(function () {
-        return { passed: "Prüfung bestanden", oral: "Mündliche Nachprüfung möglich", failed: "Prüfung nicht bestanden", incomplete: "Prüfung vorzeitig beendet" }[overallState.value];
+        return { homework: "Hausaufgabe ausgewertet", passed: "Prüfung bestanden", oral: "Mündliche Nachprüfung möglich", failed: "Prüfung nicht bestanden", incomplete: "Prüfung vorzeitig beendet" }[overallState.value];
       });
       var overallText = computed(function () {
+        if (overallState.value === "homework") {
+          var homeworkPart = session.value.parts[0];
+          return homeworkPart.score + " von " + homeworkPart.questions.length + " Fragen wurden richtig beantwortet.";
+        }
         if (overallState.value === "passed") return "Gratulation! Du hast jeden Prüfungsteil mit mindestens 19 Punkten bestanden.";
         if (overallState.value === "oral") return "In genau einem Prüfungsteil wurden 17 oder 18 Punkte erreicht; nach den Prüfungsregeln kann eine mündliche Nachprüfung möglich sein.";
         if (overallState.value === "failed") return "Mindestens ein Prüfungsteil wurde nicht bestanden.";
@@ -257,6 +275,10 @@
 
       function padNumber(number) {
         return String(number).padStart(2, "0");
+      }
+
+      function displayQuestionNumber(questionState, questionIndex) {
+        return isHomework.value ? questionState.id : padNumber(questionIndex + 1);
       }
 
       function pictureAlt(picture, fallback) {
@@ -305,9 +327,29 @@
         };
       }
 
+      function createHomeworkPart(questionIds) {
+        var questions = questionIds.map(function (questionId) { return catalog.value[questionId]; }).filter(Boolean);
+        if (questions.length !== questionIds.length) {
+          throw new Error("Mindestens eine Frage aus dem Hausaufgabenlink ist nicht im aktuellen Fragenkatalog enthalten.");
+        }
+        if (questions.length === 0) throw new Error("Der Hausaufgabenlink enthält keine gültigen Fragen.");
+        return {
+          code: "H",
+          status: "pending",
+          deadline: null,
+          paused: false,
+          pausedRemainingSeconds: null,
+          score: null,
+          autoSubmitted: false,
+          questions: questions.map(function (question) {
+            return { id: question.id, order: shuffled([0, 1, 2, 3]), selected: null, history: [] };
+          })
+        };
+      }
+
       function activatePart(part) {
         part.status = "running";
-        part.deadline = Date.now() + PART_DEFINITIONS[part.code].minutes * 60 * 1000;
+        part.deadline = part.code === "H" ? null : Date.now() + PART_DEFINITIONS[part.code].minutes * 60 * 1000;
         part.paused = false;
         part.pausedRemainingSeconds = null;
         now.value = Date.now();
@@ -315,7 +357,7 @@
 
       function toggleTimer() {
         var part = currentPart.value;
-        if (!part || part.status !== "running") return;
+        if (isHomework.value || !part || part.status !== "running") return;
         if (part.paused) {
           part.deadline = Date.now() + part.pausedRemainingSeconds * 1000;
           part.pausedRemainingSeconds = null;
@@ -340,10 +382,32 @@
           activatePart(parts[0]);
           session.value = {
             version: STORAGE_VERSION,
+            mode: "exam",
             choiceId: choice.id,
             currentPart: 0,
             startedAt: Date.now(),
             parts: parts
+          };
+          view.value = "exam";
+          reviewPartIndex.value = null;
+          renderMathSoon(Vue);
+        } catch (error) {
+          loadError.value = error.message;
+        }
+      }
+
+      function startHomework(questionIds) {
+        try {
+          var part = createHomeworkPart(questionIds);
+          activatePart(part);
+          session.value = {
+            version: STORAGE_VERSION,
+            mode: "homework",
+            choiceId: "H",
+            homeworkIds: questionIds.slice(),
+            currentPart: 0,
+            startedAt: Date.now(),
+            parts: [part]
           };
           view.value = "exam";
           reviewPartIndex.value = null;
@@ -414,10 +478,10 @@
       }
 
       function requestSubmit() {
-        var unanswered = QUESTION_COUNT - answeredCount.value;
+        var unanswered = currentQuestionCount.value - answeredCount.value;
         var text = unanswered > 0
-          ? "Du hast " + unanswered + " Fragen nicht beantwortet. Möchtest du den Prüfungsteil trotzdem abgeben?"
-          : "Möchtest du diesen Prüfungsteil jetzt verbindlich abgeben?";
+          ? "Du hast " + unanswered + " Fragen nicht beantwortet. Möchtest du " + (isHomework.value ? "die Hausaufgabe" : "den Prüfungsteil") + " trotzdem abgeben?"
+          : "Möchtest du " + (isHomework.value ? "die Hausaufgabe" : "diesen Prüfungsteil") + " jetzt verbindlich abgeben?";
         if (window.confirm(text)) submitPart(false);
       }
 
@@ -444,6 +508,12 @@
       function showSummary() {
         reviewPartIndex.value = null;
         view.value = "summary";
+        if (completedResultUrl.value) {
+          var target = new URL(completedResultUrl.value);
+          if (window.location.pathname !== target.pathname || window.location.search !== target.search) {
+            window.location.assign(target.toString());
+          }
+        }
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
@@ -463,16 +533,32 @@
         session.value = null;
         view.value = "exam";
         reviewPartIndex.value = null;
+        sharedResult.value = null;
+        shareMessage.value = "";
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
       function abortExam() {
-        if (!window.confirm("Möchtest du diese Simulation abbrechen? Der gespeicherte Prüfungsstand wird gelöscht.")) return;
+        var noun = isHomework.value ? "Hausaufgabe" : "Simulation";
+        if (!window.confirm("Möchtest du diese " + noun + " abbrechen? Der gespeicherte Stand wird gelöscht.")) return;
         resetExam();
+        window.history.replaceState(null, "", "simulation.html");
       }
 
       function newExam() {
         resetExam();
+        window.history.replaceState(null, "", "simulation.html");
+      }
+
+      function retryHomework() {
+        var questionIds = session.value && session.value.homeworkIds;
+        if (!questionIds) return;
+        clearStoredSession();
+        var homeworkUrl = new URL("simulation.html", window.location.href);
+        homeworkUrl.search = "?homework=" + questionIds.join("+");
+        window.history.replaceState(null, "", homeworkUrl.toString());
+        startHomework(questionIds);
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
       function scrollToQuestion(index) {
@@ -481,37 +567,132 @@
       }
 
       function resultLabel(part) {
+        if (part.code === "H") return "Ausgewertet";
         if (part.score >= 19) return "Bestanden";
         if (part.score >= 17) return "Nachprüfung möglich";
         return "Nicht bestanden";
       }
 
       function resultAlertClass(part) {
+        if (part.code === "H") return "alert-primary";
         if (part.score >= 19) return "alert-success";
         if (part.score >= 17) return "alert-warning";
         return "alert-danger";
       }
 
       function resultBadgeClass(part) {
+        if (part.code === "H") return "text-bg-primary";
         if (part.score >= 19) return "text-bg-success";
         if (part.score >= 17) return "text-bg-warning";
         return "text-bg-danger";
       }
 
       function resultIcon(part) {
+        if (part.code === "H") return "task_alt";
         if (part.score >= 19) return "check_circle";
         if (part.score >= 17) return "record_voice_over";
         return "cancel";
       }
 
       function resultDescription(part) {
+        if (part.code === "H") return part.score + " von " + part.questions.length + " Fragen wurden richtig beantwortet.";
         var prefix = part.autoSubmitted ? "Die Zeit ist abgelaufen und der Prüfungsteil wurde automatisch abgegeben. " : "";
         if (part.score >= 19) return prefix + "Die erforderlichen 19 Punkte wurden erreicht.";
         if (part.score >= 17) return prefix + "Mit 17 oder 18 Punkten kann nach den Prüfungsregeln eine mündliche Nachprüfung möglich sein.";
         return prefix + "Die erforderlichen 19 Punkte wurden nicht erreicht.";
       }
 
-      function restoreSession() {
+      function encodedResult(result) {
+        if (result.kind === "homework") return "1.H." + result.score + "." + result.total;
+        return "1." + result.choice.id + "." + result.scores.join(".");
+      }
+
+      function resultImageCode(result) {
+        if (!result) return "";
+        if (result.kind === "homework") return result.score === result.total ? "aenbv" : "";
+        if (!result.passed) return "";
+        var order = ["A", "E", "N", "B", "V"];
+        return order.filter(function (part) {
+          return result.choice.parts.indexOf(part) !== -1;
+        }).join("").toLowerCase();
+      }
+
+      function shareableSessionResult() {
+        if (!session.value) return null;
+        if (isHomework.value) {
+          return { kind: "homework", score: session.value.parts[0].score, total: session.value.parts[0].questions.length };
+        }
+        if (session.value.parts.some(function (part) { return part.status !== "evaluated"; })) return null;
+        return {
+          kind: "exam",
+          choice: currentChoice.value,
+          scores: session.value.parts.map(function (part) { return part.score; }),
+          passed: overallState.value === "passed"
+        };
+      }
+
+      var resultForSharing = computed(function () {
+        if (sharedResult.value) return sharedResult.value;
+        if (view.value !== "summary") return null;
+        return shareableSessionResult();
+      });
+
+      function buildResultUrl(result) {
+        if (!result) return "";
+        var imageCode = resultImageCode(result);
+        var url = new URL(imageCode ? "result-" + imageCode + ".html" : "result.html", window.location.href);
+        url.search = "?result=" + encodedResult(result);
+        return url.toString();
+      }
+
+      var completedResultUrl = computed(function () {
+        return buildResultUrl(shareableSessionResult());
+      });
+
+      var resultShareUrl = computed(function () {
+        return buildResultUrl(resultForSharing.value);
+      });
+
+      var resultImageUrl = computed(function () {
+        var imageCode = resultImageCode(resultForSharing.value);
+        return imageCode ? "assets/images/exam-" + imageCode + ".jpeg" : "";
+      });
+
+      var shareText = computed(function () {
+        var result = resultForSharing.value;
+        if (!result) return "";
+        if (result.kind === "homework") {
+          return "Meine 50ohm.de-Hausaufgabe: " + result.score + " von " + result.total + " Fragen richtig.";
+        }
+        var scores = result.choice.parts.map(function (part, index) { return part + ": " + result.scores[index] + "/25"; }).join(", ");
+        return "Meine 50ohm.de-Prüfungssimulation " + result.choice.label + ": " + scores + " – " + (result.passed ? "bestanden!" : "noch nicht bestanden.");
+      });
+
+      var socialShareLinks = computed(function () {
+        var textWithUrl = shareText.value + " " + resultShareUrl.value;
+        return {
+          mastodon: "https://share.joinmastodon.org/#text=" + encodeURIComponent(textWithUrl),
+          bluesky: "https://bsky.app/intent/compose?text=" + encodeURIComponent(textWithUrl),
+          facebook: "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(resultShareUrl.value),
+          x: "https://x.com/intent/tweet?text=" + encodeURIComponent(textWithUrl)
+        };
+      });
+
+      function copyResultLink() {
+        copyText(resultShareUrl.value)
+          .then(function () { shareMessage.value = "Ergebnislink kopiert."; })
+          .catch(function () { shareMessage.value = "Der Link konnte nicht automatisch kopiert werden."; });
+      }
+
+      function shareNative() {
+        if (!navigator.share) {
+          copyResultLink();
+          return;
+        }
+        navigator.share({ title: "50ohm.de-Ergebnis", text: shareText.value, url: resultShareUrl.value }).catch(function () {});
+      }
+
+      function restoreSession(homeworkQuestionIds, allowHomeworkResult) {
         try {
           var raw = window.localStorage.getItem(STORAGE_KEY);
           if (!raw) return;
@@ -520,9 +701,16 @@
             clearStoredSession();
             return;
           }
+          var homeworkMode = stored.session.mode === "homework";
           var choice = EXAM_CHOICES.find(function (item) { return item.id === stored.session.choiceId; });
-          var valid = choice && stored.session.parts.every(function (part) {
-            return Array.isArray(part.questions) && part.questions.length === QUESTION_COUNT && part.questions.every(function (question) {
+          var homeworkRequested = homeworkQuestionIds.length > 0;
+          var homeworkMatches = homeworkMode && (allowHomeworkResult || (homeworkQuestionIds.length > 0 &&
+            JSON.stringify(stored.session.homeworkIds) === JSON.stringify(homeworkQuestionIds)));
+          var requestedSessionMatches = allowHomeworkResult
+            ? (homeworkMatches || choice)
+            : (homeworkRequested ? homeworkMatches : (!homeworkMode && choice));
+          var valid = requestedSessionMatches && stored.session.parts.every(function (part) {
+            return Array.isArray(part.questions) && (homeworkMode || part.questions.length === QUESTION_COUNT) && part.questions.every(function (question) {
               return Boolean(catalog.value[question.id]);
             });
           });
@@ -535,6 +723,7 @@
             if (!part.paused) part.pausedRemainingSeconds = null;
           });
           session.value = stored.session;
+          if (!session.value.mode) session.value.mode = "exam";
           view.value = stored.view === "summary" ? "summary" : "exam";
           if (session.value.parts[session.value.currentPart].status === "running" &&
               !session.value.parts[session.value.currentPart].paused &&
@@ -562,7 +751,7 @@
       });
 
       watch(remainingSeconds, function (seconds) {
-        if (session.value && currentPart.value && currentPart.value.status === "running" &&
+        if (!isHomework.value && session.value && currentPart.value && currentPart.value.status === "running" &&
             !currentPart.value.paused && seconds <= 0) submitPart(true);
       });
 
@@ -580,9 +769,26 @@
             return Promise.all(responses.map(function (response) { return response.json(); }));
           })
           .then(function (data) {
-            catalog.value = normalizeCatalog(data[0], data[1] || {}, data[2] || {});
+            catalog.value = window.FiftyOhmQuestions.normalizeCatalog(data[0], data[1] || {}, data[2] || {});
             if (Object.keys(catalog.value).length === 0) throw new Error("Der Fragenkatalog ist leer.");
-            restoreSession();
+            var parsedResult = parseSharedResult();
+            var homeworkQuestionIds = parseHomeworkQuestionIds();
+            if (queryValue("result")) {
+              if (!parsedResult) throw new Error("Der Ergebnislink ist ungültig.");
+              restoreSession([], true);
+              var storedResult = shareableSessionResult();
+              if (storedResult && encodedResult(storedResult) === queryValue("result")) {
+                sharedResult.value = null;
+                view.value = "summary";
+              } else {
+                session.value = null;
+                sharedResult.value = parsedResult;
+                view.value = "shared";
+              }
+            } else {
+              restoreSession(homeworkQuestionIds);
+              if (homeworkQuestionIds.length > 0 && !session.value) startHomework(homeworkQuestionIds);
+            }
             loading.value = false;
             renderMathSoon(Vue);
           })
@@ -627,12 +833,16 @@
         loadError: loadError,
         session: session,
         view: view,
+        sharedResult: sharedResult,
+        shareMessage: shareMessage,
         primaryChoices: primaryChoices,
         upgradeChoices: upgradeChoices,
         singlePartChoices: singlePartChoices,
         currentChoice: currentChoice,
         currentPart: currentPart,
         currentPartDefinition: currentPartDefinition,
+        isHomework: isHomework,
+        currentQuestionCount: currentQuestionCount,
         displayedPartIndex: displayedPartIndex,
         partDefinitions: PART_DEFINITIONS,
         answerLabels: ANSWER_LABELS,
@@ -648,6 +858,7 @@
         overallTitle: overallTitle,
         overallText: overallText,
         padNumber: padNumber,
+        displayQuestionNumber: displayQuestionNumber,
         pictureAlt: pictureAlt,
         questionData: questionData,
         startExam: startExam,
@@ -662,12 +873,21 @@
         reviewPart: reviewPart,
         abortExam: abortExam,
         newExam: newExam,
+        retryHomework: retryHomework,
         scrollToQuestion: scrollToQuestion,
         resultLabel: resultLabel,
         resultAlertClass: resultAlertClass,
         resultBadgeClass: resultBadgeClass,
         resultIcon: resultIcon,
-        resultDescription: resultDescription
+        resultDescription: resultDescription,
+        resultForSharing: resultForSharing,
+        completedResultUrl: completedResultUrl,
+        resultShareUrl: resultShareUrl,
+        resultImageUrl: resultImageUrl,
+        shareText: shareText,
+        socialShareLinks: socialShareLinks,
+        copyResultLink: copyResultLink,
+        shareNative: shareNative
       };
     }
   });
