@@ -1,0 +1,16 @@
+.homework-generator {
+  max-width: 1000px;
+}
+
+.homework-steps .badge {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.homework-question {
+  cursor: pointer;
+}
+
+.homework-question:hover {
+  background: #f8f9fa;
+}

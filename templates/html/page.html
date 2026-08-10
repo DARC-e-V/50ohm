@@ -4,6 +4,21 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>50Ω Lernplattform für Amateurfunk</title>
+    {% if social_image %}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="50ohm.de">
+    <meta property="og:title" content="Ergebnis der 50ohm.de-Prüfungssimulation">
+    <meta property="og:description" content="Mein Ergebnis der Prüfungssimulation auf 50ohm.de">
+    <meta property="og:image" content="https://50ohm.de/{{ social_image }}">
+    <meta property="og:image:alt" content="50ohm.de-Prüfungssimulation">
+    <meta property="og:image:width" content="1448">
+    <meta property="og:image:height" content="1086">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Ergebnis der 50ohm.de-Prüfungssimulation">
+    <meta name="twitter:description" content="Mein Ergebnis der Prüfungssimulation auf 50ohm.de">
+    <meta name="twitter:image" content="https://50ohm.de/{{ social_image }}">
+    <meta name="twitter:image:alt" content="50ohm.de-Prüfungssimulation">
+    {% endif %}
 
     <link rel="icon" href="assets/favicon/icon.png" type="image/png">
     <link rel="icon" href="assets/favicon/icon.svg" type="image/svg+xml">
