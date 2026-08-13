@@ -3,7 +3,7 @@
     <hr />
     <h3>Links zu diesem Foliensatz</h3>
     <ul>
-        {% if next_chapter is defined -%}
+        {% if next_chapter is not none -%}
         <li><a href="{{ edition }}_slide_{{ next_chapter["ident"] }}.html">Weiter zum nächsten Kapitel: {{
                 next_chapter["title"] }}</a></li>
         {% endif -%}

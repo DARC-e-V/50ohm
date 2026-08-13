@@ -1,0 +1,29 @@
+{
+    "title": "Testkurs T",
+    "abstract": "Ein Kurs, der nur in den Tests vorkommt.",
+    "chapters": [
+        {
+            "title": "Erstes Kapitel",
+            "abstract": "Das Abstract des ersten Kapitels.",
+            "ident": "t_erstes_kapitel",
+            "video_url": "https://example.org/watch?v=chapter&t=0s",
+            "sections": [
+                {
+                    "title": "Mit Video",
+                    "ident": "mit_video",
+                    "status": "prod",
+                    "class": "T",
+                    "video_url": "https://example.org/watch?v=section&t=42s"
+                },
+                {
+                    "title": "Ohne Video",
+                    "ident": "ohne_video",
+                    "status": "draft",
+                    "class": "T",
+                    "video_url": null
+                }
+            ]
+        }
+    ],
+    "edition": "T"
+}

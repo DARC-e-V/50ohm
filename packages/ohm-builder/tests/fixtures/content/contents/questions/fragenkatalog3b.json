@@ -1,0 +1,36 @@
+{
+    "sections": [
+        {
+            "sections": [
+                {
+                    "questions": [
+                        {
+                            "number": "TF101",
+                            "question": "Wie lautet die Testfrage?",
+                            "answer_a": "So.",
+                            "answer_b": "Anders.",
+                            "answer_c": "Ganz anders.",
+                            "answer_d": "Überhaupt nicht."
+                        }
+                    ]
+                },
+                {
+                    "sections": [
+                        {
+                            "questions": [
+                                {
+                                    "number": "TF102",
+                                    "question": "Und wie lautet die zweite Testfrage?",
+                                    "answer_a": "Genau so.",
+                                    "answer_b": "Nein.",
+                                    "answer_c": "Auch nein.",
+                                    "answer_d": "Erst recht nicht."
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

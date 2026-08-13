@@ -1,0 +1,26 @@
+{
+    "TF101": {
+        "layout": "text",
+        "picture_question": "",
+        "picture_a": "",
+        "picture_b": "",
+        "picture_c": "",
+        "picture_d": ""
+    },
+    "TF102": {
+        "layout": "text",
+        "picture_question": "",
+        "picture_a": "",
+        "picture_b": "",
+        "picture_c": "",
+        "picture_d": ""
+    },
+    "TF999": {
+        "layout": "text",
+        "picture_question": "",
+        "picture_a": "",
+        "picture_b": "",
+        "picture_c": "",
+        "picture_d": ""
+    }
+}
