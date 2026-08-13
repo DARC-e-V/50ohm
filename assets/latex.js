@@ -145,6 +145,7 @@ document.addEventListener("DOMContentLoaded", function() {
         "\\tesla": "\\text{T}",
         "\\bit": "\\text{Bit}",
         "\\baud": "\\text{Bd}",
+        "\\sample": "\\text{S}",
         "\\degreeCelsius": "\\,\\degree\\text{C}",
         "\\liter": "\\text{l}",
         "\\oszidiv": "\\text{div}",
