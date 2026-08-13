@@ -4,17 +4,16 @@ from mistletoe.block_token import BlockToken
 
 
 class Question(BlockToken):
-    @staticmethod
-    def start(line):
-        # Search for:
-        # [question:123]
-        return re.match(r"^\s*\[question:[\w\d]+\]", line)
+    pattern = re.compile(r"^\s*\[question:([\w\d]+)\]", re.MULTILINE)
+
+    @classmethod
+    def start(cls, line):
+        return cls.pattern.match(line)
 
     @classmethod
     def read(cls, lines):
         first_line = next(lines)
-        question_number = re.match(r"^\s*\[question:([\w\d]+)\]", first_line).group(1)
-        return question_number
+        return cls.pattern.match(first_line).group(1)
 
     @classmethod
     def check_interrupts_paragraph(cls, lines):

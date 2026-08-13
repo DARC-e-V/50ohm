@@ -50,6 +50,7 @@ class FiftyOhmMdxRenderer(MarkdownRenderer):
         *extras,
         picture_handler=None,
         photo_handler=None,
+        include_handler=None,
         edition=None,
         chapter=None,
         section=None,
@@ -60,6 +61,7 @@ class FiftyOhmMdxRenderer(MarkdownRenderer):
 
         self.picture_handler = picture_handler
         self.photo_handler = photo_handler
+        self.include_handler = include_handler
 
         self.edition = edition
         self.chapter = chapter
@@ -137,6 +139,11 @@ class FiftyOhmMdxRenderer(MarkdownRenderer):
         return [f'<Question number="{token.question_number}" />']
 
     def render_include(self, token: Include, max_line_length: int) -> Iterable[str]:
+        # The frontend resolves the include itself, so the handler is called for its side
+        # effects only — it is what pulls the include and its pictures into the build.
+        if self.include_handler:
+            self.include_handler(token.ident)
+
         return [f'<Include ident="{token.ident}" />']
 
     def render_formula(self, token: Formula, max_line_length: int) -> Iterable[str]:

@@ -9,16 +9,16 @@ class Include(BlockToken):
     Includes raw html or javascript code from a file with the given identifier.
     """
 
-    @staticmethod
-    def start(line):
-        return re.match(r"^\s*\[include:\s*[^\]]+\]", line)
+    pattern = re.compile(r"^\s*\[include:\s*([^\]]+)\]", re.MULTILINE)
+
+    @classmethod
+    def start(cls, line):
+        return cls.pattern.match(line)
 
     @classmethod
     def read(cls, lines):
-        re.compile(r"")
         line = next(lines)  # Consume the line with the include directive
-        ident = re.match(r"^\s*\[include:\s*([^\]]+)\]", line).group(1)
-        return ident
+        return cls.pattern.match(line).group(1)
 
     def __init__(self, match):
         self.ident = match

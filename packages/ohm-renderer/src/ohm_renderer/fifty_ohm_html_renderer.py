@@ -1,4 +1,3 @@
-import re
 from importlib.resources import files
 from textwrap import indent
 
@@ -8,6 +7,7 @@ from mistletoe import HtmlRenderer
 from .document import Document
 from .figure import Figure
 from .image import Image
+from .index import index_anchor_id
 from .morse import Morse
 from .reference import Reference
 from .table import CellAlignment, Table, TableCell, unregister_gfm_table
@@ -254,21 +254,8 @@ class FiftyOhmHtmlRenderer(HtmlRenderer):
     def render_formula(self, token):
         return f"\n$${token.formula}$$\n"
 
-    @staticmethod
-    def _normalize_index_part(value: str) -> str:
-        normalized = value.strip().lower()
-        normalized = re.sub(r"\s+", "_", normalized)
-        normalized = re.sub(r"[^\w]", "_", normalized)
-        normalized = re.sub(r"_+", "_", normalized).strip("_")
-        return normalized or "index"
-
     def render_index(self, token):
-        first = self._normalize_index_part(token.first)
-        if token.second:
-            second = self._normalize_index_part(token.second)
-            span_id = f"index_{first}__{second}"
-        else:
-            span_id = f"index_{first}"
+        span_id = index_anchor_id(token.first, token.second)
 
         if span_id in self.index_anchor_ids:
             return ""
