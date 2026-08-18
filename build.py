@@ -6,6 +6,7 @@ conf = config.Config()
 # Build Everything:
 bd = build.Build(conf)
 bd.build_website()
+bd.build_edition("SWL")
 bd.build_edition("N")
 bd.build_edition("E")
 bd.build_edition("A")

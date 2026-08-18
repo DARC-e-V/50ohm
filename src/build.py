@@ -215,8 +215,11 @@ class Build:
     def __build_homework_tool(self):
         toc_target = self.config.p_build_assets / "toc"
         toc_target.mkdir(parents=True, exist_ok=True)
-        for edition in ("N", "NE", "NEA", "E", "EA", "A"):
-            shutil.copyfile(self.config.p_data_toc / f"{edition}.json", toc_target / f"{edition}.json")
+        for edition in ("SWL", "N", "NE", "NEA", "E", "EA", "A"):
+            source = self.config.p_data_toc / f"{edition}.json"
+            if not source.exists():
+                source = self.config.p_data_toc / f"{edition.lower()}.json"
+            shutil.copyfile(source, toc_target / f"{edition}.json")
 
         homework_template = self.env.get_template("html/homework.html")
         page = self.__build_page(
@@ -439,9 +442,12 @@ class Build:
         self.config.p_build.mkdir(exist_ok=True)
 
         edition = edition.upper()
+        toc_file = self.config.p_data_toc / f"{edition}.json"
+        if not toc_file.exists():
+            toc_file = self.config.p_data_toc / f"{edition.lower()}.json"
 
         with (
-            (self.config.p_data_toc / f"{edition}.json").open(encoding="utf-8") as file,
+            toc_file.open(encoding="utf-8") as file,
             Progress(
                 TaskProgressColumn(),
                 BarColumn(),
@@ -480,9 +486,11 @@ class Build:
                     with (self.config.p_data_sections / f"{ident}.md").open(encoding="utf-8") as sfile:
                         section_content = sfile.read()
                         section["content"] = section_content
-                    with (self.config.p_data_slides / f"{ident}.md").open(encoding="utf-8") as sfile:
-                        section_content = sfile.read()
-                        section["slide"] = section_content
+                    slide_file = self.config.p_data_slides / f"{ident}.md"
+                    if slide_file.exists():
+                        with slide_file.open(encoding="utf-8") as sfile:
+                            section_content = sfile.read()
+                            section["slide"] = section_content
 
                     if section["content"] is not None:
                         self.__collect_question_occurrences(

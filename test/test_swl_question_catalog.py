@@ -71,3 +71,34 @@ def test_missing_optional_swl_catalog_is_allowed(tmp_path):
 
     assert set(build.questions) == {"NA101"}
     assert len(build.fragenkatalog["sections"]) == 1
+
+
+def test_lowercase_swl_toc_is_supported(tmp_path):
+    prepare_content(tmp_path, include_swl=True)
+    toc_path = tmp_path / "toc"
+    section_path = tmp_path / "contents" / "sections"
+    toc_path.mkdir()
+    section_path.mkdir()
+    (section_path / "swl_intro.md").write_text("Einführung", encoding="utf-8")
+    (toc_path / "swl.json").write_text(
+        json.dumps(
+            {
+                "title": "SWL-Kurs",
+                "edition": "SWL",
+                "chapters": [
+                    {
+                        "title": "Einstieg",
+                        "ident": "swl_einstieg",
+                        "sections": [{"title": "Einführung", "ident": "swl_intro"}],
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    build = Build(Config(content_path=tmp_path, build_path=tmp_path / "build"))
+
+    build.build_edition("SWL")
+    assert (tmp_path / "build" / "SWL_course_index.html").exists()
+    assert (tmp_path / "build" / "SWL_swl_intro.html").exists()
