@@ -29,6 +29,7 @@ class Config:
         self.p_data_solutions = self.p_data_contents / "solutions"
 
         self.p_data_fragenkatalog = self.p_data_questions / "fragenkatalog3b.json"
+        self.p_data_fragenkatalog_swl = self.p_data_questions / "fragenkatalog_swl.json"
         self.p_data_metadata = self.p_data_questions / "metadata3b.json"
 
         self.p_build = Path(self.get_config_value("output", "./build") if build_path is None else build_path)
