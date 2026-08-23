@@ -38,7 +38,7 @@
     if (!value) return [];
     var seen = new Set();
     return value.toUpperCase().split(/[\s+,]+/).filter(function (questionId) {
-      if (!/^[A-Z]{2}\d{3}$/.test(questionId) || seen.has(questionId)) return false;
+      if (!/^[A-Z]{2,3}\d{3}$/.test(questionId) || seen.has(questionId)) return false;
       seen.add(questionId);
       return true;
     });

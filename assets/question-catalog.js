@@ -12,9 +12,9 @@
 
     function walk(section, sectionIndex, category) {
       (section.questions || []).forEach(function (question) {
-        var part = sectionIndex === 0
-          ? partForClass[String(question.class)]
-          : partForSection[sectionIndex];
+        var part = String(question.class) === "SWL"
+          ? "SWL"
+          : (sectionIndex === 0 ? partForClass[String(question.class)] : partForSection[sectionIndex]);
         if (!part) return;
 
         var questionMetadata = metadata[question.number] || {};

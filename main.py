@@ -12,6 +12,7 @@ app = typer.Typer()
 @app.command()
 def main(
     edition: Annotated[list[Edition], typer.Option(help="Edition to build, can be specified multiple times.")] = [  # noqa: B006 -- default value is required for typer
+        Edition.swl,
         Edition.n,
         Edition.e,
         Edition.a,
