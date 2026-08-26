@@ -102,3 +102,47 @@ def test_lowercase_swl_toc_is_supported(tmp_path):
     build.build_edition("SWL")
     assert (tmp_path / "build" / "SWL_course_index.html").exists()
     assert (tmp_path / "build" / "SWL_swl_intro.html").exists()
+
+
+def test_regular_course_location_takes_precedence_for_shared_swl_question(tmp_path):
+    prepare_content(tmp_path, include_swl=True)
+    build = Build(Config(content_path=tmp_path, build_path=tmp_path / "build"))
+
+    build._Build__collect_question_occurrences(
+        "SWL",
+        "SWL-Kapitel",
+        "swl_buchstabieralphabet",
+        "SWL-Buchstabieralphabet",
+        "[question:NA101]",
+    )
+    build._Build__collect_question_occurrences(
+        "N",
+        "Erste Schritte",
+        "buchstabiertafel",
+        "Internationale Buchstabiertafel",
+        "[question:NA101]",
+    )
+
+    assert build.question_index["NA101"] == {
+        "has_solution": False,
+        "section": "buchstabiertafel",
+        "chapter_title": "Erste Schritte",
+        "section_title": "Internationale Buchstabiertafel",
+        "editions": ["SWL", "N"],
+    }
+
+
+def test_pure_swl_question_keeps_its_swl_location(tmp_path):
+    prepare_content(tmp_path, include_swl=True)
+    build = Build(Config(content_path=tmp_path, build_path=tmp_path / "build"))
+
+    build._Build__collect_question_occurrences(
+        "SWL",
+        "SWL-Kapitel",
+        "swl_eigene_fragen",
+        "SWL-Fragen",
+        "[question:SWL001]",
+    )
+
+    assert build.question_index["SWL001"]["section"] == "swl_eigene_fragen"
+    assert build.question_index["SWL001"]["editions"] == ["SWL"]
