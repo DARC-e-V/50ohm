@@ -657,6 +657,16 @@ class Build:
                     "editions": [],
                 },
             )
+            if edition != "SWL" and question_entry["editions"] == ["SWL"]:
+                # SWL reuses questions from the regular courses, but can place
+                # them in SWL-specific chapters. The question index exposes a
+                # single canonical location, so prefer the first regular
+                # course occurrence. Pure SWL questions keep their location.
+                question_entry.update(
+                    section=section_ident,
+                    chapter_title=chapter_title,
+                    section_title=section_title,
+                )
             if edition not in question_entry["editions"]:
                 question_entry["editions"].append(edition)
 
