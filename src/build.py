@@ -215,7 +215,7 @@ class Build:
     def __build_homework_tool(self):
         toc_target = self.config.p_build_assets / "toc"
         toc_target.mkdir(parents=True, exist_ok=True)
-        for edition in ("SWL", "N", "NE", "NEA", "E", "EA", "A"):
+        for edition in ("N", "NE", "NEA", "E", "EA", "A"):
             source = self.config.p_data_toc / f"{edition}.json"
             if not source.exists():
                 source = self.config.p_data_toc / f"{edition.lower()}.json"
@@ -228,7 +228,7 @@ class Build:
             page_scripts=[
                 "assets/vue.global.prod.js",
                 "assets/question-catalog.js?ts=20260806",
-                "assets/homework.js?ts=202608061",
+                "assets/homework.js?ts=202608271",
             ],
         )
         with (self.config.p_build / "hausaufgabe.html").open("w", encoding="utf-8") as file:
@@ -657,6 +657,16 @@ class Build:
                     "editions": [],
                 },
             )
+            if edition != "SWL" and question_entry["editions"] == ["SWL"]:
+                # SWL reuses questions from the regular courses, but can place
+                # them in SWL-specific chapters. The question index exposes a
+                # single canonical location, so prefer the first regular
+                # course occurrence. Pure SWL questions keep their location.
+                question_entry.update(
+                    section=section_ident,
+                    chapter_title=chapter_title,
+                    section_title=section_title,
+                )
             if edition not in question_entry["editions"]:
                 question_entry["editions"].append(edition)
 
