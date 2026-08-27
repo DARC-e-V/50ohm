@@ -129,6 +129,7 @@ document.addEventListener("DOMContentLoaded", function() {
         "\\dBW": "\\text{dBW}",
         "\\dBi": "\\text{dBi}",
         "\\dBd": "\\text{dBd}",
+        "\\dBc": "\\text{dBc}",
         "\\candela": "\\text{cd}",
         "\\newton": "\\text{N}",
         "\\hertz": "\\text{Hz}",
