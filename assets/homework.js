@@ -2,7 +2,6 @@
   "use strict";
 
   var COURSE_CHOICES = [
-    { edition: "SWL", label: "SWL-Kurs", detail: "Kurzwellenhören", color: "#FFFFFF" },
     { edition: "N", label: "N-Kurs", detail: "N", color: "#47ABE8" },
     { edition: "NE", label: "E-Kurs", detail: "N + E", color: "#FE756C" },
     { edition: "NEA", label: "A-Kurs", detail: "N + E + A", color: "#3BB583" },

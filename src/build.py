@@ -215,7 +215,7 @@ class Build:
     def __build_homework_tool(self):
         toc_target = self.config.p_build_assets / "toc"
         toc_target.mkdir(parents=True, exist_ok=True)
-        for edition in ("SWL", "N", "NE", "NEA", "E", "EA", "A"):
+        for edition in ("N", "NE", "NEA", "E", "EA", "A"):
             source = self.config.p_data_toc / f"{edition}.json"
             if not source.exists():
                 source = self.config.p_data_toc / f"{edition.lower()}.json"
@@ -228,7 +228,7 @@ class Build:
             page_scripts=[
                 "assets/vue.global.prod.js",
                 "assets/question-catalog.js?ts=20260806",
-                "assets/homework.js?ts=202608061",
+                "assets/homework.js?ts=202608271",
             ],
         )
         with (self.config.p_build / "hausaufgabe.html").open("w", encoding="utf-8") as file:
