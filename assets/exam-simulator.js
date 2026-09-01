@@ -278,7 +278,8 @@
       }
 
       function displayQuestionNumber(questionState, questionIndex) {
-        return isHomework.value ? questionState.id : padNumber(questionIndex + 1);
+        if (isHomework.value || currentPart.value.status === "evaluated") return questionState.id;
+        return padNumber(questionIndex + 1);
       }
 
       function pictureAlt(picture, fallback) {
