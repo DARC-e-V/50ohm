@@ -144,7 +144,11 @@ section.has-dark-background h6 {
     margin-bottom: 0;
 }
 
-/* Ensure certain elements are never larger than the slide itself */
+/* Ensure certain elements are never larger than the slide itself.
+   reveal.js scales the logical slide (960x700) to fit the window, so lengths
+   inside .slides are logical pixels. Viewport units (vh/vw) ignore that scaling
+   and blow images up on large / high-DPI screens -- always size media against
+   the 700px logical height instead. */
 .reveal img,
 .reveal video,
 .reveal iframe {
@@ -489,7 +493,7 @@ body:after {
 
 .question .question-picture img {
     max-width: 100%;
-    max-height: 30vh;
+    max-height: 210px;
 }
 
 .question .answers {
@@ -508,7 +512,7 @@ body:after {
 
 .question .answers img {
     max-width: 100%;
-    max-height: 25vh;
+    max-height: 175px;
 }
 
 /* photos and pictures */
@@ -521,8 +525,8 @@ body:after {
 .picture img {
     display: block;
     max-width: min(89%, 800px);
-    max-height: 60vh;
-    object-fit: fill;
+    max-height: 440px;
+    object-fit: contain;
     margin-left: auto;
     margin-right: auto;
 }
