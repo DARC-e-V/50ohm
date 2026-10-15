@@ -245,6 +245,10 @@ class Builder(ABC):
         """Builds one page per solution."""
 
     @abstractmethod
+    def build_questions(self) -> None:
+        """Writes the question catalog for a frontend to consume."""
+
+    @abstractmethod
     def build_assets(self) -> None:
         """Copies the static assets into the build directory."""
         # TODO: Move into HTML builder only.

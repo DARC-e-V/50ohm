@@ -1,0 +1,20 @@
+---
+// `<Include ident="…" />`.
+// Port of `render_include` in ohm_renderer/fifty_ohm_html_renderer.py:251, which inlined the raw
+// HTML of the applet. The builder copies those files to build/includes/, from where the
+// `includes` collection reads them.
+import { getEntry } from "astro:content";
+
+interface Props {
+  ident: string;
+}
+
+const { ident } = Astro.props;
+
+const include = await getEntry("includes", ident);
+if (!include) {
+  console.warn(`\x1b[31mInclude #${ident} not found\x1b[0m`);
+}
+---
+
+{include && <Fragment set:html={include.data.html} />}

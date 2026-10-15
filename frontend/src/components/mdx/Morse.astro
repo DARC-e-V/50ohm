@@ -1,0 +1,29 @@
+---
+// `<Morse text="…" />`.
+// Port of `render_morse_helper` in ohm_renderer/fifty_ohm_html_renderer.py:116. The markup is
+// assembled as a string so the newlines between the spans — which the inline layout renders as
+// the gaps between symbols — stay exactly where the Python renderer put them.
+import { convertToMorseCode, type MorseSymbol } from "../../lib/morse";
+
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+
+const GLYPHS: Record<MorseSymbol, string> = { 1: "▄", 2: "▄▄▄", 3: "&nbsp;" };
+
+let html = '<span class="morse">';
+for (const char of convertToMorseCode(text)) {
+  html += '<span class="morse_char">\n';
+  for (const symbol of char) {
+    html += '<span class="morse_symbol">\n';
+    html += GLYPHS[symbol];
+    html += "</span>\n";
+  }
+  html += "</span>\n";
+}
+html += "</span>";
+---
+
+<Fragment set:html={html} />

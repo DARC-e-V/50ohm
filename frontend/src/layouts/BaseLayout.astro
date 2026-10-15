@@ -1,37 +1,53 @@
 ---
-import "../styles/main.scss";
-
-interface Props {
-  title?: string;
-}
-
-const { title = "50Ω &mdash; Lernplattform für Amateurfunk" } = Astro.props;
+// The document shell, copied from
+// packages/ohm-builder/src/ohm_builder/templates/html/page.html (lines 1-37, 168-171).
+//
+// The assets come from public/assets/, a 1:1 copy of ohm_builder/assets/, so every script tag
+// is `is:inline`: they are classic scripts, and the copied markup calls into their globals
+// (`toggleNavBar()` and `highlightRef()` from below).
+import SiteHeader from "../components/SiteHeader.astro";
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="de">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="icon" href="/favicon.png" type="image/png" />
-    <link rel="mask-icon" href="/mask-icon.svg" color="#00ADEF" />
-    <meta name="generator" content={Astro.generator} />
-    <title>{title}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>50Ω Lernplattform für Amateurfunk</title>
+
+    <link rel="icon" href="/assets/favicon/icon.png" type="image/png">
+    <link rel="icon" href="/assets/favicon/icon.svg" type="image/svg+xml">
+    <link rel="mask-icon" href="/assets/favicon/mask-icon.svg" color="#00ADEF">
+    <link href="/assets/bootstrap-5.2.0-beta1-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/style-fiftyohm.css?ts=202312172012">
+    <link rel="stylesheet" href="/assets/style-course.css?ts=202312172012">
+    <link rel="stylesheet" href="/assets/katex/katex.min.css">
+    <script is:inline defer src="/assets/katex/katex.min.js"></script>
+    <script is:inline defer src="/assets/katex/auto-render.min.js"></script>
+    <script is:inline defer src="/assets/latex.js"></script>
+    <script is:inline defer src="/assets/script.js"></script>
+
+    <script is:inline>
+      function toggleNavBar() {
+        document.getElementById("nav-dropdown").classList.toggle("open");
+        document.getElementById("nav-button-closed").classList.toggle("hidden");
+        document.getElementById("nav-button-opened").classList.toggle("hidden");
+      }
+      function highlightRef(ref) {
+        console.log(ref)
+        document.getElementById('ref_' + ref).style.background='#2aa6da';
+        setTimeout(() => {
+          document.getElementById('ref_' + ref).style.background='none';
+        }, 500);
+      }
+    </script>
   </head>
   <body>
+
+    <SiteHeader />
+
     <slot />
-    <script>
-      import { Alert } from "bootstrap";
-    </script>
+
+    <script is:inline src="/assets/bootstrap-5.2.0-beta1-dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>
-
-<style>
-  html,
-  body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-  }
-</style>

@@ -4,6 +4,12 @@ dist/
 # generated types
 .astro/
 
+# copied out of the builder output by integrations/copy-course-assets.mjs
+public/pictures/
+public/photos/
+public/assets/index.json
+public/assets/question_index.json
+
 # dependencies
 node_modules/
 

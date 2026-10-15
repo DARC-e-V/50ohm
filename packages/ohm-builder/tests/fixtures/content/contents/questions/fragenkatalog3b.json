@@ -6,7 +6,8 @@
                     "questions": [
                         {
                             "number": "TF101",
-                            "question": "Wie lautet die Testfrage?",
+                            "class": "1",
+                            "question": " Wie lautet die\nTestfrage? ",
                             "answer_a": "So.",
                             "answer_b": "Anders.",
                             "answer_c": "Ganz anders.",
@@ -20,11 +21,26 @@
                             "questions": [
                                 {
                                     "number": "TF102",
+                                    "class": "2",
                                     "question": "Und wie lautet die zweite Testfrage?",
                                     "answer_a": "Genau so.",
                                     "answer_b": "Nein.",
                                     "answer_c": "Auch nein.",
                                     "answer_d": "Erst recht nicht."
+                                },
+                                {
+                                    "number": "TF103",
+                                    "class": "3",
+                                    "question": "Welches Bild zeigt die Testschaltung?",
+                                    "answer_a": "",
+                                    "answer_b": "",
+                                    "answer_c": "",
+                                    "answer_d": "",
+                                    "picture_question": "TF103_q",
+                                    "picture_a": "TF103_a",
+                                    "picture_b": "TF103_b",
+                                    "picture_c": "TF103_c",
+                                    "picture_d": "TF103_d"
                                 }
                             ]
                         }

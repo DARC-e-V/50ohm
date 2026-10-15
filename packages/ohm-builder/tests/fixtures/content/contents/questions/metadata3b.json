@@ -15,6 +15,14 @@
         "picture_c": "",
         "picture_d": ""
     },
+    "TF103": {
+        "layout": "2",
+        "picture_question": 4712,
+        "picture_a": 4711,
+        "picture_b": 4712,
+        "picture_c": 4713,
+        "picture_d": 4711
+    },
     "TF999": {
         "layout": "text",
         "picture_question": "",

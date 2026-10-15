@@ -1,0 +1,50 @@
+---
+// The content block of packages/ohm-builder/src/ohm_builder/templates/html/page.html
+// (lines 101-166). `_build_page`'s two switches become props:
+//
+//   sidebar        -> a filled `sidebar` slot, which puts content and sidebar into two columns
+//   course_wrapper -> courseWrapper, which wraps the content in `.course`
+//
+// The `teaser` branch of the template is dropped: no call site ever passed it.
+import BaseLayout from "./BaseLayout.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+
+interface Props {
+  courseWrapper?: boolean;
+}
+
+const { courseWrapper = false } = Astro.props;
+const hasSidebar = Astro.slots.has("sidebar");
+---
+
+<BaseLayout>
+  <div class="fiftyohm-layout-outer fiftyohm-layout-outer-content">
+    <div class="fiftyohm-layout-inner">
+      <div class="fiftyohm-layout-left">
+      </div>
+      <div class="fiftyohm-layout-main">
+        <div class="fiftyohm-content w-100">
+          {
+            hasSidebar ?
+              <div class="fiftyohm-content-2cols">
+                <div><slot /></div>
+                <div><slot name="sidebar" /></div>
+              </div>
+            : courseWrapper ?
+              <div class="course">
+                <slot />
+              </div>
+            : <slot />
+          }
+
+          <SiteFooter />
+
+        </div>
+
+        {/* Nested inside `layout-main` in page.html, so the flex widths stay identical. */}
+        <div class="fiftyohm-layout-right">
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

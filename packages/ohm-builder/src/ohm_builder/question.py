@@ -13,6 +13,8 @@ class QuestionData:
     answers: list[str]
     picture_question: str
     answer_pictures: list[str]
+    # "1", "2" or "3" for N, E and A; empty where the pool does not say.
+    question_class: str = ""
 
     @classmethod
     def not_found(cls, number) -> "QuestionData":
@@ -81,6 +83,7 @@ def _build_question(question: dict, meta: dict, solution_numbers: frozenset[str]
         answers=answers,
         picture_question=picture_question,
         answer_pictures=answer_pictures,
+        question_class=question.get("class", ""),
     )
 
 

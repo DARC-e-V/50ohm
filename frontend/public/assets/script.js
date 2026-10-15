@@ -1,23 +1,7 @@
-function shuffleChildren(el) {
-  for (var i = el.children.length; i >= 0; i--) {
-      el.appendChild(el.children[Math.random() * i | 0]);
-  }
-}
-
+// Shuffling and evaluating the answers moved to src/scripts/questions.ts.
 document.addEventListener("DOMContentLoaded", function() {
-  var els = document.querySelectorAll(".answers");
-  for (var i = 0; i < els.length; i++) {
-    shuffleChildren(els[i]);
-  }
   initQuizMode();
 });
-
-function answer(el, correct) {
-  if (correct)
-    el.classList.add("correct")
-  else
-    el.classList.add("wrong")
-}
 
 (function () {
   var NOTICE_ID = "quiz-mode-notice";

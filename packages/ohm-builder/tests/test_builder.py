@@ -14,6 +14,7 @@ HOOKS = {
     "_write_slidedeck",
     "build_website",
     "build_solutions",
+    "build_questions",
     "build_assets",
     "_index_output_dir",
 }

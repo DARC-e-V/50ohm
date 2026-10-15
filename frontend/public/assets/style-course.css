@@ -46,6 +46,8 @@
 }
 
 .question .question-picture {
+  /* A <span> inside the answer buttons, which may only hold phrasing content. */
+  display: block;
   max-width: 100%;
   margin-bottom: 1em;
 }

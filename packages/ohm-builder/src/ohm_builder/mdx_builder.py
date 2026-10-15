@@ -1,21 +1,34 @@
+import re
 from pathlib import Path
 
 import yaml
 from ohm_renderer.document import Document
 from ohm_renderer.fifty_ohm_mdx_renderer import FiftyOhmMdxRenderer
+from tqdm import tqdm
 
 from .builder import Builder, ChapterContext, SectionContext
+from .question import QuestionData
+
+# The pool encodes the license class as a digit.
+QUESTION_CLASSES = {"1": "N", "2": "E", "3": "A"}
+
+
+def present(meta: dict) -> dict:
+    """Drops ``None`` values, so optional fields disappear instead of showing up as ``null``."""
+    return {key: value for key, value in meta.items() if value is not None}
+
+
+def collapse_whitespace(text: str) -> str:
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def frontmatter(meta: dict) -> str:
     """Serializes metadata into a YAML frontmatter block.
 
-    ``None`` values are dropped, so optional fields simply disappear instead of showing up as
-    ``null``. The insertion order of the keys is kept, which makes the generated files readable
-    and their diffs stable.
+    ``None`` values are dropped. The insertion order of the keys is kept, which makes the
+    generated files readable and their diffs stable.
     """
-    present = {key: value for key, value in meta.items() if value is not None}
-    block = yaml.safe_dump(present, allow_unicode=True, sort_keys=False, default_flow_style=False)
+    block = yaml.safe_dump(present(meta), allow_unicode=True, sort_keys=False, default_flow_style=False)
     return f"---\n{block}---\n\n"
 
 
@@ -23,7 +36,8 @@ class MdxBuilder(Builder):
     """Builds one MDX file per section, for a frontend to consume.
 
     Everything the HTML build resolves at build time and that the frontend can do better stays
-    unresolved here: questions, includes and references become components. Slides, the solution
+    unresolved here: questions, includes and references become components. The question catalog
+    is written once as data for the frontend to look the questions up in. Slides, the solution
     pages and the surrounding website are not implemented yet.
     """
 
@@ -108,6 +122,59 @@ class MdxBuilder(Builder):
             "class": section.get("class"),
         }
         self._write(self._chapter_dir(ctx.chapter) / f"{section['ident']}.mdx", meta, body)
+
+    # -- question catalog --------------------------------------------------
+
+    def _question_picture(self, id) -> dict | None:
+        """Copies a picture of a question and describes it, or returns None if it is missing."""
+        alt_text = self._picture_handler(str(id))
+        if alt_text is None:
+            return None
+
+        # JSON needs no Markdown escaping, so unlike render_image only the whitespace goes.
+        return {"id": str(id), "alt": collapse_whitespace(alt_text)}
+
+    def _question_entry(self, question: QuestionData) -> dict:
+        """One question as the frontend reads it.
+
+        The text stays source text (``$…$`` and ``<u>`` included), since escaping depends on the
+        output. The answers keep the order of the pool, so the first one is the correct one.
+        """
+        answers = []
+        for index in range(4):
+            text = question.answers[index] if question.answers else ""
+            picture = question.answer_pictures[index] if question.answer_pictures else ""
+            answers.append(
+                present(
+                    {
+                        "text": collapse_whitespace(text) or None,
+                        "picture": self._question_picture(picture) if picture != "" else None,
+                    }
+                )
+            )
+
+        return present(
+            {
+                "class": QUESTION_CLASSES.get(question.question_class),
+                "question": collapse_whitespace(question.text),
+                "picture": self._question_picture(question.picture_question)
+                if question.picture_question != ""
+                else None,
+                "answers": answers,
+                # The meaning of the codes lives in the CSS only, so pass them through as they are.
+                "layout": question.layout or None,
+            }
+        )
+
+    def build_questions(self) -> None:
+        """Writes the whole catalog, not only the questions the sections use.
+
+        Solution pages and later features such as a trainer refer to any question, and the file
+        is only read at build time.
+        """
+        tqdm.write("Creating question catalog")
+        catalog = {number: self._question_entry(question) for number, question in self.questions.items()}
+        self._write_index_file("questions.json", catalog, sort_keys=True)
 
     # -- deliberately not implemented --------------------------------------
 

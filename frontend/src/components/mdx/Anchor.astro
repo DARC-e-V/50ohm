@@ -1,0 +1,11 @@
+---
+// `<Anchor id="margin_1" />`, emitted for a thematic break.
+// Port of `render_thematic_break` in ohm_renderer/fifty_ohm_html_renderer.py:111.
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+---
+
+<a id={id}></a>

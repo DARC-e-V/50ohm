@@ -1,0 +1,12 @@
+---
+// `<QsoLine received={true}>…</QsoLine>`.
+// Port of the loop body in `render_qso` (ohm_renderer/fifty_ohm_html_renderer.py:173-175):
+// a received line is the other station's, everything else is our own.
+interface Props {
+  received: boolean;
+}
+
+const { received } = Astro.props;
+---
+
+<div class={received ? "qso_other" : "qso_own"}><slot /></div>

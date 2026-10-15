@@ -1,0 +1,14 @@
+---
+// Port of packages/ohm-builder/src/ohm_builder/templates/html/next_chapter.html.
+interface Props {
+  url: string;
+  title: string;
+}
+
+const { url, title } = Astro.props;
+---
+
+<br/>
+<div data-quiz-shown>
+	Weiter zum nächsten Kapitel: <a href={url}>{title}</a>
+</div>

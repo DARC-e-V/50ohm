@@ -194,6 +194,11 @@ class HtmlBuilder(Builder):
             page = self._build_page(page, course_wrapper=False)
             (self.config.p_build / f"{solution_file.stem}.html").write_text(page, encoding="utf-8")
 
+    # -- question catalog --------------------------------------------------
+
+    def build_questions(self) -> None:
+        """The questions are rendered into the pages, so there is no catalog to write."""
+
     # -- surrounding website -----------------------------------------------
 
     def _parse_snippets(self) -> dict:

@@ -1,0 +1,28 @@
+---
+// Port of packages/ohm-builder/src/ohm_builder/templates/html/patenkarte.html, wrapped by
+// `_build_page(result)`. The template consumes no snippets — it is static markup.
+import PageLayout from "../layouts/PageLayout.astro";
+import { HOME_URL, LEARN_URL } from "../lib/urls";
+---
+
+<PageLayout>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href={HOME_URL}>Home</a></li>
+      <li class="breadcrumb-item"><a href={LEARN_URL}>Lernen</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Ausbildungspaten</li>
+    </ol>
+  </nav>
+
+  <div class="row flex-lg-row-reverse align-items-top g-5 py-1">
+    <div class="col-lg-7">
+      <iframe src="https://ajw.darc.de/patenkarte/" width="100%" height="800px"></iframe>
+    </div>
+    <div class="col-lg-5">
+      <h1>Ausbildungspaten</h1>
+      <p>Die DARC-Ausbildungspaten sind erfahrene Funkamateure und helfen dir gerne beim Einstieg in den Amateurfunk. Sie beantworten Fragen, Helfen beim Lernen und können mit dir praktischen Ausbildungsfunk machen.</p>
+
+    </div>
+
+  </div>
+</PageLayout>

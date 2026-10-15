@@ -1,0 +1,14 @@
+---
+// `<Reference marker="…" label="…" />`.
+// Port of `render_reference` in ohm_renderer/fifty_ohm_html_renderer.py:188. That renderer built
+// the href from `section_url`, which was always the page the reference sits on, so the link is
+// a plain fragment here. `highlightRef` is defined in BaseLayout.
+interface Props {
+  marker: string;
+  label: string;
+}
+
+const { marker, label } = Astro.props;
+---
+
+<a href={`#ref_${marker}`} onclick={`highlightRef('${marker}');`}>{label}</a>

@@ -52,6 +52,7 @@ def main(
 
         # Copy assets to build folder
         bd.build_assets()
+        bd.build_questions()
         bd.build_question_index()
         bd.build_index()
 

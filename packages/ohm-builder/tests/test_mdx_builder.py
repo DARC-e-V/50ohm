@@ -1,7 +1,9 @@
+import json
 from pathlib import Path
 
 import pytest
 import yaml
+from ohm_builder.builder import MISSING_ALT_TEXT
 from ohm_builder.config import Config
 from ohm_builder.mdx_builder import MdxBuilder
 
@@ -25,6 +27,7 @@ def build(tmp_path):
     config = Config(content_path=str(FIXTURE_CONTENT), build_path=str(tmp_path))
     builder = MdxBuilder(config)
     builder.build_edition("T")
+    builder.build_questions()
     builder.build_question_index()
     builder.build_index()
     return tmp_path
@@ -118,6 +121,54 @@ def test_search_indices_land_in_the_data_folder(build):
     ]
     assert question_index["TF101"]["editions"] == ["T"]
     assert question_index["TF101"]["section"] == "mit_video"
+
+
+def read_questions(build: Path) -> dict:
+    return json.loads((build / "_data" / "questions.json").read_text(encoding="utf-8"))
+
+
+@pytest.mark.builder
+def test_question_catalog_holds_every_pool_question(build):
+    # TF102 and TF103 appear in no section; TF999 is in the metadata only.
+    assert sorted(read_questions(build)) == ["TF101", "TF102", "TF103"]
+
+
+@pytest.mark.builder
+def test_text_question_is_trimmed_and_keeps_its_answer_order(build):
+    assert read_questions(build)["TF101"] == {
+        "class": "N",
+        "question": "Wie lautet die Testfrage?",
+        # The first answer is the correct one, as in the pool.
+        "answers": [
+            {"text": "So."},
+            {"text": "Anders."},
+            {"text": "Ganz anders."},
+            {"text": "Überhaupt nicht."},
+        ],
+        "layout": "text",
+    }
+
+
+@pytest.mark.builder
+def test_picture_question_carries_ids_alt_texts_and_layout(build):
+    question = read_questions(build)["TF103"]
+
+    assert question["class"] == "A"
+    assert question["layout"] == "2"
+    assert question["picture"] == {"id": "4712", "alt": "Eine Testschaltung mit zwei Zeilen"}
+    # The empty answer texts are dropped, only the pictures remain.
+    assert question["answers"] == [
+        {"picture": {"id": "4711", "alt": "Ein Bild in einem Applet"}},
+        {"picture": {"id": "4712", "alt": "Eine Testschaltung mit zwei Zeilen"}},
+        {"picture": {"id": "4713", "alt": MISSING_ALT_TEXT}},
+        {"picture": {"id": "4711", "alt": "Ein Bild in einem Applet"}},
+    ]
+
+
+@pytest.mark.builder
+def test_question_pictures_are_copied_without_a_section_using_them(build):
+    assert (build / "pictures" / "4712.svg").exists()
+    assert (build / "pictures" / "4713.svg").exists()
 
 
 @pytest.mark.builder
