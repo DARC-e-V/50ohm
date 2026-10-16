@@ -17,7 +17,18 @@ derives missing presentation metadata, including drawing references, in an
 ignored preview directory. The source trees are linked read-only from the
 German generator export, so do not rerun its staging step while a preview is
 being built. `source-state.json` records the source commits and hashes of the
-catalog, metadata and TOC. The audit rejects changed core inputs.
+catalog, metadata, TOC, snippets and extracted generator resources. The audit
+rejects changed inputs.
+
+The generator-owned Swiss resources live in
+`50ohm-contents-ch/generator_extra_content/de/`. The preparation step links
+that resource pack and renders its five HTML page templates with the current
+canonical snippets. Astro reads those rendered pages and `labels.json` from
+the prepared input, rather than carrying copies of their text in this
+generator. The Swiss header, footer, page title and navigation use those
+labels; `infos` and `pruefung` come from the staged canonical static pages.
+The original DARC Astro profile remains available when `PUBLIC_SITE_PROFILE`
+is not `ch`.
 
 ## Requirements
 
@@ -64,6 +75,7 @@ pushd frontend >/dev/null
 npm ci --no-audit --no-fund
 env XDG_CONFIG_HOME=../tmp/astro-config ASTRO_TELEMETRY_DISABLED=1 \
   OHM_BUILD_DIR="../$build_dir" \
+  OHM_CH_INPUT_DIR="../$input_dir" \
   PUBLIC_SITE_PROFILE=ch PUBLIC_SHUFFLE_ANSWERS=false \
   npm run build
 popd >/dev/null
@@ -100,7 +112,8 @@ preview server to the same machine. This is a local preview, not a deployment.
   documentation; the staged question catalog was rebuilt from the current pool.
 - 1,665 questions emitted; 142 required supplemental metadata. Three of
   those have pictures: `AI307` (57), `EI305` and `EI306` (36).
-- Section counts: `NE` 232, `A` 148, `NEA` 380. Astro built 831 pages. Both
+- Section counts: `NE` 232, `A` 148, `NEA` 380. Astro builds 832 pages, including
+  the extracted `todo.html` destination. Both
   search indexes and referenced question SVGs are present.
 - Python tests: 114 passed, 3 skipped. Ruff passed. Astro build passed;
   `astro check` found 0 errors, 0 warnings and 37 upstream hints.
@@ -117,10 +130,13 @@ Resolving those references requires a
 content or curriculum decision; this prototype does not substitute historical
 question text.
 
-The upstream Astro shell still has DARC-specific branding, footer links,
-surrounding pages and some root-absolute URLs. Only the Swiss preview home
-page and three course editions were adapted here. Slides, solution pages and
-the exam simulator are not ported to MDX/Astro. A stray `</tip>` in the
+The extracted Swiss source resources themselves still contain some DARC
+references, notably the mentor and local-course pages, and the current German
+canonical `pruefung.html` still describes the German exam. Those are source
+content questions and were not silently rewritten in the generator. The
+search page remains a port of the canonical German search page with nested-URL
+adjustments. The Astro shell still has some root-absolute URLs. Slides,
+solution pages and the exam simulator are not ported to MDX/Astro. A stray `</tip>` in the
 German `relaisfunkstellen` source is omitted from generated MDX with a build
 warning; the canonical source is unchanged. These points need separate
 review before any public deployment.

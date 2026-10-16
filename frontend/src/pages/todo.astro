@@ -1,0 +1,8 @@
+---
+import PageLayout from "../layouts/PageLayout.astro";
+import { extractedHtml, swissProfile } from "../lib/chContent";
+
+const body = swissProfile ? extractedHtml("todo") : "";
+---
+
+{swissProfile && <PageLayout><Fragment set:html={body} /></PageLayout>}

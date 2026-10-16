@@ -47,4 +47,5 @@ export const LEGACY_PAGES: Record<string, string> = {
   "patenkarte.html": MENTORS_URL,
   "kurse_vor_ort_karte.html": COURSES_MAP_URL,
   "kurse_vor_ort_liste.html": COURSES_LIST_URL,
+  "todo.html": "/todo/",
 };

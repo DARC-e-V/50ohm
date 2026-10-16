@@ -1,8 +1,7 @@
 ---
 import OriginalHome from "../components/OriginalHome.astro";
 import SwissHome from "../components/SwissHome.astro";
-
-const swiss = import.meta.env.PUBLIC_SITE_PROFILE === "ch";
+import { swissProfile } from "../lib/chContent";
 ---
 
-{swiss ? <SwissHome /> : <OriginalHome />}
+{swissProfile ? <SwissHome /> : <OriginalHome />}

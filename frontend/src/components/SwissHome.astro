@@ -1,28 +1,10 @@
 ---
 import PageLayout from "../layouts/PageLayout.astro";
-import { editionUrl, SEARCH_URL } from "../lib/urls";
+import { extractedHtml } from "../lib/chContent";
 
-const courses = [
-  { id: "NE", title: "HB3", description: "Kurs für die Einsteigerlizenz" },
-  { id: "A", title: "Upgrade HB3 → HB9", description: "Aufbaukurs" },
-  { id: "NEA", title: "HB9 komplett", description: "Gesamter Kurs" },
-];
+const body = extractedHtml("index");
 ---
 
 <PageLayout>
-  <h1>50 Ohm Schweiz – Amateurfunk lernen</h1>
-  <p>Die drei Kursausgaben im Schweizer Katalog.</p>
-  <div class="row row-cols-1 row-cols-md-3 g-3">
-    {courses.map((course) => (
-      <div class="col">
-        <a class="card h-100 text-decoration-none" href={editionUrl(course.id)}>
-          <div class="card-body">
-            <h2 class="h5 card-title">{course.title}</h2>
-            <p class="card-text">{course.description}</p>
-          </div>
-        </a>
-      </div>
-    ))}
-  </div>
-  <p class="mt-4"><a href={SEARCH_URL}>Fragen und Inhalte durchsuchen</a></p>
+  <Fragment set:html={body} />
 </PageLayout>

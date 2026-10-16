@@ -5,6 +5,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from prepare_ch_input import digest_tree
+
 EDITIONS = ("NE", "A", "NEA")
 
 
@@ -12,14 +14,25 @@ def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def audit(source: Path, build: Path, site: Path) -> dict:
-    state = json.loads((source / "source-state.json").read_text(encoding="utf-8"))
+def changed_inputs(source: Path, state: dict) -> list[str]:
     sources = {
         "catalog": source / "contents/questions/fragenkatalog_4.json",
         "original_metadata": Path(state["source"]) / "contents/questions/metadata3b.json",
         "toc": source / "toc/HB.json",
     }
     changed = [name for name, path in sources.items() if digest(path) != state["input_sha256"][name]]
+    for name, path in {
+        "extra_content": Path(state["source"]) / "generator_extra_content",
+        "snippets": Path(state["source"]) / "contents/snippets",
+    }.items():
+        if digest_tree(path) != state["input_sha256"][name]:
+            changed.append(name)
+    return changed
+
+
+def audit(source: Path, build: Path, site: Path) -> dict:
+    state = json.loads((source / "source-state.json").read_text(encoding="utf-8"))
+    changed = changed_inputs(source, state)
     if changed:
         raise ValueError(f"Staged input changed since preparation: {changed}")
 

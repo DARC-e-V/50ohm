@@ -6,14 +6,16 @@
 // is `is:inline`: they are classic scripts, and the copied markup calls into their globals
 // (`toggleNavBar()` and `highlightRef()` from below).
 import SiteHeader from "../components/SiteHeader.astro";
+import SwissHeader from "../components/SwissHeader.astro";
+import { siteLabel, swissProfile } from "../lib/chContent";
 ---
 
 <!doctype html>
-<html lang="de">
+<html lang={siteLabel("html_lang", "de")}>
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>50Ω Lernplattform für Amateurfunk</title>
+    <title>{siteLabel("page_title", "50Ω Lernplattform für Amateurfunk")}</title>
 
     <link rel="icon" href="/assets/favicon/icon.png" type="image/png">
     <link rel="icon" href="/assets/favicon/icon.svg" type="image/svg+xml">
@@ -44,7 +46,7 @@ import SiteHeader from "../components/SiteHeader.astro";
   </head>
   <body>
 
-    <SiteHeader />
+    {swissProfile ? <SwissHeader /> : <SiteHeader />}
 
     <slot />
 

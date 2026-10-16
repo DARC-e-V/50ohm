@@ -8,6 +8,8 @@
 // The `teaser` branch of the template is dropped: no call site ever passed it.
 import BaseLayout from "./BaseLayout.astro";
 import SiteFooter from "../components/SiteFooter.astro";
+import SwissFooter from "../components/SwissFooter.astro";
+import { swissProfile } from "../lib/chContent";
 
 interface Props {
   courseWrapper?: boolean;
@@ -37,7 +39,7 @@ const hasSidebar = Astro.slots.has("sidebar");
             : <slot />
           }
 
-          <SiteFooter />
+          {swissProfile ? <SwissFooter /> : <SiteFooter />}
 
         </div>
 

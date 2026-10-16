@@ -1,0 +1,35 @@
+---
+import { HOME_URL, LEARN_URL, SEARCH_URL, INFO_URL, EXAM_URL } from "../lib/urls";
+import { siteLabel } from "../lib/chContent";
+
+const navigation = [
+  [HOME_URL, "home", "nav_start"],
+  [LEARN_URL, "local_library", "nav_learn"],
+  [SEARCH_URL, "search", "nav_search"],
+  [INFO_URL, "info", "nav_info"],
+  [EXAM_URL, "fact_check", "nav_exam"],
+] as const;
+---
+
+<div class="fiftyohm-layout-outer fiftyohm-layout-outer-head">
+  <div class="fiftyohm-layout-inner">
+    <div class="fiftyohm-layout-left"></div>
+    <div class="fiftyohm-layout-main">
+      <a class="fiftyohm-brand" href={HOME_URL}>
+        <img class="fiftyohm-logo" src="/assets/images/50ohm.svg" alt="50 Ohm" />
+        <br />
+        <span>{siteLabel("brand_tagline", "")}</span>
+      </a>
+      <div class="fiftyohm-nav-button" id="nav-button" onclick="toggleNavBar();">
+        <svg id="nav-button-closed" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path class="background" d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z" /></svg>
+        <svg id="nav-button-opened" class="hidden" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M120-240v-80h520v80H120Zm664-40L584-480l200-200 56 56-144 144 144 144-56 56ZM120-440v-80h400v80H120Zm0-200v-80h520v80H120Z" /></svg>
+      </div>
+      <ul class="fiftyohm-navbar" id="nav-dropdown">
+        {navigation.map(([url, icon, key]) => (
+          <li><a href={url}><span class="material-icons">{icon}</span>{siteLabel(key, "")}</a></li>
+        ))}
+      </ul>
+    </div>
+    <div class="fiftyohm-layout-right"></div>
+  </div>
+</div>

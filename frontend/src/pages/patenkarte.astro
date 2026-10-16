@@ -3,9 +3,12 @@
 // `_build_page(result)`. The template consumes no snippets — it is static markup.
 import PageLayout from "../layouts/PageLayout.astro";
 import { HOME_URL, LEARN_URL } from "../lib/urls";
+import { extractedHtml, swissProfile } from "../lib/chContent";
+const swissBody = swissProfile ? extractedHtml("patenkarte") : "";
 ---
 
 <PageLayout>
+{swissProfile ? <Fragment set:html={swissBody} /> : <Fragment>
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href={HOME_URL}>Home</a></li>
@@ -25,4 +28,5 @@ import { HOME_URL, LEARN_URL } from "../lib/urls";
     </div>
 
   </div>
+</Fragment>}
 </PageLayout>

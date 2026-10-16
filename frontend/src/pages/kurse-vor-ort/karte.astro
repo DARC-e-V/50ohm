@@ -3,9 +3,12 @@
 // `_build_page(result)`. The template consumes no snippets — it is static markup.
 import PageLayout from "../../layouts/PageLayout.astro";
 import { COURSES_LIST_URL, HOME_URL } from "../../lib/urls";
+import { extractedHtml, swissProfile } from "../../lib/chContent";
+const swissBody = swissProfile ? extractedHtml("kurse-karte") : "";
 ---
 
 <PageLayout>
+{swissProfile ? <Fragment set:html={swissBody} /> : <Fragment>
 <div class="row flex-lg-row-reverse align-items-top g-5">
 
     <div class="col-lg-7">
@@ -58,4 +61,5 @@ import { COURSES_LIST_URL, HOME_URL } from "../../lib/urls";
       
     </div>
 </div>
+</Fragment>}
 </PageLayout>

@@ -1,0 +1,15 @@
+---
+import { INFO_URL } from "../lib/urls";
+import { siteLabel } from "../lib/chContent";
+---
+
+<footer class="text-lg-start border-top border-dark mt-5 pt-3">
+  <div class="d-flex flex-wrap align-items-end justify-content-between gap-5 mb-5">
+    <div class="d-flex flex-column align-items-center">
+      <div class="d-flex gap-1 align-items-center mb-1">
+        {siteLabel("footer_with", "")} {siteLabel("footer_developed_with", "")} <a class="link-secondary" href={`${INFO_URL}#contributors`}>{siteLabel("footer_team", "")}</a> {siteLabel("footer_developed_by", "")}
+      </div>
+      <div>{siteLabel("footer_offer", "")}</div>
+    </div>
+  </div>
+</footer>
