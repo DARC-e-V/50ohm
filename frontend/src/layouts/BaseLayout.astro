@@ -8,14 +8,18 @@
 import SiteHeader from "../components/SiteHeader.astro";
 import SwissHeader from "../components/SwissHeader.astro";
 import { siteLabel, swissProfile } from "../lib/chContent";
+import type { Locale } from "../lib/i18n";
+
+interface Props { locale?: Locale }
+const { locale = "de" } = Astro.props;
 ---
 
 <!doctype html>
-<html lang={siteLabel("html_lang", "de")}>
+<html lang={siteLabel(locale, "html_lang", locale)}>
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{siteLabel("page_title", "50Ω Lernplattform für Amateurfunk")}</title>
+    <title>{siteLabel(locale, "page_title", "50Ω Lernplattform für Amateurfunk")}</title>
 
     <link rel="icon" href="/assets/favicon/icon.png" type="image/png">
     <link rel="icon" href="/assets/favicon/icon.svg" type="image/svg+xml">
@@ -47,7 +51,7 @@ import { siteLabel, swissProfile } from "../lib/chContent";
   </head>
   <body>
 
-    {swissProfile ? <SwissHeader /> : <SiteHeader />}
+    {swissProfile ? <SwissHeader locale={locale} /> : <SiteHeader />}
 
     <slot />
 

@@ -9,8 +9,8 @@ import { getEntry, type CollectionEntry } from "astro:content";
 
 export type QuestionData = CollectionEntry<"questions">["data"];
 
-export async function getQuestion(number: string): Promise<QuestionData | undefined> {
-  return (await getEntry("questions", number))?.data;
+export async function getQuestion(locale: string, number: string): Promise<QuestionData | undefined> {
+  return (await getEntry("questions", `${locale}/${number}`))?.data;
 }
 
 /**

@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from prepare_ch_input import digest_tree
+from i18n_config import LOCALES
 
 EDITIONS = ("NE", "A", "NEA")
 
@@ -30,7 +31,7 @@ def changed_inputs(source: Path, state: dict) -> list[str]:
     return changed
 
 
-def audit(source: Path, build: Path, site: Path) -> dict:
+def audit(source: Path, build: Path, site: Path, locale: str) -> dict:
     state = json.loads((source / "source-state.json").read_text(encoding="utf-8"))
     changed = changed_inputs(source, state)
     if changed:
@@ -70,6 +71,7 @@ def audit(source: Path, build: Path, site: Path) -> dict:
         "section_counts": section_counts,
         "question_index_entries": len(question_index),
         "missing_referenced_questions": sorted(set(question_index) - set(questions)),
+        "locale": locale,
         "site_pages": len(list(site.rglob("index.html"))),
         "question_drawings": len(list((site / "pictures").glob("*.svg"))),
     }
@@ -77,16 +79,17 @@ def audit(source: Path, build: Path, site: Path) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--locale", choices=LOCALES, required=True)
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--build", type=Path, required=True)
     parser.add_argument("--site", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--strict-references", action="store_true")
     args = parser.parse_args()
-    report = audit(args.source, args.build, args.site)
+    report = audit(args.source, args.build, args.site, args.locale)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({"questions": report["questions"], "section_counts": report["section_counts"],
+    print(json.dumps({"locale": args.locale, "questions": report["questions"], "section_counts": report["section_counts"],
                       "missing_referenced_questions": len(report["missing_referenced_questions"]),
                       "site_pages": report["site_pages"]}, ensure_ascii=False))
     if args.strict_references and report["missing_referenced_questions"]:

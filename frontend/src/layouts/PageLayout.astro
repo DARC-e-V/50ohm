@@ -10,16 +10,15 @@ import BaseLayout from "./BaseLayout.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import SwissFooter from "../components/SwissFooter.astro";
 import { swissProfile } from "../lib/chContent";
+import type { Locale } from "../lib/i18n";
 
-interface Props {
-  courseWrapper?: boolean;
-}
+interface Props { courseWrapper?: boolean; locale?: Locale }
 
-const { courseWrapper = false } = Astro.props;
+const { courseWrapper = false, locale = "de" } = Astro.props;
 const hasSidebar = Astro.slots.has("sidebar");
 ---
 
-<BaseLayout>
+<BaseLayout locale={locale}>
   <div class="fiftyohm-layout-outer fiftyohm-layout-outer-content">
     <div class="fiftyohm-layout-inner">
       <div class="fiftyohm-layout-left">
@@ -39,7 +38,7 @@ const hasSidebar = Astro.slots.has("sidebar");
             : <slot />
           }
 
-          {swissProfile ? <SwissFooter /> : <SiteFooter />}
+          {swissProfile ? <SwissFooter locale={locale} /> : <SiteFooter />}
 
         </div>
 

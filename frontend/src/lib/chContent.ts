@@ -1,42 +1,51 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import type { Locale } from "./i18n";
+import i18nConfig from "../../i18n.config.json";
 
 export const swissProfile = import.meta.env.PUBLIC_SITE_PROFILE === "ch";
 export const releaseId = import.meta.env.PUBLIC_CH_RELEASE_ID || "";
 export const isBeta = import.meta.env.PUBLIC_CH_BETA === "true";
 export const feedbackUrl = import.meta.env.PUBLIC_CH_FEEDBACK_URL || "";
-export const frenchSiteUrl = import.meta.env.PUBLIC_CH_FR_URL || "";
-export const italianSiteUrl = import.meta.env.PUBLIC_CH_IT_URL || "";
 
-function inputFile(relativePath: string): string {
-  const input = process.env.OHM_CH_INPUT_DIR;
-  if (!input) throw new Error("OHM_CH_INPUT_DIR is required for the Swiss site profile");
-  return readFileSync(resolve(input, relativePath), "utf8");
+function inputFile(locale: Locale, relativePath: string): string {
+  const input = process.env.OHM_CH_INPUT_ROOT;
+  if (!input) throw new Error("OHM_CH_INPUT_ROOT is required for the Swiss site profile");
+  return readFileSync(resolve(input, locale, relativePath), "utf8");
 }
 
-const labels: Record<string, string> = swissProfile
-  ? JSON.parse(inputFile("generator_extra_content/de/labels.json"))
-  : {};
+const labelCache = new Map<Locale, Record<string, string>>();
+function labelsFor(locale: Locale): Record<string, string> {
+  const cached = labelCache.get(locale);
+  if (cached) return cached;
+  const labels: Record<string, string> = JSON.parse(inputFile(locale, `generator_extra_content/${locale}/labels.json`));
+  labelCache.set(locale, labels);
+  return labels;
+}
 
-export function siteLabel(key: string, upstreamValue: string): string {
+export function siteLabel(locale: Locale, key: string, upstreamValue: string): string {
   if (!swissProfile) return upstreamValue;
-  const value = labels[key];
-  if (typeof value !== "string") throw new Error(`Missing Swiss UI label: ${key}`);
-  return value;
+  const label = labelsFor(locale)[key];
+  if (typeof label === "string") return label;
+  const messages = i18nConfig.messages as Record<Locale, Record<string, string>>;
+  const message = messages[locale][key];
+  if (typeof message === "string") return message;
+  if (upstreamValue) return upstreamValue;
+  throw new Error(`Missing Swiss UI label for ${locale}: ${key}`);
 }
 
-export function extractedHtml(name: string): string {
+export function extractedHtml(locale: Locale, name: string): string {
   if (!swissProfile) throw new Error("Extracted HTML is only used by the Swiss site profile");
   if (!["index", "kurse-karte", "kurse-liste", "patenkarte", "todo"].includes(name)) {
     throw new Error(`Unknown extracted HTML page: ${name}`);
   }
-  return inputFile(`rendered_extra_content/html/${name}.html`);
+  return inputFile(locale, `rendered_extra_content/html/${name}.html`);
 }
 
-export function canonicalStaticHtml(name: string): string {
+export function canonicalStaticHtml(locale: Locale, name: string): string {
   if (!swissProfile) throw new Error("Canonical static HTML is only used by the Swiss site profile");
-  if (!["infos", "pruefung", "infos_sidebar", "pruefung_sidebar"].includes(name)) {
+  if (!["infos", "pruefung", "infos_sidebar", "pruefung_sidebar", "suche"].includes(name)) {
     throw new Error(`Unknown static HTML page: ${name}`);
   }
-  return inputFile(`contents/static/${name}.html`);
+  return inputFile(locale, `contents/static/${name}.html`);
 }

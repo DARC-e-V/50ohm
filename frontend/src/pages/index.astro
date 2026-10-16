@@ -1,7 +1,11 @@
 ---
-import OriginalHome from "../components/OriginalHome.astro";
-import SwissHome from "../components/SwissHome.astro";
-import { swissProfile } from "../lib/chContent";
+import { getRelativeLocaleUrl } from "astro:i18n";
+import { LOCALES } from "../lib/i18n";
 ---
 
-{swissProfile ? <SwissHome /> : <OriginalHome />}
+<main class="container py-5">
+  <h1>50Ω</h1>
+  <nav aria-label="Choose language" class="d-flex gap-3">
+    {LOCALES.map((locale) => <a class="btn btn-primary" href={getRelativeLocaleUrl(locale, "")}>{locale.toUpperCase()}</a>)}
+  </nav>
+</main>

@@ -1,13 +1,18 @@
 ---
-import { HOME_URL, LEARN_URL, SEARCH_URL, INFO_URL, EXAM_URL } from "../lib/urls";
-import { feedbackUrl, frenchSiteUrl, isBeta, italianSiteUrl, releaseId, siteLabel } from "../lib/chContent";
+import { homeUrl, LEARN_URL, SEARCH_URL, INFO_URL, EXAM_URL } from "../lib/urls";
+import { feedbackUrl, isBeta, releaseId, siteLabel } from "../lib/chContent";
+import { LOCALES, type Locale } from "../lib/i18n";
+import { getRelativeLocaleUrl } from "astro:i18n";
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
 
 const navigation = [
-  [HOME_URL, "home", "nav_start"],
-  [LEARN_URL, "local_library", "nav_learn"],
-  [SEARCH_URL, "search", "nav_search"],
-  [INFO_URL, "info", "nav_info"],
-  [EXAM_URL, "fact_check", "nav_exam"],
+  [homeUrl(locale), "home", "nav_start"],
+  [LEARN_URL(locale), "local_library", "nav_learn"],
+  [SEARCH_URL(locale), "search", "nav_search"],
+  [INFO_URL(locale), "info", "nav_info"],
+  [EXAM_URL(locale), "fact_check", "nav_exam"],
 ] as const;
 ---
 
@@ -15,21 +20,21 @@ const navigation = [
   <div class="fiftyohm-layout-inner">
     <div class="fiftyohm-layout-left"></div>
     <div class="fiftyohm-layout-main">
-      <a class="fiftyohm-brand" href={HOME_URL}>
+      <a class="fiftyohm-brand" href={homeUrl(locale)}>
         <img class="fiftyohm-logo" src="/assets/images/50ohm.svg" alt="50 Ohm" />
         <br />
-        <span>{siteLabel("brand_tagline", "")}</span>
+        <span>{siteLabel(locale, "brand_tagline", "")}</span>
       </a>
       {releaseId && isBeta && (
         <div class="header-beta-slot">
           <details class="header-beta-warning">
-            <summary class="d-flex align-items-center gap-1" aria-label={siteLabel("beta_warning_aria", "")}>
+            <summary class="d-flex align-items-center gap-1" aria-label={siteLabel(locale, "beta_warning_aria", "")}>
               <span class="material-icons" aria-hidden="true">warning</span>
               <strong>BETA</strong>
             </summary>
             <div class="header-beta-disclaimer small">
-              <p>{siteLabel("beta_disclaimer", "")}</p>
-              {feedbackUrl && <a class="btn btn-sm btn-outline-dark" data-feedback-link data-feedback-base={feedbackUrl} data-release-id={releaseId} data-lang="de" href={feedbackUrl} target="_blank" rel="noopener noreferrer">{siteLabel("feedback_button", "")}</a>}
+              <p>{siteLabel(locale, "beta_disclaimer", "")}</p>
+              {feedbackUrl && <a class="btn btn-sm btn-outline-dark" data-feedback-link data-feedback-base={feedbackUrl} data-release-id={releaseId} data-lang={locale} href={feedbackUrl} target="_blank" rel="noopener noreferrer">{siteLabel(locale, "feedback_button", "")}</a>}
             </div>
           </details>
         </div>
@@ -40,15 +45,13 @@ const navigation = [
       </div>
       <ul class="fiftyohm-navbar" id="nav-dropdown">
         {navigation.map(([url, icon, key]) => (
-          <li><a href={url}><span class="material-icons">{icon}</span>{siteLabel(key, "")}</a></li>
+          <li><a href={url}><span class="material-icons">{icon}</span>{siteLabel(locale, key, "")}</a></li>
         ))}
       </ul>
     </div>
     <div class="fiftyohm-layout-right">
       <nav class="header-languages" aria-label="DE / FR / IT">
-        <a href={HOME_URL} lang="de" aria-current="true">DE</a>
-        {frenchSiteUrl ? <a href={frenchSiteUrl} lang="fr">FR</a> : <span lang="fr" aria-disabled="true">FR</span>}
-        {italianSiteUrl ? <a href={italianSiteUrl} lang="it">IT</a> : <span lang="it" aria-disabled="true">IT</span>}
+        {LOCALES.map((targetLocale) => <a href={getRelativeLocaleUrl(targetLocale, "")} lang={targetLocale} aria-current={targetLocale === locale ? "page" : undefined}>{targetLocale.toUpperCase()}</a>)}
       </nav>
     </div>
   </div>

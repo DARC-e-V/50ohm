@@ -1,12 +1,15 @@
 ---
 // Copied from the content repo: contents/static/infos.html
 // The HTML builder read this file raw and passed it to `_build_page` (`_build_static_page`).
-import PageLayout from "../layouts/PageLayout.astro";
-import { canonicalStaticHtml, swissProfile } from "../lib/chContent";
+import PageLayout from "../../layouts/PageLayout.astro";
+import { canonicalStaticHtml, swissProfile } from "../../lib/chContent";
+import { localePaths, type Locale } from "../../lib/i18n";
+export const getStaticPaths = localePaths;
+const locale = Astro.params.lang as Locale;
 ---
 
-{swissProfile ? <PageLayout><Fragment set:html={canonicalStaticHtml("infos")} /></PageLayout> :
-<PageLayout>
+{swissProfile ? <PageLayout locale={locale}><Fragment set:html={canonicalStaticHtml(locale, "infos")} /></PageLayout> :
+<PageLayout locale={locale}>
 <h1>Eine weltweite Gemeinschaft</h1>
 <p>Willkommen in der faszinierenden Welt des Amateurfunks! Bereits 2,8 Millionen Menschen sind Teil der Gemeinschaft der
     Funkamateure. Wir widmen uns technischen und wissenschaftlichen aber auch sozialen, bildungs- und

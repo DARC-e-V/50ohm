@@ -1,12 +1,15 @@
 ---
 // Copied from the content repo: contents/static/pruefung.html
 // The HTML builder read this file raw and passed it to `_build_page` (`_build_static_page`).
-import PageLayout from "../layouts/PageLayout.astro";
-import { canonicalStaticHtml, swissProfile } from "../lib/chContent";
+import PageLayout from "../../layouts/PageLayout.astro";
+import { canonicalStaticHtml, swissProfile } from "../../lib/chContent";
+import { localePaths, type Locale } from "../../lib/i18n";
+export const getStaticPaths = localePaths;
+const locale = Astro.params.lang as Locale;
 ---
 
-{swissProfile ? <PageLayout><Fragment set:html={canonicalStaticHtml("pruefung")} /></PageLayout> :
-<PageLayout>
+{swissProfile ? <PageLayout locale={locale}><Fragment set:html={canonicalStaticHtml(locale, "pruefung")} /></PageLayout> :
+<PageLayout locale={locale}>
 <h1>Pr&uuml;fung</h1>
 <p>Der Empfang von Amateurfunksendungen und der Besitz von Amateurfunkger&auml;ten ist in Deutschland jedem und jeder gestattet. F&uuml;r den Betrieb eines Senders einer Amateurfunkstelle ist eine Zulassung zur Teilnahme am Amateurfunkdienst mit personengebundener Rufzeichenzuteilung erforderlich. Aus diesem Grund f&uuml;hrt die <em>Bundesnetzagentur</em> (BNetzA) Amateurfunkpr&uuml;fungen durch und bescheinigt im Fall des Bestehens der Pr&uuml;fung den Nachweis der erforderlichen Kenntnisse in Form eines Amateurfunkzeugnisses oder einer entsprechenden harmonisierten Pr&uuml;fungsbescheinigung. Erst damit kann die entsprechende Zulassung zur Teilnahme am Amateurfunkdienst mit einem pers&ouml;nlichen Rufzeichen beantragt werden.</p>
 <h2>Erstpr&uuml;fungen</h2>

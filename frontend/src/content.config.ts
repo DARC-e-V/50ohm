@@ -3,146 +3,99 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { basename, join, resolve } from "node:path";
 
 import { defineCollection, z } from "astro:content";
-import { file, glob, type Loader, type LoaderContext } from "astro/loaders";
+import { glob, type Loader, type LoaderContext } from "astro/loaders";
 
 import { EDITIONS } from "./lib/editions";
+import { LOCALES } from "./lib/i18n";
 
-/**
- * The output of `ohm -f mdx -o ./build`, one level above the frontend.
- *
- * The builder writes
- *   <EDITION>/index.mdx                        -> editions
- *   <EDITION>/<chapter>/index.mdx              -> chapters
- *   <EDITION>/<chapter>/<section>.mdx          -> sections
- *   includes/<ident>.html                      -> includes
- *   _data/questions.json                       -> questions
- *   pictures/, photos/, _data/*index.json      -> copied to public/ by the integration
- */
-const COURSE_DIR = process.env.OHM_BUILD_DIR
-  ? pathToFileURL(`${resolve(process.env.OHM_BUILD_DIR)}/`)
+const BUILD_ROOT = process.env.OHM_BUILD_ROOT
+  ? pathToFileURL(`${resolve(process.env.OHM_BUILD_ROOT)}/`)
   : new URL("../../build/", import.meta.url);
-
-// The build directory also holds the HTML build, so the patterns are scoped to the known
-// editions instead of matching any directory that happens to sit there.
 const editionGroup = `{${EDITIONS.join(",")}}`;
-
-// The default would slugify the ids, which lowercases the edition and drops the `index`
-// segment. The paths are already the identifiers we want, so keep them verbatim.
+const localizedPatterns = (suffix: string) => LOCALES.map((locale) => `${locale}/${suffix}`);
 const pathAsId = ({ entry }: { entry: string }) => entry.replace(/\.mdx$/, "");
 
 const editions = defineCollection({
-  loader: glob({ base: COURSE_DIR, pattern: `${editionGroup}/index.mdx`, generateId: pathAsId }),
-  schema: z.object({
-    title: z.string(),
-    edition: z.string(),
-  }),
+  loader: glob({ base: BUILD_ROOT, pattern: localizedPatterns(`${editionGroup}/index.mdx`), generateId: pathAsId }),
+  schema: z.object({ title: z.string(), edition: z.string() }),
 });
 
 const chapters = defineCollection({
-  loader: glob({ base: COURSE_DIR, pattern: `${editionGroup}/*/index.mdx`, generateId: pathAsId }),
+  loader: glob({ base: BUILD_ROOT, pattern: localizedPatterns(`${editionGroup}/*/index.mdx`), generateId: pathAsId }),
   schema: z.object({
-    title: z.string(),
-    ident: z.string(),
-    edition: z.string(),
-    chapterNumber: z.number(),
-    videoUrl: z.string().optional(),
+    title: z.string(), ident: z.string(), edition: z.string(), chapterNumber: z.number(), videoUrl: z.string().optional(),
   }),
 });
 
 const sections = defineCollection({
   loader: glob({
-    base: COURSE_DIR,
-    pattern: [`${editionGroup}/*/*.mdx`, `!${editionGroup}/*/index.mdx`],
+    base: BUILD_ROOT,
+    pattern: [
+      ...localizedPatterns(`${editionGroup}/*/*.mdx`),
+      ...localizedPatterns(`${editionGroup}/*/index.mdx`).map((pattern) => `!${pattern}`),
+    ],
     generateId: pathAsId,
   }),
   schema: z.object({
-    title: z.string(),
-    ident: z.string(),
-    edition: z.string(),
-    chapterIdent: z.string(),
-    chapterNumber: z.number(),
-    sectionNumber: z.number(),
-    videoUrl: z.string().optional(),
-    status: z.string().optional(),
-    // The builder emits this key literally; `data.class` is a valid property access.
-    class: z.string().optional(),
+    title: z.string(), ident: z.string(), edition: z.string(), chapterIdent: z.string(),
+    chapterNumber: z.number(), sectionNumber: z.number(), videoUrl: z.string().optional(),
+    status: z.string().optional(), class: z.string().optional(),
   }),
 });
 
-/**
- * Raw HTML includes (applets), read with `node:fs`.
- *
- * A `?raw` import would work too, but `../../build` sits outside the Vite root, and a loader
- * avoids having to open that up.
- */
-function includesLoader(dir: URL): Loader {
-  const path = fileURLToPath(dir);
-
+function localizedIncludesLoader(root: URL): Loader {
+  const path = fileURLToPath(root);
   return {
-    name: "includes-loader",
+    name: "localized-includes-loader",
     load: async ({ store, parseData, generateDigest, logger, watcher }: LoaderContext) => {
       store.clear();
-
-      let names: string[];
-      try {
-        names = (await readdir(path)).filter((name: string) => name.endsWith(".html"));
-      } catch {
-        logger.warn(`No includes at ${path} — run \`ohm -f mdx -o ./build\` first.`);
-        return;
+      for (const locale of LOCALES) {
+        const directory = join(path, locale, "includes");
+        let names: string[];
+        try { names = (await readdir(directory)).filter((name) => name.endsWith(".html")); }
+        catch { logger.warn(`No includes at ${directory}`); continue; }
+        for (const name of names) {
+          const html = await readFile(join(directory, name), "utf-8");
+          const id = `${locale}/${basename(name, ".html")}`;
+          store.set({ id, data: await parseData({ id, data: { html } }), digest: generateDigest(html) });
+        }
+        watcher?.add(directory);
       }
-
-      for (const name of names) {
-        const id = basename(name, ".html");
-        const html = await readFile(join(path, name), "utf-8");
-        store.set({
-          id,
-          data: await parseData({ id, data: { html } }),
-          digest: generateDigest(html),
-        });
-      }
-
-      watcher?.add(path);
     },
   };
 }
 
 const includes = defineCollection({
-  loader: includesLoader(new URL("includes/", COURSE_DIR)),
-  schema: z.object({
-    html: z.string(),
-  }),
+  loader: localizedIncludesLoader(BUILD_ROOT), schema: z.object({ html: z.string() }),
 });
 
-/** A picture of the question pool, served from `/pictures/<id>.svg`. */
-const questionPicture = z.object({
-  id: z.string(),
-  alt: z.string(),
-});
-
-/**
- * `_data/questions.json`, the whole question pool keyed by question number.
- *
- * `question` and the answer texts are source text as the BNetzA delivers it: `$…$` for KaTeX and
- * `<u>` for emphasis. Read them through `lib/questions.ts`, which escapes them for HTML.
- */
+const questionPicture = z.object({ id: z.string(), alt: z.string() });
 const questions = defineCollection({
-  loader: file(fileURLToPath(new URL("_data/questions.json", COURSE_DIR))),
+  loader: {
+    name: "localized-questions-loader",
+    load: async ({ store, parseData, generateDigest, logger, watcher }: LoaderContext) => {
+      store.clear();
+      for (const locale of LOCALES) {
+        const path = fileURLToPath(new URL(`${locale}/_data/questions.json`, BUILD_ROOT));
+        try {
+          const source = await readFile(path, "utf-8");
+          const questions = JSON.parse(source) as Record<string, unknown>;
+          for (const [number, value] of Object.entries(questions)) {
+            const id = `${locale}/${number}`;
+            store.set({ id, data: await parseData({ id, data: { ...(value as object), locale } }), digest: generateDigest(JSON.stringify(value)) });
+          }
+          watcher?.add(path);
+        } catch (error) {
+          logger.error(`Cannot load localized questions from ${path}: ${String(error)}`);
+          throw error;
+        }
+      }
+    },
+  },
   schema: z.object({
-    // Swiss questions use class 0; the builder omits this optional field for them.
-    class: z.enum(["N", "E", "A"]).optional(),
-    question: z.string(),
-    picture: questionPicture.optional(),
-    // Always four, in the order of the pool: the first one is the correct answer. An answer whose
-    // picture is missing from the content repository ends up empty, the builder warns about it.
-    answers: z
-      .array(
-        z.object({
-          text: z.string().optional(),
-          picture: questionPicture.optional(),
-        }),
-      )
-      .length(4),
-    // A code from the pool's metadata; style-course.css styles some of them as `.layout-<code>`.
+    locale: z.enum(LOCALES), class: z.enum(["N", "E", "A"]).optional(),
+    question: z.string(), picture: questionPicture.optional(),
+    answers: z.array(z.object({ text: z.string().optional(), picture: questionPicture.optional() })).length(4),
     layout: z.string().optional(),
   }),
 });

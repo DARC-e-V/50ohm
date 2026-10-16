@@ -1,4 +1,4 @@
-"""Prepare a Swiss MDX input from the German canonical generator export.
+"""Prepare a Swiss MDX input from one localized canonical generator export.
 
 The source is read-only. A fresh, ignored directory holds the derived question
 metadata and links to the exported course assets.
@@ -14,6 +14,7 @@ from jinja2 import Environment, StrictUndefined
 from ohm_renderer.document import Document
 from ohm_renderer.fifty_ohm_html_renderer import FiftyOhmHtmlRenderer
 
+LANGUAGES = ("de", "fr", "it")
 EDITIONS = ("NE", "A", "NEA")
 PICTURE_FIELDS = ("picture_question", "picture_a", "picture_b", "picture_c", "picture_d")
 EXTRA_HTML_PAGES = ("index", "kurse-karte", "kurse-liste", "patenkarte", "todo")
@@ -40,7 +41,7 @@ def digest_tree(root: Path) -> str:
     return hasher.hexdigest()
 
 
-def render_extra_pages(source: Path, output: Path) -> None:
+def render_extra_pages(source: Path, output: Path, language: str) -> None:
     """Render extracted Jinja pages with current canonical snippets."""
     snippets = {}
     with FiftyOhmHtmlRenderer() as renderer:
@@ -48,7 +49,7 @@ def render_extra_pages(source: Path, output: Path) -> None:
             html = renderer.render_inner(Document(path.read_text(encoding="utf-8"))).strip()
             snippets[path.stem] = html[3:-4] if html.startswith("<p>") and html.endswith("</p>") else html
 
-    templates = source / "generator_extra_content" / "de" / "templates" / "html"
+    templates = source / "generator_extra_content" / language / "templates" / "html"
     rendered = output / "rendered_extra_content" / "html"
     rendered.mkdir(parents=True)
     env = Environment(undefined=StrictUndefined, autoescape=False)
@@ -92,7 +93,9 @@ def count_sections(toc: dict) -> dict[str, int]:
     return {edition: sum(cls in edition for cls in classes) for edition in EDITIONS}
 
 
-def prepare(source: Path, output: Path, content_repo: Path, question_repo: Path) -> dict:
+def prepare(source: Path, output: Path, language: str, content_repo: Path, question_repo: Path) -> dict:
+    if language not in LANGUAGES:
+        raise ValueError(f"Unsupported language: {language}")
     source = source.resolve(strict=True)
     output = output.absolute()
     if output.exists():
@@ -125,7 +128,7 @@ def prepare(source: Path, output: Path, content_repo: Path, question_repo: Path)
     (output / "contents" / "questions" / "metadata3b.json").write_text(
         json.dumps(metadata, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    render_extra_pages(source, output)
+    render_extra_pages(source, output, language)
     details = {}
     for edition in EDITIONS:
         original = json.loads((source / "toc" / f"{edition}.json").read_text(encoding="utf-8"))
@@ -135,6 +138,7 @@ def prepare(source: Path, output: Path, content_repo: Path, question_repo: Path)
                    ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
     report = {
+        "language": language,
         "source": str(source),
         "content_commit": revision(content_repo),
         "question_commit": revision(question_repo),
@@ -155,13 +159,14 @@ def prepare(source: Path, output: Path, content_repo: Path, question_repo: Path)
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", type=Path, required=True, help="Fresh German generator input")
+    parser.add_argument("--source", type=Path, required=True, help="Fresh localized generator input")
+    parser.add_argument("--language", choices=LANGUAGES, required=True)
     parser.add_argument("--output", type=Path, required=True, help="New ignored output directory")
     parser.add_argument("--content-repo", type=Path, required=True)
     parser.add_argument("--question-repo", type=Path, required=True)
     args = parser.parse_args()
-    report = prepare(args.source, args.output, args.content_repo, args.question_repo)
-    print(json.dumps({"output": str(args.output.absolute()), "questions": report["questions"],
+    report = prepare(args.source, args.output, args.language, args.content_repo, args.question_repo)
+    print(json.dumps({"language": args.language, "output": str(args.output.absolute()), "questions": report["questions"],
                       "supplemental_metadata": len(report["supplemental_metadata"]),
                       "section_counts": report["section_counts"]}, ensure_ascii=False))
 

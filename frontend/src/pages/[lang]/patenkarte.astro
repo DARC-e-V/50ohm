@@ -1,18 +1,21 @@
 ---
 // Port of packages/ohm-builder/src/ohm_builder/templates/html/patenkarte.html, wrapped by
 // `_build_page(result)`. The template consumes no snippets — it is static markup.
-import PageLayout from "../layouts/PageLayout.astro";
-import { HOME_URL, LEARN_URL } from "../lib/urls";
-import { extractedHtml, swissProfile } from "../lib/chContent";
-const swissBody = swissProfile ? extractedHtml("patenkarte") : "";
+import PageLayout from "../../layouts/PageLayout.astro";
+import { homeUrl, LEARN_URL } from "../../lib/urls";
+import { extractedHtml, swissProfile } from "../../lib/chContent";
+import { localePaths, type Locale } from "../../lib/i18n";
+export const getStaticPaths = localePaths;
+const locale = Astro.params.lang as Locale;
+const swissBody = swissProfile ? extractedHtml(locale, "patenkarte") : "";
 ---
 
-<PageLayout>
+<PageLayout locale={locale}>
 {swissProfile ? <Fragment set:html={swissBody} /> : <Fragment>
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href={HOME_URL}>Home</a></li>
-      <li class="breadcrumb-item"><a href={LEARN_URL}>Lernen</a></li>
+      <li class="breadcrumb-item"><a href={homeUrl(locale)}>Home</a></li>
+      <li class="breadcrumb-item"><a href={LEARN_URL(locale)}>Lernen</a></li>
       <li class="breadcrumb-item active" aria-current="page">Ausbildungspaten</li>
     </ol>
   </nav>

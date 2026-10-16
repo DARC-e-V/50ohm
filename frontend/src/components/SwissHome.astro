@@ -1,8 +1,11 @@
 ---
 import PageLayout from "../layouts/PageLayout.astro";
 import { extractedHtml } from "../lib/chContent";
+import type { Locale } from "../lib/i18n";
 
-const body = extractedHtml("index");
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const body = extractedHtml(locale, "index");
 ---
 
 <PageLayout>
