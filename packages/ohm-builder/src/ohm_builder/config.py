@@ -7,10 +7,13 @@ from pathlib import Path
 class Config:
     __env_prefix = "OHM"
 
-    def __init__(self, content_path: str = None, build_path: str = None):
-        if os.path.isfile("config/config.json"):
-            with open("config/config.json") as file:
+    def __init__(self, content_path: str = None, build_path: str = None, config_path: str = None):
+        configuration = config_path or "config/config.json"
+        if os.path.isfile(configuration):
+            with open(configuration) as file:
                 self.config = json.load(file)
+        elif config_path is not None:
+            raise FileNotFoundError(f"Configuration file not found: {configuration}")
         else:
             self.config = {}
 
@@ -29,8 +32,8 @@ class Config:
         self.p_data_static = self.p_data_contents / "static"
         self.p_data_solutions = self.p_data_contents / "solutions"
 
-        self.p_data_fragenkatalog = self.p_data_questions / "fragenkatalog3b.json"
-        self.p_data_metadata = self.p_data_questions / "metadata3b.json"
+        self.p_data_fragenkatalog = self.p_data_questions / self.get_config_value("questions", "fragenkatalog3b.json")
+        self.p_data_metadata = self.p_data_questions / self.get_config_value("question_metadata", "metadata3b.json")
 
         self.p_build = Path(self.get_config_value("output", "./build") if build_path is None else build_path)
         self.p_build_photos = self.p_build / "photos"

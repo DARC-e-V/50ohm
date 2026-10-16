@@ -8,7 +8,7 @@ import mathAsText from './markdown/math-as-text.mjs';
 
 // https://astro.build/config
 export default defineConfig({
-    integrations: [mdx(), copyCourseAssets()],
+    integrations: [mdx(), copyCourseAssets({ source: process.env.OHM_BUILD_DIR ?? '../build' })],
     markdown: {
         // `math` is off by default, and without it MDX reads the `{` in `\qty{1}{\hertz}` as a
         // JSX expression — 56 % of the generated files fail to parse. It is enabled for the

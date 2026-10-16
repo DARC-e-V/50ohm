@@ -26,11 +26,12 @@ def main(
     ] = [OutputFormat.html],  # noqa: B006 -- default value is required for typer
     input: Annotated[str | None, typer.Option("--input", "-i", help="Content source directory.")] = None,
     output: Annotated[str | None, typer.Option("--output", "-o", help="Destination directory to build to.")] = None,
+    config_file: Annotated[str | None, typer.Option("--config", help="Build configuration JSON file.")] = None,
     render_editions: Annotated[bool, typer.Option(help="Skip building editions.")] = True,
     render_solutions: Annotated[bool, typer.Option(help="Skip building solutions.")] = True,
     build_zip: Annotated[bool, typer.Option(help="Whether to build a zip file of the output.")] = False,
 ) -> None:
-    conf = config.Config(content_path=input, build_path=output)
+    conf = config.Config(content_path=input, build_path=output, config_path=config_file)
 
     # A format that does not support a step implements it as a no-op, so the sequence of steps is
     # the same for every format.

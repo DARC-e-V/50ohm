@@ -1,6 +1,6 @@
 import { cp, mkdir, stat } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 
 /**
  * Copies the generated parts of the course build into `public/`.
@@ -22,7 +22,7 @@ export default function copyCourseAssets({ source = "../build" } = {}) {
       "astro:config:setup": ({ config, logger }) => {
         const root = fileURLToPath(config.root);
         const publicDir = fileURLToPath(config.publicDir);
-        const from = join(root, source);
+        const from = resolve(root, source);
 
         copy = async () => {
           if (!(await exists(from))) {

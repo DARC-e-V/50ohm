@@ -4,6 +4,7 @@ from pathlib import Path
 import yaml
 from ohm_renderer.document import Document
 from ohm_renderer.fifty_ohm_mdx_renderer import FiftyOhmMdxRenderer
+from ohm_renderer.tag import captures
 from tqdm import tqdm
 
 from .builder import Builder, ChapterContext, SectionContext
@@ -11,6 +12,32 @@ from .question import QuestionData
 
 # The pool encodes the license class as a digit.
 QUESTION_CLASSES = {"1": "N", "2": "E", "3": "A"}
+BLOCK_TAG = re.compile(r"^<(/?)(" + "|".join(captures) + r")>$")
+
+
+def normalize_block_tags(content: str, section_ident: str) -> str:
+    """Give DARCdown block tags paragraph boundaries and ignore orphan closers.
+
+    An orphan closing tag is a source defect. It is reported, but cannot be
+    emitted as JSX because it would break the whole static site build.
+    """
+    opened: dict[str, int] = {}
+    lines = []
+    for line in content.splitlines():
+        match = BLOCK_TAG.fullmatch(line.strip())
+        if not match:
+            lines.append(line)
+            continue
+        closing, tag = match.groups()
+        if closing:
+            if not opened.get(tag, 0):
+                tqdm.write(f"Ignoring unmatched </{tag}> in section {section_ident}")
+                continue
+            opened[tag] -= 1
+        else:
+            opened[tag] = opened.get(tag, 0) + 1
+        lines.extend(("", line.strip(), ""))
+    return "\n".join(lines)
 
 
 def present(meta: dict) -> dict:
@@ -18,8 +45,8 @@ def present(meta: dict) -> dict:
     return {key: value for key, value in meta.items() if value is not None}
 
 
-def collapse_whitespace(text: str) -> str:
-    return re.sub(r"\s+", " ", text).strip()
+def collapse_whitespace(text: str | None) -> str:
+    return re.sub(r"\s+", " ", text or "").strip()
 
 
 def frontmatter(meta: dict) -> str:
@@ -98,6 +125,10 @@ class MdxBuilder(Builder):
     # -- sections ----------------------------------------------------------
 
     def _render_section(self, ctx: SectionContext) -> str:
+        # DARCdown permits a block tag directly after a paragraph without a
+        # blank line. Mistletoe otherwise absorbs its opener into the paragraph,
+        # leaving an unmatched closing tag for MDX to reject.
+        content = normalize_block_tags(ctx.content, ctx.section["ident"])
         with FiftyOhmMdxRenderer(
             picture_handler=self._picture_handler,
             photo_handler=self._photo_handler,
@@ -106,7 +137,7 @@ class MdxBuilder(Builder):
             chapter=str(ctx.chapter.number),
             section=str(ctx.number),
         ) as renderer:
-            return renderer.render(Document(ctx.content))
+            return renderer.render(Document(content))
 
     def _write_section(self, ctx: SectionContext, body: str) -> None:
         section = ctx.section

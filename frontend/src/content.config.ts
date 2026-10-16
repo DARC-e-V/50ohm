@@ -1,6 +1,6 @@
 import { readFile, readdir } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
-import { basename, join } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { basename, join, resolve } from "node:path";
 
 import { defineCollection, z } from "astro:content";
 import { file, glob, type Loader, type LoaderContext } from "astro/loaders";
@@ -18,7 +18,9 @@ import { EDITIONS } from "./lib/editions";
  *   _data/questions.json                       -> questions
  *   pictures/, photos/, _data/*index.json      -> copied to public/ by the integration
  */
-const COURSE_DIR = new URL("../../build/", import.meta.url);
+const COURSE_DIR = process.env.OHM_BUILD_DIR
+  ? pathToFileURL(`${resolve(process.env.OHM_BUILD_DIR)}/`)
+  : new URL("../../build/", import.meta.url);
 
 // The build directory also holds the HTML build, so the patterns are scoped to the known
 // editions instead of matching any directory that happens to sit there.
@@ -126,7 +128,8 @@ const questionPicture = z.object({
 const questions = defineCollection({
   loader: file(fileURLToPath(new URL("_data/questions.json", COURSE_DIR))),
   schema: z.object({
-    class: z.enum(["N", "E", "A"]),
+    // Swiss questions use class 0; the builder omits this optional field for them.
+    class: z.enum(["N", "E", "A"]).optional(),
     question: z.string(),
     picture: questionPicture.optional(),
     // Always four, in the order of the pool: the first one is the correct answer. An answer whose

@@ -30,7 +30,7 @@ function evaluate(event: Event) {
 }
 
 for (const answers of document.querySelectorAll(".question .answers")) {
-  shuffle(answers);
+  if (import.meta.env.PUBLIC_SHUFFLE_ANSWERS !== "false") shuffle(answers);
 
   // Only now: as a live region from the start, the shuffle would read out every answer.
   answers.setAttribute("aria-live", "polite");
