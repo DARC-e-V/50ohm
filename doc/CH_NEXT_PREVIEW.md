@@ -78,7 +78,19 @@ popd >/dev/null
 The audit lists every course reference absent from the current question
 catalog. Add `--strict-references` to make that condition fail the audit.
 Serve `frontend/dist/` over HTTP for browser inspection; root-relative URLs
-mean `file://` is unsuitable.
+mean `file://` is unsuitable. On the machine that built the preview, run this
+in a separate terminal (it does not rebuild anything):
+
+```bash
+pushd /home/jjcarron/proj/50-Ohms/ham-translator/50ohm-generator-next/frontend/dist >/dev/null
+python -m http.server 8765 --bind 127.0.0.1
+# Stop the server with Ctrl-C, then run: popd >/dev/null
+```
+
+Open `http://127.0.0.1:8765/` for the Swiss home page, or `/NE/`, `/A/`
+and `/NEA/` for the three editions. The generated files are owned by the
+local user and readable by that user; binding to loopback restricts the
+preview server to the same machine. This is a local preview, not a deployment.
 
 ## Verified first run (16 October 2026)
 
@@ -98,8 +110,10 @@ mean `file://` is unsuitable.
 The source course contains **145 references to question identifiers absent
 from the current Swiss pool**. They render as visible “Frage nicht gefunden”
 placeholders in this preview. The complete ID list is regenerated in
-`tmp/ch-audit-<run-id>.json`; 125 exist in the historical 3b catalog and 20
-`VC` identifiers are absent there too. Resolving those references requires a
+`tmp/ch-audit-<run-id>.json`; all 145 exist in the historical 3b catalog.
+Of these, 40 are recorded under `pruned` in the current full Swiss catalog;
+the other 105 are absent from both its active questions and `pruned`.
+Resolving those references requires a
 content or curriculum decision; this prototype does not substitute historical
 question text.
 
