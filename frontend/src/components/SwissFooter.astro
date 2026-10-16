@@ -1,6 +1,6 @@
 ---
 import { INFO_URL } from "../lib/urls";
-import { siteLabel } from "../lib/chContent";
+import { feedbackUrl, releaseId, siteLabel } from "../lib/chContent";
 ---
 
 <footer class="text-lg-start border-top border-dark mt-5 pt-3">
@@ -11,5 +11,9 @@ import { siteLabel } from "../lib/chContent";
       </div>
       <div>{siteLabel("footer_offer", "")}</div>
     </div>
+    {releaseId && <div class="site-footer-release small">
+      <span>{siteLabel("release_label", "")}: <strong>{releaseId}</strong></span>
+      {feedbackUrl && <a class="btn btn-sm btn-outline-secondary" data-feedback-link data-feedback-base={feedbackUrl} data-release-id={releaseId} data-lang="de" href={feedbackUrl} target="_blank" rel="noopener noreferrer">{siteLabel("feedback_button", "")}</a>}
+    </div>}
   </div>
 </footer>

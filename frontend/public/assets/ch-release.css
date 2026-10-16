@@ -1,0 +1,50 @@
+/* Swiss release controls; mirrors the current release without changing DARC assets. */
+.header-beta-slot { flex: 0 0 auto; margin: 0 8px; }
+.fiftyohm-layout-outer-head .fiftyohm-layout-right {
+  display: flex; align-items: center; justify-content: flex-end; padding-right: 12px;
+}
+@media (min-width: 941px) {
+  .fiftyohm-layout-outer-head .fiftyohm-layout-inner { position: relative; }
+  .header-beta-slot {
+    position: absolute; left: 50%; top: 50%; margin: 0;
+    transform: translate(-50%, calc(-50% - 0.75em));
+  }
+  .header-languages { transform: translateY(-0.75em); }
+}
+@media (max-width: 940px) {
+  .fiftyohm-layout-outer-head .fiftyohm-layout-right { flex: 0 0 auto; padding-right: 8px; }
+  .fiftyohm-layout-outer-head .fiftyohm-layout-main { min-width: 0; gap: 4px; }
+  .header-beta-slot { margin: 0 4px; font-size: 0.75rem; }
+  .header-beta-warning .material-icons { font-size: 18px; }
+}
+@media (max-width: 620px) {
+  .fiftyohm-layout-outer-head .header-languages a,
+  .fiftyohm-layout-outer-head .header-languages span { padding-inline: 4px; }
+  .fiftyohm-layout-outer-head .fiftyohm-layout-main > .fiftyohm-brand span,
+  .fiftyohm-layout-outer-head .fiftyohm-layout-main > .fiftyohm-brand br { display: none; }
+  .fiftyohm-layout-outer-head .fiftyohm-logo { max-width: 24vw; height: auto; }
+}
+.header-beta-warning { position: relative; color: #ffda6a; }
+.header-beta-warning summary { list-style: none; cursor: pointer; }
+.header-beta-warning summary::-webkit-details-marker { display: none; }
+.header-beta-disclaimer {
+  position: absolute; z-index: 20; top: calc(100% + 8px); left: 50%;
+  transform: translateX(-50%); width: min(26rem, calc(100vw - 24px));
+  padding: 14px; color: #332701; background: #fff3cd;
+  border: 1px solid #ffda6a; border-radius: 6px;
+}
+.header-languages { display: flex; flex: 0 0 auto; }
+.header-languages a, .header-languages span {
+  padding: 3px 6px; color: #fff; border: 1px solid #70777e;
+  text-decoration: none; font-size: 0.75rem; line-height: 1.4;
+}
+.header-languages :is(a, span) + :is(a, span) { border-left: 0; }
+.header-languages span[aria-disabled] { color: #aeb3b8; }
+.header-languages a:hover, .header-languages a[aria-current] {
+  color: #212529; background: #ffda6a;
+}
+.site-footer-release {
+  display: flex; flex-direction: column; align-items: flex-end;
+  gap: 6px; min-width: 0; max-width: 19rem;
+  margin-left: auto; text-align: right; overflow-wrap: anywhere;
+}

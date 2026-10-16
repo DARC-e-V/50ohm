@@ -2,6 +2,11 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 export const swissProfile = import.meta.env.PUBLIC_SITE_PROFILE === "ch";
+export const releaseId = import.meta.env.PUBLIC_CH_RELEASE_ID || "";
+export const isBeta = import.meta.env.PUBLIC_CH_BETA === "true";
+export const feedbackUrl = import.meta.env.PUBLIC_CH_FEEDBACK_URL || "";
+export const frenchSiteUrl = import.meta.env.PUBLIC_CH_FR_URL || "";
+export const italianSiteUrl = import.meta.env.PUBLIC_CH_IT_URL || "";
 
 function inputFile(relativePath: string): string {
   const input = process.env.OHM_CH_INPUT_DIR;

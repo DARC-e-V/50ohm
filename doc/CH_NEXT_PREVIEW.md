@@ -30,6 +30,13 @@ labels; `infos` and `pruefung` come from the staged canonical static pages.
 The original DARC Astro profile remains available when `PUBLIC_SITE_PROFILE`
 is not `ch`.
 
+The Swiss shell also uses the extracted release labels to show an optional
+BETA warning and an explicit build reference in the footer. Its DE control
+returns to the German preview home. FR and IT are links only when their
+existing site URLs are supplied; this prototype does not build Astro versions
+of those languages. The feedback button uses the same default endpoint and
+`release_id`, `lang`, `page` query parameters as the current release.
+
 ## Requirements
 
 - Python 3.14 with `uv`; this branch selects 3.14 in `.python-version`.
@@ -39,6 +46,33 @@ is not `ch`.
 - No LaTeX installation is needed for this MDX/Astro preview.
 
 ## Rebuild from the orchestrator directory
+
+The wrapper runs the same staging, MDX, Astro and audit steps below. It requires
+an explicit build reference and writes the preview to `frontend/dist/`. For a
+beta preview with language links to already published sites:
+
+```bash
+pushd /home/jjcarron/proj/50-Ohms/ham-translator >/dev/null
+pushd 50ohm-generator-next >/dev/null
+tools/build_ch_astro_preview.sh \
+  --release-id beta-2026-10-16-QP_Revision_3.0.2 --beta \
+  --tag Revision_3.0.2 \
+  --fr-url https://50ohm.uska.ch/isq/site/fr/index.html \
+  --it-url https://50ohm.uska.ch/isq/site/it/index.html
+popd >/dev/null
+popd >/dev/null
+```
+
+`--tag` selects a question-pool Git tag; omit it to use the current canonical
+question working tree. `--feedback-url` overrides the current release feedback
+form. Omit `--beta` for a non-beta preview. Without `--fr-url` and `--it-url`,
+FR and IT are visible but deliberately not clickable. The wrapper does not
+commit, tag, push or publish a release. It keeps per-step logs in the
+orchestrator's ignored `tmp/ch-preview-logs/<run-id>/` directory. Run `--help`
+for its options.
+
+The expanded commands below are retained for inspecting or changing a single
+build stage.
 
 The following commands create a new ignored input and output for each run.
 They write only to `work/` in the Swiss content repository and ignored
@@ -80,7 +114,8 @@ env XDG_CONFIG_HOME=../tmp/astro-config ASTRO_TELEMETRY_DISABLED=1 \
   npm run build
 popd >/dev/null
 
-python tools/audit_ch_build.py \
+UV_CACHE_DIR=../tmp/next-uv-cache uv run --locked --python 3.14 python \
+  tools/audit_ch_build.py \
   --source "$input_dir" --build "$build_dir" --site frontend/dist \
   --output "tmp/ch-audit-$run_id.json"
 popd >/dev/null

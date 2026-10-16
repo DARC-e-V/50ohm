@@ -23,6 +23,7 @@ import { siteLabel, swissProfile } from "../lib/chContent";
     <link href="/assets/bootstrap-5.2.0-beta1-dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/style-fiftyohm.css?ts=202312172012">
     <link rel="stylesheet" href="/assets/style-course.css?ts=202312172012">
+    {swissProfile && <link rel="stylesheet" href="/assets/ch-release.css">}
     <link rel="stylesheet" href="/assets/katex/katex.min.css">
     <script is:inline defer src="/assets/katex/katex.min.js"></script>
     <script is:inline defer src="/assets/katex/auto-render.min.js"></script>
@@ -51,5 +52,6 @@ import { siteLabel, swissProfile } from "../lib/chContent";
     <slot />
 
     <script is:inline src="/assets/bootstrap-5.2.0-beta1-dist/js/bootstrap.bundle.min.js"></script>
+    {swissProfile && <script is:inline src="/assets/ch-release.js"></script>}
   </body>
 </html>

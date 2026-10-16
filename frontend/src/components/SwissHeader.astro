@@ -1,6 +1,6 @@
 ---
 import { HOME_URL, LEARN_URL, SEARCH_URL, INFO_URL, EXAM_URL } from "../lib/urls";
-import { siteLabel } from "../lib/chContent";
+import { feedbackUrl, frenchSiteUrl, isBeta, italianSiteUrl, releaseId, siteLabel } from "../lib/chContent";
 
 const navigation = [
   [HOME_URL, "home", "nav_start"],
@@ -20,6 +20,20 @@ const navigation = [
         <br />
         <span>{siteLabel("brand_tagline", "")}</span>
       </a>
+      {releaseId && isBeta && (
+        <div class="header-beta-slot">
+          <details class="header-beta-warning">
+            <summary class="d-flex align-items-center gap-1" aria-label={siteLabel("beta_warning_aria", "")}>
+              <span class="material-icons" aria-hidden="true">warning</span>
+              <strong>BETA</strong>
+            </summary>
+            <div class="header-beta-disclaimer small">
+              <p>{siteLabel("beta_disclaimer", "")}</p>
+              {feedbackUrl && <a class="btn btn-sm btn-outline-dark" data-feedback-link data-feedback-base={feedbackUrl} data-release-id={releaseId} data-lang="de" href={feedbackUrl} target="_blank" rel="noopener noreferrer">{siteLabel("feedback_button", "")}</a>}
+            </div>
+          </details>
+        </div>
+      )}
       <div class="fiftyohm-nav-button" id="nav-button" onclick="toggleNavBar();">
         <svg id="nav-button-closed" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path class="background" d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z" /></svg>
         <svg id="nav-button-opened" class="hidden" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M120-240v-80h520v80H120Zm664-40L584-480l200-200 56 56-144 144 144 144-56 56ZM120-440v-80h400v80H120Zm0-200v-80h520v80H120Z" /></svg>
@@ -30,6 +44,12 @@ const navigation = [
         ))}
       </ul>
     </div>
-    <div class="fiftyohm-layout-right"></div>
+    <div class="fiftyohm-layout-right">
+      <nav class="header-languages" aria-label="DE / FR / IT">
+        <a href={HOME_URL} lang="de" aria-current="true">DE</a>
+        {frenchSiteUrl ? <a href={frenchSiteUrl} lang="fr">FR</a> : <span lang="fr" aria-disabled="true">FR</span>}
+        {italianSiteUrl ? <a href={italianSiteUrl} lang="it">IT</a> : <span lang="it" aria-disabled="true">IT</span>}
+      </nav>
+    </div>
   </div>
 </div>
