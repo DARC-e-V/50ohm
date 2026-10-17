@@ -2,10 +2,13 @@
 import { homeUrl, LEARN_URL, SEARCH_URL, INFO_URL, EXAM_URL } from "../lib/urls";
 import { feedbackUrl, isBeta, releaseId, siteLabel } from "../lib/chContent";
 import { LOCALES, type Locale } from "../lib/i18n";
-import { getRelativeLocaleUrl } from "astro:i18n";
 
 interface Props { locale: Locale }
 const { locale } = Astro.props;
+const pagePath = Astro.url.pathname;
+const localePrefix = new RegExp(`^/${locale}(?=/|$)`);
+const localizedPageUrl = (targetLocale: Locale) =>
+  `${pagePath.replace(localePrefix, `/${targetLocale}`)}${Astro.url.search}${Astro.url.hash}`;
 
 const navigation = [
   [homeUrl(locale), "home", "nav_start"],
@@ -18,10 +21,14 @@ const navigation = [
 
 <div class="fiftyohm-layout-outer fiftyohm-layout-outer-head">
   <div class="fiftyohm-layout-inner">
-    <div class="fiftyohm-layout-left"></div>
+    <div class="fiftyohm-layout-left">
+      <a class="fiftyohm-brand" href={homeUrl(locale)}>
+        <img class="fiftyohm-darc-logo" src="/assets/images/uska-logo.svg" alt="USKA" />
+      </a>
+    </div>
     <div class="fiftyohm-layout-main">
       <a class="fiftyohm-brand" href={homeUrl(locale)}>
-        <img class="fiftyohm-logo" src="/assets/images/50ohm.svg" alt="50 Ohm" />
+        <img class="fiftyohm-logo" src="/assets/images/50ohm_ch.svg" alt="50Ω Schweiz" />
         <br />
         <span>{siteLabel(locale, "brand_tagline", "")}</span>
       </a>
@@ -51,7 +58,7 @@ const navigation = [
     </div>
     <div class="fiftyohm-layout-right">
       <nav class="header-languages" aria-label="DE / FR / IT">
-        {LOCALES.map((targetLocale) => <a href={getRelativeLocaleUrl(targetLocale, "")} lang={targetLocale} aria-current={targetLocale === locale ? "page" : undefined}>{targetLocale.toUpperCase()}</a>)}
+        {LOCALES.map((targetLocale) => <a href={localizedPageUrl(targetLocale)} lang={targetLocale} aria-current={targetLocale === locale ? "page" : undefined}>{targetLocale.toUpperCase()}</a>)}
       </nav>
     </div>
   </div>

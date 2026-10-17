@@ -21,9 +21,9 @@ const { locale = "de" } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{siteLabel(locale, "page_title", "50Ω Lernplattform für Amateurfunk")}</title>
 
-    <link rel="icon" href="/assets/favicon/icon.png" type="image/png">
-    <link rel="icon" href="/assets/favicon/icon.svg" type="image/svg+xml">
-    <link rel="mask-icon" href="/assets/favicon/mask-icon.svg" color="#00ADEF">
+    <link rel="icon" href="/assets/favicon/icon-ch.png" type="image/png">
+    <link rel="icon" href="/assets/favicon/icon-ch.svg" type="image/svg+xml">
+    <link rel="mask-icon" href="/assets/favicon/mask-icon-ch.svg" color="#ac2d24">
     <link href="/assets/bootstrap-5.2.0-beta1-dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/style-fiftyohm.css?ts=202312172012">
     <link rel="stylesheet" href="/assets/style-course.css?ts=202312172012">
@@ -42,7 +42,8 @@ const { locale = "de" } = Astro.props;
       }
       function highlightRef(ref) {
         console.log(ref)
-        document.getElementById('ref_' + ref).style.background='#2aa6da';
+        const accent = getComputedStyle(document.documentElement).getPropertyValue('--site-primary-color').trim() || '#2aa6da';
+        document.getElementById('ref_' + ref).style.background=accent;
         setTimeout(() => {
           document.getElementById('ref_' + ref).style.background='none';
         }, 500);

@@ -27,9 +27,10 @@ stability, catalog and section counts, indexes and question SVGs.
 Swiss labels and injected pages come from the extracted resources in
 `50ohm-contents-ch/generator_extra_content/<language>/`, through the prepared input.
 The header includes the language links, optional BETA warning and feedback control.
-The footer displays the explicit release ID. The three language controls point to
-the locally generated language home pages. Site preparation, MDX, indexes and
-course media remain separated by language.
+The footer displays the explicit release ID. Language controls preserve the
+current route while changing its language prefix; all generated routes currently
+match across `de`, `fr`, and `it`. Site preparation, MDX, indexes and course
+media remain separated by language.
 
 ## Requirements
 
@@ -139,9 +140,15 @@ German `relaisfunkstellen` source is omitted from generated MDX with a build
 warning; the canonical source is unchanged. These points need separate
 review before any public deployment.
 
+The Swiss profile uses red favicon files (`icon-ch.png`, `icon-ch.svg`, and
+`mask-icon-ch.svg`) to distinguish them from the upstream blue icons. Answer
+label spacing is supplied by CSS. Standalone angle quantities without math
+delimiters are displayed as ordinary answer text so they match the answer font;
+this affects presentation only and leaves canonical data unchanged.
+
 ## Verified multilingual run (17 October 2026)
 
-Run `20261017-002200` completes preparation, MDX rendering, media, Astro and audits for all configured languages: DE, FR and IT. Each produces 832 pages from 1,665 questions, with the three Swiss editions NE/A/NEA. The 145 known missing question references remain visible placeholders.
+Run `20261017-180337` completes preparation, MDX rendering, media, Astro and audits for all configured languages: DE, FR and IT. Each produces 832 pages from 1,665 questions, with the three Swiss editions NE/A/NEA. The 145 known missing question references remain visible placeholders. This run includes preserved-page language links, the `EB303` angle-answer rendering and Swiss-red favicon URLs.
 
 Canonical representation corrections and the reviewed Italian dipole correction are recorded in `50ohm-contents-ch/review/technical_format/2026-10-17/` relative to the orchestrator. The build used the working canonical after recovery checkpoint `3e16d02f0`; the checkpoint hash alone does not identify the corrected working tree. `verification.json` records corrected file hashes.
 

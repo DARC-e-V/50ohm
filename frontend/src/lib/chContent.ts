@@ -39,7 +39,10 @@ export function extractedHtml(locale: Locale, name: string): string {
   if (!["index", "kurse-karte", "kurse-liste", "patenkarte", "todo"].includes(name)) {
     throw new Error(`Unknown extracted HTML page: ${name}`);
   }
-  return inputFile(locale, `rendered_extra_content/html/${name}.html`);
+  // Extracted pages use paths relative to the classic site root. Under Astro's
+  // locale-prefixed routes those would resolve below /de/, /fr/, or /it/.
+  return inputFile(locale, `rendered_extra_content/html/${name}.html`)
+    .replace(/\b(src|href)=(['"])assets\//g, "$1=$2/assets/");
 }
 
 export function canonicalStaticHtml(locale: Locale, name: string): string {

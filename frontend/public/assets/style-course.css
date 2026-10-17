@@ -188,7 +188,7 @@ ul {
 }
 
 ul li::marker {
-  color: #2aa6da;
+  color: var(--site-primary-color, #2aa6da);
 }
 
 ol li {
@@ -196,11 +196,11 @@ ol li {
 }
 
 a {
-  color: #2aa6da;
+  color: var(--bs-link-color, #2aa6da);
 }
 
 a:hover {
-  color: #2aa6da;
+  color: var(--bs-link-hover-color, var(--bs-link-color, #2aa6da));
 }
 
 footer {
@@ -312,7 +312,7 @@ span.formula {
 .course .margin em {
   font-style: normal;
   font-weight: 600;
-  color: #2aa6da;
+  color: var(--site-primary-color, #2aa6da);
 }
 
 .course .margin.tip:before,
@@ -339,7 +339,7 @@ span.formula {
 }
 
 .course .margin.tip {
-  border-left-color: #2aa6da;
+  border-left-color: var(--site-primary-color, #2aa6da);
 }
 
 .course .margin.tip:before {
@@ -397,7 +397,7 @@ span.formula {
   width: 4em;
   display: inline-block;
   padding: 6px 12px;
-  background: #00adef;
+  background: var(--site-primary-color, #00adef);
   color: #fff;
   border-radius: 3px 0 0 3px;
   text-align: right;
@@ -412,6 +412,7 @@ span.formula {
 
 .answers button:before {
   font-weight: 600;
+  margin-right: 0.25em;
 }
 
 .answers button:nth-child(1):before {

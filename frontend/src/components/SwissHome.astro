@@ -1,5 +1,4 @@
 ---
-import PageLayout from "../layouts/PageLayout.astro";
 import { extractedHtml } from "../lib/chContent";
 import type { Locale } from "../lib/i18n";
 
@@ -8,6 +7,4 @@ const { locale } = Astro.props;
 const body = extractedHtml(locale, "index");
 ---
 
-<PageLayout>
-  <Fragment set:html={body} />
-</PageLayout>
+<Fragment set:html={body} />

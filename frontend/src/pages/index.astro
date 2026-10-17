@@ -1,11 +1,32 @@
 ---
 import { getRelativeLocaleUrl } from "astro:i18n";
+import localeConfig from "../../i18n.config.json";
 import { LOCALES } from "../lib/i18n";
+
+const localeMessages = localeConfig.messages as Record<string, { language_name?: string }>;
+const pageTitle = "Test of the Next Generator with Swiss Content";
 ---
 
-<main class="container py-5">
-  <h1>50Ω</h1>
-  <nav aria-label="Choose language" class="d-flex gap-3">
-    {LOCALES.map((locale) => <a class="btn btn-primary" href={getRelativeLocaleUrl(locale, "")}>{locale.toUpperCase()}</a>)}
-  </nav>
-</main>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{pageTitle}</title>
+    <link href="/assets/bootstrap-5.2.0-beta1-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/style-fiftyohm.css">
+    <link rel="stylesheet" href="/assets/style-course.css">
+  </head>
+  <body>
+    <main class="container py-5">
+      <h1>{pageTitle}</h1>
+      <nav aria-label="Choose site language" class="d-flex flex-wrap gap-3 mt-4">
+        {LOCALES.map((locale) => (
+          <a class="btn btn-primary btn-lg" href={getRelativeLocaleUrl(locale, "")}>
+            {localeMessages[locale]?.language_name ?? locale.toUpperCase()}
+          </a>
+        ))}
+      </nav>
+    </main>
+  </body>
+</html>
