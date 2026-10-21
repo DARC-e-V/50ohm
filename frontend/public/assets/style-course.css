@@ -446,6 +446,21 @@ span.formula {
   margin: 1em 0em;
 }
 
+/* Inline question math follows its surrounding text (Roboto in answers,
+   Inter in the Swiss page shell) instead of KaTeX's default Times-based face. */
+p, div.question, ul, ol {
+  .katex {
+    font-family: inherit;
+    font-size: 1rem;
+  }
+  .katex .mathnormal {
+    font-family: inherit;
+  }
+  .katex .accent-body {
+    font-family: KaTeX_Main;
+  }
+}
+
 /* Quiz-Modus */
 body[data-quiz-mode][data-quiz-has-questions] .course > * {
   display: none !important;

@@ -1,4 +1,5 @@
 import { getEntry, type CollectionEntry } from "astro:content";
+import { delimitUnwrappedQuestionMath } from "./questionMath.js";
 
 /**
  * The questions of the BNetzA pool, as `_data/questions.json` carries them.
@@ -9,7 +10,10 @@ import { getEntry, type CollectionEntry } from "astro:content";
 
 export type QuestionData = CollectionEntry<"questions">["data"];
 
-export async function getQuestion(locale: string, number: string): Promise<QuestionData | undefined> {
+export async function getQuestion(
+  locale: string,
+  number: string,
+): Promise<QuestionData | undefined> {
   return (await getEntry("questions", `${locale}/${number}`))?.data;
 }
 
@@ -27,9 +31,9 @@ export function hasSolution(number: string): boolean {
 /**
  * The source text of a question or answer as HTML.
  *
- * The text is plain text with two exceptions: `$…$` is left alone for KaTeX, which reads the
- * text content in the browser, and `<u>` is the only markup the pool uses. Everything else is
- * escaped, so `(< 1 Ohm` or `$d > \frac…$` cannot turn into broken tags.
+ * DARCdown math commands are delimited for KaTeX when the pool omitted delimiters; existing
+ * formulas remain unchanged. `<u>` is the only markup the pool uses. Everything else is escaped,
+ * so `(< 1 Ohm` or `$d > \frac…$` cannot turn into broken tags.
  */
 export function questionHtml(text: string): string {
   const escaped = text
@@ -39,9 +43,9 @@ export function questionHtml(text: string): string {
     .replaceAll("&lt;u&gt;", "<u>")
     .replaceAll("&lt;/u&gt;", "</u>");
 
-  // The pool sometimes stores standalone siunitx quantities without the `$…$` delimiters
-  // that the legacy HTML template added around answer formulas. Handle simple angle values as
-  // ordinary answer text; other quantities are delimited so KaTeX's auto-render can process them.
+  // The pool often stores siunitx commands without `$…$` delimiters, including quantities
+  // embedded in prose. Keep simple standalone angles as ordinary answer text; delimit the other
+  // supported commands so KaTeX's auto-render can process them.
   const trimmed = escaped.trim();
   const quantity = parseStandaloneQuantity(trimmed);
   if (quantity?.unit === "\\degree") {
@@ -51,15 +55,12 @@ export function questionHtml(text: string): string {
     // answer's Roboto font, as with the surrounding text, instead of KaTeX's math face.
     return `${leading}${quantity.value}°${trailing}`;
   }
-  if (quantity) {
-    const leading = escaped.slice(0, escaped.indexOf(trimmed));
-    const trailing = escaped.slice(escaped.indexOf(trimmed) + trimmed.length);
-    return `${leading}$${trimmed}$${trailing}`;
-  }
-  return escaped;
+  return delimitUnwrappedQuestionMath(escaped);
 }
 
-function parseStandaloneQuantity(text: string): { value: string; unit: string } | undefined {
+function parseStandaloneQuantity(
+  text: string,
+): { value: string; unit: string } | undefined {
   if (!text.startsWith("\\qty{") || text.includes("$")) return undefined;
 
   let position = 4; // after `\qty`
@@ -76,5 +77,7 @@ function parseStandaloneQuantity(text: string): { value: string; unit: string } 
     if (depth !== 0) return undefined;
     arguments_.push(text.slice(start, position - 1));
   }
-  return position === text.length ? { value: arguments_[0], unit: arguments_[1] } : undefined;
+  return position === text.length ?
+      { value: arguments_[0], unit: arguments_[1] }
+    : undefined;
 }

@@ -5,6 +5,10 @@ This note summarizes the Swiss-specific layer used by the local Astro preview on
 a demonstration while keeping the changes identifiable for possible reuse in
 the upstream generator. This is a country profile, not a generic redesign.
 
+For the proposed separation between reusable generator core, country profile,
+and source adapter, see
+[`COUNTRY_SPECIALIZATION_ARCHITECTURE.md`](COUNTRY_SPECIALIZATION_ARCHITECTURE.md).
+
 ## Inputs and course structure
 
 - Course content is staged from the Swiss canonical repository;
@@ -70,6 +74,43 @@ the same Roboto face as the other answer text. Other standalone `\qty`
 expressions receive math delimiters so the existing KaTeX auto-renderer can
 typeset them. This is a presentation fallback for source quantities without
 `$…$` delimiters; it does not rewrite canonical question data.
+
+The preview's copied `latex.js` had fallen behind the established generator's
+KaTeX macro aliases. This left common pool commands such as `\kHz`, `\V`, and
+`\symup` undefined, so KaTeX displayed raw commands or error styling. The
+preview now carries the same aliases (plus `\g`, used by the French pool), and
+question rendering adds math delimiters around unwrapped `\qty`, `\qtyrange`,
+`\num`, and `\unit` commands inside question and answer text. Existing
+delimited formulas and standalone degree answers keep their previous handling.
+
+Correct macro rendering alone is not enough: KaTeX defaults to a Times-based
+math face, which made formulas in answers visibly differ from the surrounding
+site text. `style-course.css` now also carries the established generator's
+inline KaTeX font override, applying a sans-serif face to inline formulas and
+math variables in questions and answers while retaining KaTeX's dedicated
+accent glyph face. This shared question-style rule fixes the whole catalog
+rather than selected examples.
+
+This is a renderer-compatibility issue, not a set of isolated question errors.
+When many questions show raw commands or inconsistent math fonts, first check
+the KaTeX aliases and the automatic delimiter handling; do not patch example
+questions one by one or change canonical text just to compensate for a missing
+renderer macro. The copied `latex.js` must stay aligned with the established
+generator's aliases, with any Swiss-pool additions (currently `\g`) retained.
+Changes to either piece of behavior should keep regression coverage for both
+unwrapped commands embedded in prose and already-delimited formulas, and should
+render representative unit aliases and upright symbols through the actual
+KaTeX configuration. Run the focused check from `frontend/` with:
+
+```sh
+node --test test/question-math.test.mjs
+```
+
+Before publishing a renderer change, also inspect the generated pages in all
+three locales and confirm that question and answer formulas render as math,
+without raw commands or KaTeX error styling. AE208/AE209 are useful regression
+examples for `\kHz`, but the underlying check must cover the shared renderer
+path rather than those questions alone.
 
 ## Build and current boundaries
 
