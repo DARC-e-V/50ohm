@@ -10,6 +10,12 @@ public/photos/
 public/assets/index.json
 public/assets/question_index.json
 
+# Same generated assets under configured locale prefixes
+public/*/pictures/
+public/*/photos/
+public/*/assets/index.json
+public/*/assets/question_index.json
+
 # dependencies
 node_modules/
 

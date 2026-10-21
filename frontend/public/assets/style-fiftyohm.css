@@ -225,7 +225,7 @@ ul.fiftyohm-navbar {
     display: none;
   }
   ul.fiftyohm-navbar.open {
-    background: #00ADEF;
+    background: #ac2d24;
     display: flex;
     position: fixed;
     top: 10ex;
@@ -278,30 +278,34 @@ ul.fiftyohm-navbar {
 }
 
 .btn-outline-primary {  
-  --bs-btn-border-color: #00ADEF;
-  --bs-btn-color: #00ADEF;
-  --bs-btn-hover-bg: #0068a5;
-  --bs-btn-hover-border-color: #0068a5;
+  --bs-btn-border-color: #ac2d24;
+  --bs-btn-color: black;
+  --bs-btn-hover-bg: #80221c;
+  --bs-btn-hover-border-color: #80221c;
+  /* Bootstrap defaults are blue; use the Swiss red theme. */
+  --bs-btn-active-bg: #ac2d24;
+  --bs-btn-active-border-color: #ac2d24;
+  --bs-btn-disabled-color: #888;
 }
 .btn-primary {
   --bs-btn-color: #fff;
-  --bs-btn-bg: #00ADEF;
-  --bs-btn-border-color: #00ADEF;
+  --bs-btn-bg: #ac2d24;
+  --bs-btn-border-color: #ac2d24;
   --bs-btn-hover-color: #fff;
-  --bs-btn-hover-bg: #0068a5;
-  --bs-btn-hover-border-color: #0068a5;
+  --bs-btn-hover-bg: #80221c;
+  --bs-btn-hover-border-color: #80221c;
   --bs-btn-focus-shadow-rgb: 49,132,253;
   --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: #0068a5;
-  --bs-btn-active-border-color: #0068a5;
+  --bs-btn-active-bg: #80221c;
+  --bs-btn-active-border-color: #80221c;
   --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
   --bs-btn-disabled-color: #fff;
-  --bs-btn-disabled-bg: #00ADEF;
-  --bs-btn-disabled-border-color: #00ADEF;
+  --bs-btn-disabled-bg: #ac2d24;
+  --bs-btn-disabled-border-color: #ac2d24;
 }
 
 .bg-primary {
-  background-color: #00ADEF !important;
+  background-color: #ac2d24 !important;
 }
 
 .btn-secondary {
@@ -322,21 +326,23 @@ ul.fiftyohm-navbar {
 }
 
 .alert-primary {
-  --bs-alert-color: #0097D1;
-  --bs-alert-bg: #D2F3FF;
-  --bs-alert-border-color: #00ADEF;
+  --bs-alert-color: #ac2d24;
+  --bs-alert-bg: #f3dad8;
+  --bs-alert-border-color: #ac2d24;
 }
 
 :root {
-  --bs-link-color: #0068a5;
+  --site-primary-color: #ac2d24;
+  --bs-link-color: #80221c;
+  --bs-link-hover-color: #80221c;
 }
 
 .text-primary {
-  color: #00adef !important;
+  color: #ac2d24 !important;
 }
 
 .text-bg-primary {
-  background-color: #00ADEF !important;
+  background-color: #ac2d24 !important;
 }
 td.left {
   text-align: left;
@@ -370,13 +376,13 @@ td.right {
 }
 
 .fiftyohm-btn a {
-  background-color: #00ADEF;
+  background-color: #ac2d24;
   color: #fff;
 }
 
 .fiftyohm-btn-default a {
-  border-color: #00ADEF;
-  background-color: #00ADEF;
+  border-color: #ac2d24;
+  background-color: #ac2d24;
   color: #fff;
 }
 

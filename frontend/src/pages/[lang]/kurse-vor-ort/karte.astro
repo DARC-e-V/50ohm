@@ -1,11 +1,17 @@
 ---
 // Port of packages/ohm-builder/src/ohm_builder/templates/html/kurse-karte.html, wrapped by
 // `_build_page(result)`. The template consumes no snippets — it is static markup.
-import PageLayout from "../../layouts/PageLayout.astro";
-import { COURSES_LIST_URL, HOME_URL } from "../../lib/urls";
+import PageLayout from "../../../layouts/PageLayout.astro";
+import { COURSES_LIST_URL, homeUrl } from "../../../lib/urls";
+import { extractedHtml, swissProfile } from "../../../lib/chContent";
+import { localePaths, type Locale } from "../../../lib/i18n";
+export const getStaticPaths = localePaths;
+const locale = Astro.params.lang as Locale;
+const swissBody = swissProfile ? extractedHtml(locale, "kurse-karte") : "";
 ---
 
-<PageLayout>
+<PageLayout locale={locale}>
+{swissProfile ? <Fragment set:html={swissBody} /> : <Fragment>
 <div class="row flex-lg-row-reverse align-items-top g-5">
 
     <div class="col-lg-7">
@@ -15,7 +21,7 @@ import { COURSES_LIST_URL, HOME_URL } from "../../lib/urls";
 
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href={HOME_URL}>Home</a></li>
+          <li class="breadcrumb-item"><a href={homeUrl(locale)}>Home</a></li>
           <li class="breadcrumb-item active" aria-current="page">Kurse vor Ort</li>
         </ol>
       </nav>
@@ -24,7 +30,7 @@ import { COURSES_LIST_URL, HOME_URL } from "../../lib/urls";
       <p>Erfahrene Ausbilder halten &ndash; meist einmal in der Woche abends &ndash; Lektionen. Zwischen den Treffen solltest du selbständig den Lernstoff vertiefen und üben.</p>
 
 
-      <a class="btn btn-outline-secondary btn-sm px-4 gap-3" href={COURSES_LIST_URL}>Online-Kurse</a>
+      <a class="btn btn-outline-secondary btn-sm px-4 gap-3" href={COURSES_LIST_URL(locale)}>Online-Kurse</a>
 
       <hr class="col-md-12 mb-3">
 
@@ -58,4 +64,5 @@ import { COURSES_LIST_URL, HOME_URL } from "../../lib/urls";
       
     </div>
 </div>
+</Fragment>}
 </PageLayout>

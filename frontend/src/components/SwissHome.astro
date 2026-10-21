@@ -1,0 +1,10 @@
+---
+import { extractedHtml } from "../lib/chContent";
+import type { Locale } from "../lib/i18n";
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const body = extractedHtml(locale, "index");
+---
+
+<Fragment set:html={body} />

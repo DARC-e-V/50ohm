@@ -1,14 +1,16 @@
 ---
 // Port of packages/ohm-builder/src/ohm_builder/templates/html/next_chapter.html.
 interface Props {
+  locale: import("../lib/i18n").Locale;
   url: string;
   title: string;
 }
 
-const { url, title } = Astro.props;
+import { siteLabel } from "../lib/chContent";
+const { locale, url, title } = Astro.props;
 ---
 
 <br/>
 <div data-quiz-shown>
-	Weiter zum nächsten Kapitel: <a href={url}>{title}</a>
+	{siteLabel(locale, "next_chapter", "Next chapter:")} <a href={url}>{title}</a>
 </div>

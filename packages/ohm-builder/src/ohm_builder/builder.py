@@ -6,6 +6,7 @@ import zipfile
 from abc import ABC, abstractmethod
 from collections.abc import Generator
 from contextlib import contextmanager
+from copy import deepcopy
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
@@ -131,7 +132,20 @@ class Builder(ABC):
         self.config.p_build.mkdir(parents=True, exist_ok=True)
 
         edition = edition.upper()
-        book = json.loads((self.config.p_data_toc / f"{edition}.json").read_text(encoding="utf-8"))
+        toc_source = self.config.get_config_value("toc_source", f"{edition}.json")
+        book = json.loads((self.config.p_data_toc / toc_source).read_text(encoding="utf-8"))
+        if toc_source != f"{edition}.json":
+            details = self.config.get_config_value("edition_details", {}).get(edition)
+            if details is None:
+                raise ValueError(f"No edition_details configured for {edition}")
+            book = deepcopy(book)
+            book["title"] = details["title"]
+            book["abstract"] = details["abstract"]
+            book["chapters"] = [
+                {**chapter, "sections": sections}
+                for chapter in book["chapters"]
+                if (sections := [section for section in chapter["sections"] if section["class"] in edition])
+            ]
         chapters = book["chapters"]
 
         chapter_task = progress.add_task(f"Building edition {edition} ...")

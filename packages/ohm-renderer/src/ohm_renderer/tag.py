@@ -10,6 +10,7 @@ captures = [
     "warning",
     "attention",
     "tip",
+    "tipp",
     "webtip",
     "webindepth",
     "person",
@@ -19,6 +20,7 @@ captures = [
     "webonly",
     "latexonly",
     "wordorigin",
+    "law",
     # Slides:
     "note",
     "fragment",

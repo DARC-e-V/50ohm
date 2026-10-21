@@ -3,34 +3,36 @@
 // wrapped by `_build_page(result)` — no course wrapper here.
 import { getCollection, render } from "astro:content";
 
-import PageLayout from "../../layouts/PageLayout.astro";
-import { getChapters } from "../../lib/course";
-import { chapterUrl } from "../../lib/urls";
+import PageLayout from "../../../layouts/PageLayout.astro";
+import { getChapters } from "../../../lib/course";
+import { chapterUrl } from "../../../lib/urls";
+import type { Locale } from "../../../lib/i18n";
 
 export async function getStaticPaths() {
   const editions = await getCollection("editions");
   return editions.map((edition) => ({
-    params: { edition: edition.data.edition },
+    params: { lang: edition.id.split("/", 1)[0], edition: edition.data.edition },
     props: { edition },
   }));
 }
 
 const { edition } = Astro.props;
+const locale = Astro.params.lang as Locale;
 
-const chapters = await getChapters(edition.data.edition);
+const chapters = await getChapters(locale, edition.data.edition);
 
 // The abstract is the body of the edition's index.mdx, which already renders as a paragraph —
 // hence no `<p>` around it, unlike the template.
 const { Content } = await render(edition);
 ---
 
-<PageLayout>
+<PageLayout locale={locale}>
   <h1>{edition.data.title}</h1>
   <Content />
   <div class="chapter-toc d-grid gap-2">
     {
       chapters.map((chapter) => (
-        <a class="btn btn-outline-primary btn-labeled" href={chapterUrl(edition.data.edition, chapter.data.ident)}>
+        <a class="btn btn-outline-primary btn-labeled" href={chapterUrl(locale, edition.data.edition, chapter.data.ident)}>
           <span class="btn-label">{chapter.data.chapterNumber}</span>
           {chapter.data.title}
         </a>

@@ -1,5 +1,7 @@
+import json
 import re
 from collections.abc import Iterable, Iterator
+from html import escape
 
 from mistletoe import span_token
 from mistletoe.markdown_renderer import Fragment, MarkdownRenderer
@@ -18,7 +20,7 @@ from .question import Question
 from .reference import Reference
 from .smartquote import Smartquote
 from .table import Table, unregister_gfm_table
-from .tag import Tag
+from .tag import Tag, captures
 from .tokens import DARCDOWN_TOKENS
 from .underline import Underline
 from .unit import Unit
@@ -32,6 +34,7 @@ TAG_TYPES = {
     "webmargin": "margin",
     "webtip": "tip",
     "webindepth": "indepth",
+    "tipp": "tip",
 }
 
 # A "<" only starts a JSX tag when a name or a closing slash follows it.
@@ -185,10 +188,12 @@ class FiftyOhmMdxRenderer(MarkdownRenderer):
             return []
 
         alt_text = handler(token.id) if handler else None
-        # Collapse whitespace and strip brackets to avoid problems when rendering it into Markdown.
-        alt_text = re.sub(r"\s+", " ", (alt_text or "").replace("[", "").replace("]", "")).strip()
+        # Keep LaTeX and brackets in the alt text. A JSX string expression escapes
+        # braces and backslashes; Markdown image syntax would parse them as MDX code.
+        alt_text = re.sub(r"\s+", " ", alt_text or "").strip()
 
-        return self.render_figure(token, [f"![{alt_text}]({source})"], "Abbildung", token.kind)
+        image = f'<img src="{source}" alt={{{json.dumps(alt_text, ensure_ascii=False)}}} />'
+        return self.render_figure(token, [image], "Abbildung", token.kind)
 
     def render_table(self, token: Table, max_line_length: int) -> Iterable[str]:
         table = list(super().render_table(token, max_line_length))
@@ -225,6 +230,14 @@ class FiftyOhmMdxRenderer(MarkdownRenderer):
         # Escape "<" when it looks like it’s at the start of a JSX tag.
         # This avoids problems with invalid (unclosed) or unknown tags in the MDX output.
         yield Fragment(TAG_START.sub(r"\\<", token.content), wordwrap=True)
+
+    def render_html_span(self, token: span_token.HtmlSpan) -> Iterable[Fragment]:
+        # Mistletoe recognizes an inline mention such as `<tip>` as an HTML span,
+        # bypassing render_raw_text. It is prose, not a JSX element to compile.
+        if re.fullmatch(r"</?(?:" + "|".join(captures) + r")>", token.content):
+            yield Fragment(escape(token.content))
+        else:
+            yield Fragment(token.content)
 
     def render_dash(self, token) -> Iterable[Fragment]:
         # MDX can render this as a em-dash.
