@@ -107,13 +107,13 @@ class FiftyOhmLaTeXRenderer(LaTeXRenderer):
 
     @staticmethod
     def render_picture_helper(id, ref, text, number):
-        return rf"""\DARCimage{{1.0\linewidth}}{{{id}include}}
+        return rf"""\DARCimage{{1.0\linewidth}}{{drawings/{id}}}
 \captionof{{figure}}{{{text}}}
 \label{{{ref}}}"""
 
     @staticmethod
     def render_photo_helper(id, ref, text, number):
-        return rf"""\includegraphics[width=1.0\linewidth]{{photo/{id}}}
+        return rf"""\includegraphics[width=1.0\linewidth]{{photos/{id}}}
 \captionof{{figure}}{{{text}}}
 \label{{{ref}}}"""
 
