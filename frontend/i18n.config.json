@@ -1,0 +1,48 @@
+{
+  "defaultLocale": "de",
+  "locales": ["de", "fr", "it"],
+  "messages": {
+    "de": {
+      "language_name": "Deutsch", "question_missing": "Frage nicht gefunden",
+      "next_chapter": "Weiter zum nächsten Kapitel:", "next_section": "Weiter zum nächsten Abschnitt:",
+      "search_title": "Suche", "search_query_label": "Suche nach Frage-ID oder Begriff:",
+      "search_placeholder": "VD102, PTT, ...", "search_not_found": "Frage nicht gefunden",
+      "search_unknown_chapter": "Unbekanntes Kapitel", "search_unknown_section": "Unbekannter Abschnitt",
+      "search_target_class": "Zielklasse", "search_target_unknown": "Zielklasse unbekannt",
+      "search_connection_error": "Der Suchindex konnte nicht geladen werden."
+      ,"search_query_hint": "Bitte gib eine Frage-ID oder einen Begriff ein, z. B.",
+      "search_no_matches": "Keine passenden Fragen oder Begriffe gefunden.",
+      "search_result_count": "Treffer", "search_questions": "Fragen", "search_terms": "Begriffe",
+      "search_error_prefix": "Suchindex konnte nicht geladen werden:"
+      ,"quiz_only_questions": "Nur Fragen anzeigen"
+    },
+    "fr": {
+      "language_name": "Français", "question_missing": "Question introuvable",
+      "next_chapter": "Passer au chapitre suivant :", "next_section": "Passer à la section suivante :",
+      "search_title": "Recherche", "search_query_label": "Rechercher par identifiant ou terme :",
+      "search_placeholder": "VD102, PTT, …", "search_not_found": "Question introuvable",
+      "search_unknown_chapter": "Chapitre inconnu", "search_unknown_section": "Section inconnue",
+      "search_target_class": "Classe cible", "search_target_unknown": "Classe cible inconnue",
+      "search_connection_error": "Impossible de charger l’index de recherche."
+      ,"search_query_hint": "Saisissez un identifiant de question ou un terme, par exemple",
+      "search_no_matches": "Aucune question ou aucun terme correspondant.",
+      "search_result_count": "résultats", "search_questions": "questions", "search_terms": "termes",
+      "search_error_prefix": "Impossible de charger l’index de recherche :"
+      ,"quiz_only_questions": "Afficher uniquement les questions"
+    },
+    "it": {
+      "language_name": "Italiano", "question_missing": "Domanda non trovata",
+      "next_chapter": "Vai al capitolo successivo:", "next_section": "Vai alla sezione successiva:",
+      "search_title": "Ricerca", "search_query_label": "Cerca per ID della domanda o termine:",
+      "search_placeholder": "VD102, PTT, …", "search_not_found": "Domanda non trovata",
+      "search_unknown_chapter": "Capitolo sconosciuto", "search_unknown_section": "Sezione sconosciuta",
+      "search_target_class": "Classe di destinazione", "search_target_unknown": "Classe di destinazione sconosciuta",
+      "search_connection_error": "Impossibile caricare l’indice di ricerca."
+      ,"search_query_hint": "Inserisci un ID di domanda o un termine, ad esempio",
+      "search_no_matches": "Nessuna domanda o termine corrispondente trovato.",
+      "search_result_count": "risultati", "search_questions": "domande", "search_terms": "termini",
+      "search_error_prefix": "Impossibile caricare l’indice di ricerca:"
+      ,"quiz_only_questions": "Mostra solo le domande"
+    }
+  }
+}

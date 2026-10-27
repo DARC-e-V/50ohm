@@ -11,7 +11,8 @@ interface Props {
 
 const { ident } = Astro.props;
 
-const include = await getEntry("includes", ident);
+const locale = Astro.currentLocale ?? "de";
+const include = await getEntry("includes", `${locale}/${ident}`);
 if (!include) {
   console.warn(`\x1b[31mInclude #${ident} not found\x1b[0m`);
 }

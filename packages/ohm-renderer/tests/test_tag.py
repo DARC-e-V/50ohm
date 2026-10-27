@@ -97,7 +97,7 @@ def test_tag_mdx():
         # The content stays Markdown, blank lines between its blocks included.
         "<margin>\n*Foo*\n\nBar\n</margin>": tag("margin", "*Foo*\n\nBar"),
         # A tag needs its own lines, inline it stays text.
-        "<margin>Foo</margin>": "<margin>Foo</margin>\n",
+        "<margin>Foo</margin>": "&lt;margin&gt;Foo&lt;/margin&gt;\n",
     }
 
     for assertion in assertions:

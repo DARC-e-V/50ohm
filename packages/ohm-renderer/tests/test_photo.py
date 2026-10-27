@@ -26,7 +26,7 @@ def test_photo_mdx():
 
     assert rendered == (
         '<figure class="photo" id="ref_abc">\n'
-        "![](/photos/123.png)\n"
+        '<img src="/photos/123.png" alt={""} />\n'
         # The blank line keeps the caption out of the image's paragraph.
         "\n"
         "<figcaption>Abbildung A-5.7.1: Text</figcaption>\n"

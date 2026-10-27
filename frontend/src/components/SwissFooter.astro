@@ -1,0 +1,23 @@
+---
+import { INFO_URL } from "../lib/urls";
+import { feedbackUrl, releaseId, siteLabel } from "../lib/chContent";
+import type { Locale } from "../lib/i18n";
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+---
+
+<footer class="text-lg-start border-top border-dark mt-5 pt-3">
+  <div class="d-flex flex-wrap align-items-end justify-content-between gap-5 mb-5">
+    <div class="d-flex flex-column align-items-center">
+      <div class="d-flex gap-1 align-items-center mb-1">
+        {siteLabel(locale, "footer_with", "")} {siteLabel(locale, "footer_developed_with", "")} <a class="link-secondary" href={`${INFO_URL(locale)}#contributors`}>{siteLabel(locale, "footer_team", "")}</a> {siteLabel(locale, "footer_developed_by", "")}
+      </div>
+      <div>{siteLabel(locale, "footer_offer", "")}</div>
+    </div>
+    {releaseId && <div class="site-footer-release small">
+      <span>{siteLabel(locale, "release_label", "")}: <strong>{releaseId}</strong></span>
+      {feedbackUrl && <a class="btn btn-sm btn-outline-secondary" data-feedback-link data-feedback-base={feedbackUrl} data-release-id={releaseId} data-lang={locale} href={feedbackUrl} target="_blank" rel="noopener noreferrer">{siteLabel(locale, "feedback_button", "")}</a>}
+    </div>}
+  </div>
+</footer>

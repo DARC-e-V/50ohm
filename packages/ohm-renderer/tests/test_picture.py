@@ -21,16 +21,15 @@ def test_picture_html():
 
 @pytest.mark.mdx
 def test_picture_mdx():
-    # The accessibility descriptions come from multi-line .txt files, but an alt text
-    # cannot span lines and brackets would terminate it early.
+    # The accessibility description may contain Markdown brackets or LaTeX.
     def alt_text(id):
-        return "Ein\n [Alt]-Text  "
+        return r"Ein [Alt]-Text mit \( f_{mod} \)"
 
     rendered = render_mdx("[picture:0:abc:Text]", picture_handler=alt_text, edition="A", chapter="5", section="7")
 
     assert rendered == (
         '<figure class="picture" id="ref_abc">\n'
-        "![Ein Alt-Text](/pictures/0.svg)\n"
+        '<img src="/pictures/0.svg" alt={"Ein [Alt]-Text mit \\\\( f_{mod} \\\\)"} />\n'
         # The blank line keeps the caption out of the image's paragraph.
         "\n"
         "<figcaption>Abbildung A-5.7.1: Text</figcaption>\n"

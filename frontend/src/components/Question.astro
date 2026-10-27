@@ -8,6 +8,8 @@
 // the letters A–D come from style-course.css, so they follow the shuffled order.
 import { getQuestion, hasSolution, questionHtml } from "../lib/questions";
 import { pictureUrl, solutionUrl } from "../lib/urls";
+import type { Locale } from "../lib/i18n";
+import { siteLabel } from "../lib/chContent";
 
 interface Props {
   number: string;
@@ -15,7 +17,8 @@ interface Props {
 
 const { number } = Astro.props;
 
-const question = await getQuestion(number);
+const locale = (Astro.currentLocale ?? "de") as Locale;
+const question = await getQuestion(locale, number);
 if (!question) {
   console.warn(`Question ${number} is missing from _data/questions.json`);
 }
@@ -26,12 +29,12 @@ const layout = question ? question.layout : "not-found";
 
 <div class:list={["question", layout && `layout-${layout}`]} id={number} data-quiz-shown>
   <div class="question-text">
-    {number}: {question ? <Fragment set:html={questionHtml(question.question)} /> : "Frage nicht gefunden"}
+    {number}: {question ? <Fragment set:html={questionHtml(question.question)} /> : siteLabel(locale, "question_missing", "Question not found")}
   </div>
   {
     question?.picture && (
       <div class="question-picture">
-        <img src={pictureUrl(question.picture.id)} alt={question.picture.alt} />
+        <img src={pictureUrl(locale, question.picture.id)} alt={question.picture.alt} />
       </div>
     )
   }
@@ -43,7 +46,7 @@ const layout = question ? question.layout : "not-found";
             {answer.text && <Fragment set:html={questionHtml(answer.text)} />}
             {answer.picture && (
               <span class="question-picture">
-                <img src={pictureUrl(answer.picture.id)} alt={answer.picture.alt} />
+                <img src={pictureUrl(locale, answer.picture.id)} alt={answer.picture.alt} />
               </span>
             )}
             <span class="result material-icons" aria-hidden="true">
@@ -61,9 +64,9 @@ const layout = question ? question.layout : "not-found";
     hasSolution(number) && (
       <a
         class="btn btn-warning btn-sm d-inline-flex align-items-center"
-        href={solutionUrl(number)}
-        aria-label={`Lösungshinweis zu Frage ${number}`}
-        title="Lösungshinweis"
+        href={solutionUrl(locale, number)}
+        aria-label={`${siteLabel(locale, "solution_aria_label_prefix", "Solution for question ")}${number}`}
+        title={siteLabel(locale, "solution_title", "Solution")}
       >
         <svg
           class="solution-icon"
@@ -75,7 +78,7 @@ const layout = question ? question.layout : "not-found";
         >
           <path d="M420.9 448C428.2 425.7 442.8 405.5 459.3 388.1C492 353.7 512 307.2 512 256C512 150 426 64 320 64C214 64 128 150 128 256C128 307.2 148 353.7 180.7 388.1C197.2 405.5 211.9 425.7 219.1 448L420.8 448zM416 496L224 496L224 512C224 556.2 259.8 592 304 592L336 592C380.2 592 416 556.2 416 512L416 496zM312 176C272.2 176 240 208.2 240 248C240 261.3 229.3 272 216 272C202.7 272 192 261.3 192 248C192 181.7 245.7 128 312 128C325.3 128 336 138.7 336 152C336 165.3 325.3 176 312 176z" />
         </svg>
-        <span>Lösungsweg anzeigen</span>
+        <span>{siteLabel(locale, "solution_button_text", "Show solution")}</span>
       </a>
     )
   }
