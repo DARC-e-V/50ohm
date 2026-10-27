@@ -3,7 +3,7 @@
 // Port of `render_morse_helper` in ohm_renderer/fifty_ohm_html_renderer.py:116. The markup is
 // assembled as a string so the newlines between the spans — which the inline layout renders as
 // the gaps between symbols — stay exactly where the Python renderer put them.
-import { convertToMorseCode, type MorseSymbol } from "../../lib/morse";
+import { convertToMorseCode, type MorseSymbol } from "../lib/morse";
 
 interface Props {
   text: string;

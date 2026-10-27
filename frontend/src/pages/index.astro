@@ -1,7 +1,8 @@
 ---
 // Port of packages/ohm-builder/src/ohm_builder/templates/html/index.html,
 // wrapped by `_build_page(result)`.
-import PageLayout from "../layouts/PageLayout.astro";
+import PageLayout from "virtual:ohm/layouts/PageLayout";
+
 import { COURSES_LIST_URL, COURSES_MAP_URL, INFO_URL, MENTORS_URL, editionUrl } from "../lib/urls";
 
 // TODO: the snippets (contents/snippets/*.md) are not part of the MDX build yet, so the five

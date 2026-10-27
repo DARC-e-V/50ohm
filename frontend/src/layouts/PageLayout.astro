@@ -6,8 +6,8 @@
 //   course_wrapper -> courseWrapper, which wraps the content in `.course`
 //
 // The `teaser` branch of the template is dropped: no call site ever passed it.
-import BaseLayout from "./BaseLayout.astro";
-import SiteFooter from "../components/SiteFooter.astro";
+import BaseLayout from "virtual:ohm/layouts/BaseLayout";
+import SiteFooter from "virtual:ohm/components/SiteFooter";
 
 interface Props {
   courseWrapper?: boolean;

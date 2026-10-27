@@ -3,11 +3,11 @@
 // wrapped by `_build_page(result, course_wrapper=True)` and followed by next_section.html
 // or, at the end of a chapter, next_chapter.html.
 import { getCollection, render } from "astro:content";
+import NextChapter from "virtual:ohm/components/NextChapter";
+import NextSection from "virtual:ohm/components/NextSection";
+import PageLayout from "virtual:ohm/layouts/PageLayout";
+import mdxComponents from "virtual:ohm/mdx-components";
 
-import NextChapter from "../../../components/NextChapter.astro";
-import NextSection from "../../../components/NextSection.astro";
-import { mdxComponents } from "../../../components/mdx/components";
-import PageLayout from "../../../layouts/PageLayout.astro";
 import { getEdition, getNextChapter, getNextSection, getChapters } from "../../../lib/course";
 import { HOME_URL, chapterUrl, editionUrl, sectionUrl } from "../../../lib/urls";
 

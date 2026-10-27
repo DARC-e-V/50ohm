@@ -4,11 +4,12 @@ import mdx from '@astrojs/mdx';
 import { satteri } from '@astrojs/markdown-satteri';
 
 import copyCourseAssets from './integrations/copy-course-assets.mjs';
+import ohm from './integrations/ohm.mjs';
 import mathAsText from './markdown/math-as-text.mjs';
 
 // https://astro.build/config
 export default defineConfig({
-    integrations: [mdx(), copyCourseAssets()],
+    integrations: [mdx(), ohm(), copyCourseAssets()],
     markdown: {
         // `math` is off by default, and without it MDX reads the `{` in `\qty{1}{\hertz}` as a
         // JSX expression — 56 % of the generated files fail to parse. It is enabled for the

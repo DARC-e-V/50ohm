@@ -2,9 +2,9 @@
 // Port of packages/ohm-builder/src/ohm_builder/templates/html/chapter.html,
 // wrapped by `_build_page(result, course_wrapper=True)` and followed by next_chapter.html.
 import { getCollection, render } from "astro:content";
+import NextChapter from "virtual:ohm/components/NextChapter";
+import PageLayout from "virtual:ohm/layouts/PageLayout";
 
-import NextChapter from "../../../components/NextChapter.astro";
-import PageLayout from "../../../layouts/PageLayout.astro";
 import { getEdition, getNextChapter, getSections } from "../../../lib/course";
 import { HOME_URL, chapterUrl, editionUrl, sectionUrl } from "../../../lib/urls";
 

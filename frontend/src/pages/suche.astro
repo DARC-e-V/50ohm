@@ -10,8 +10,7 @@
 //   * the solution button points at /loesung/<number>/
 // It still fetches its indices from /assets/, where copy-course-assets.mjs puts them.
 import { getCollection } from "astro:content";
-
-import PageLayout from "../layouts/PageLayout.astro";
+import PageLayout from "virtual:ohm/layouts/PageLayout";
 
 const sections = await getCollection("sections");
 
