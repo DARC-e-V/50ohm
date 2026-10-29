@@ -1,11 +1,8 @@
 ---
-// Port of packages/ohm-builder/src/ohm_builder/templates/html/course_index.html,
-// wrapped by `_build_page(result)` — no course wrapper here.
-import { getCollection, render } from "astro:content";
-import PageLayout from "virtual:ohm/layouts/PageLayout";
+import { getCollection } from "astro:content";
+import EditionPage from "virtual:ohm/page-components/EditionPage";
 
 import { getChapters } from "../../lib/course";
-import { chapterUrl } from "../../lib/urls";
 
 export async function getStaticPaths() {
   const editions = await getCollection("editions");
@@ -18,23 +15,6 @@ export async function getStaticPaths() {
 const { edition } = Astro.props;
 
 const chapters = await getChapters(edition.data.edition);
-
-// The abstract is the body of the edition's index.mdx, which already renders as a paragraph —
-// hence no `<p>` around it, unlike the template.
-const { Content } = await render(edition);
 ---
 
-<PageLayout>
-  <h1>{edition.data.title}</h1>
-  <Content />
-  <div class="chapter-toc d-grid gap-2">
-    {
-      chapters.map((chapter) => (
-        <a class="btn btn-outline-primary btn-labeled" href={chapterUrl(edition.data.edition, chapter.data.ident)}>
-          <span class="btn-label">{chapter.data.chapterNumber}</span>
-          {chapter.data.title}
-        </a>
-      ))
-    }
-  </div>
-</PageLayout>
+<EditionPage edition={edition} chapters={chapters} />

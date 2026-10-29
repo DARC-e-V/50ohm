@@ -3,33 +3,36 @@ import { fileURLToPath } from "node:url";
 /** @param {string} path Relative to `src/`. */
 const src = (path) => new URL(`../src/${path}`, import.meta.url);
 
-/**
- * The layouts, imported as `virtual:ohm/layouts/<Name>`.
- *
- * Each module, here and in the tables below, only re-exports the file listed. Nothing can
- * replace them yet: the indirection exists so that overriding one later changes where its module
- * resolves to, not the files that import it.
- */
-const LAYOUTS = {
-  BaseLayout: src("layouts/BaseLayout.astro"),
-  PageLayout: src("layouts/PageLayout.astro"),
+/** The building blocks of any page of the site, imported as `virtual:ohm/site/<Name>`. */
+const SITE = {
+  Head: src("site/Head.astro"),
+  BaseLayout: src("site/BaseLayout.astro"),
+  PageLayout: src("site/PageLayout.astro"),
+  SiteHeader: src("site/SiteHeader.astro"),
+  SiteFooter: src("site/SiteFooter.astro"),
+  Breadcrumbs: src("site/Breadcrumbs.astro"),
 };
 
-/** The site components, imported as `virtual:ohm/components/<Name>`. */
-const COMPONENTS = {
-  SiteHeader: src("components/SiteHeader.astro"),
-  SiteFooter: src("components/SiteFooter.astro"),
-  NextChapter: src("components/NextChapter.astro"),
-  NextSection: src("components/NextSection.astro"),
+/** The building blocks only the course pages use, imported as `virtual:ohm/course/<Name>`. */
+const COURSE = {
+  CourseToolbar: src("course/CourseToolbar.astro"),
+  CourseContent: src("course/CourseContent.astro"),
+  TableOfContents: src("course/TableOfContents.astro"),
+  NextSection: src("course/NextSection.astro"),
+  NextChapter: src("course/NextChapter.astro"),
+  QuestionSearch: src("course/QuestionSearch.astro"),
+};
+
+/** Course pages, imported as `virtual:ohm/page-components/<Name>`. */
+const PAGE_COMPONENTS = {
+  EditionPage: src("page-components/EditionPage.astro"),
+  ChapterPage: src("page-components/ChapterPage.astro"),
+  SectionPage: src("page-components/SectionPage.astro"),
 };
 
 /**
  * The components `FiftyOhmMdxRenderer` emits, imported as `virtual:ohm/mdx-components/<Name>`.
  * `virtual:ohm/mdx-components` bundles them into the map passed to `<Content components={…} />`.
- *
- * The generated MDX imports nothing, so this map is the whole contract. Everything else the
- * renderer produces — `<figure>`, `<figcaption>`, `<u>`, GFM tables, `![…](/pictures/…)` and
- * `$$ … $$` — is plain HTML or Markdown and needs no component.
  */
 const MDX_COMPONENTS = {
   Anchor: src("mdx-components/Anchor.astro"),
@@ -44,8 +47,9 @@ const MDX_COMPONENTS = {
 };
 
 const NAMESPACES = {
-  "virtual:ohm/layouts": LAYOUTS,
-  "virtual:ohm/components": COMPONENTS,
+  "virtual:ohm/site": SITE,
+  "virtual:ohm/course": COURSE,
+  "virtual:ohm/page-components": PAGE_COMPONENTS,
   "virtual:ohm/mdx-components": MDX_COMPONENTS,
 };
 
@@ -93,7 +97,10 @@ function virtualModules() {
 
   for (const [namespace, components] of Object.entries(NAMESPACES)) {
     for (const [name, url] of Object.entries(components)) {
-      modules.set(`${namespace}/${name}`, `export { default } from ${JSON.stringify(fileURLToPath(url))};`);
+      modules.set(
+        `${namespace}/${name}`,
+        `export { default } from ${JSON.stringify(fileURLToPath(url))};`,
+      );
     }
   }
 

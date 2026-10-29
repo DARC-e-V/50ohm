@@ -1,19 +1,8 @@
 ---
-// The content block of packages/ohm-builder/src/ohm_builder/templates/html/page.html
-// (lines 101-166). `_build_page`'s two switches become props:
-//
-//   sidebar        -> a filled `sidebar` slot, which puts content and sidebar into two columns
-//   course_wrapper -> courseWrapper, which wraps the content in `.course`
-//
-// The `teaser` branch of the template is dropped: no call site ever passed it.
-import BaseLayout from "virtual:ohm/layouts/BaseLayout";
-import SiteFooter from "virtual:ohm/components/SiteFooter";
+// Inner layout for most pages with an optional sidebar.
+import BaseLayout from "virtual:ohm/site/BaseLayout";
+import SiteFooter from "virtual:ohm/site/SiteFooter";
 
-interface Props {
-  courseWrapper?: boolean;
-}
-
-const { courseWrapper = false } = Astro.props;
 const hasSidebar = Astro.slots.has("sidebar");
 ---
 
@@ -29,10 +18,6 @@ const hasSidebar = Astro.slots.has("sidebar");
               <div class="fiftyohm-content-2cols">
                 <div><slot /></div>
                 <div><slot name="sidebar" /></div>
-              </div>
-            : courseWrapper ?
-              <div class="course">
-                <slot />
               </div>
             : <slot />
           }

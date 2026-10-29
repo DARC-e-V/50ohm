@@ -1,19 +1,14 @@
 ---
-// Port of packages/ohm-builder/src/ohm_builder/templates/html/kurse-liste.html, wrapped by
-// `_build_page(result)`. The template consumes no snippets — it is static markup.
-import PageLayout from "virtual:ohm/layouts/PageLayout";
+// Display registered online HAM courses as a list.
+// TODO: Custom content, should be moved.
+import Breadcrumbs from "virtual:ohm/site/Breadcrumbs";
+import PageLayout from "virtual:ohm/site/PageLayout";
 
 import { COURSES_MAP_URL, HOME_URL, LEARN_URL } from "../../lib/urls";
 ---
 
 <PageLayout>
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href={HOME_URL}>Home</a></li>
-    <li class="breadcrumb-item"><a href={LEARN_URL}>Lernen</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Kurse vor Ort</li>
-  </ol>
-</nav>
+<Breadcrumbs items={[{ label: "Home", url: HOME_URL }, { label: "Lernen", url: LEARN_URL }, { label: "Kurse vor Ort" }]} />
 
 <h1>Kurse vor Ort</h1>
 <p>Erfahrene Ausbilder halten &ndash; meist einmal in der Woche abends &ndash; Lektionen. Zwischen den Treffen solltest du selbständig den Lernstoff vertiefen und üben.</p>

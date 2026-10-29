@@ -1,0 +1,32 @@
+---
+// Show a trail of links, describing the current page location in the site hierarchy.
+import type { HTMLAttributes } from "astro/types";
+
+interface BreadcrumbItem {
+  /** The displayed label of the entry. */
+  label: string;
+  /** Where the entry links to. Not allowed for the last entry. */
+  url: string;
+}
+
+interface Props extends HTMLAttributes<"nav"> {
+  /** The trail of breadcrumb items in display order. Last entry is treated as the current page. */
+  // This type looks slightly insane, but forces all items to have an href, and the last one to *not* have one.
+  items: [...BreadcrumbItem[], Omit<BreadcrumbItem, "url"> & { url?: never }];
+}
+
+const { items, ...attrs } = Astro.props;
+---
+
+<nav aria-label="breadcrumb" {...attrs}>
+  <ol class="breadcrumb">
+    {
+      items.map(({ label, url: href }) =>
+        // Last entry is the only entry without href and can safely be treated as current page.
+        href ?
+          <li class="breadcrumb-item"><a href={href}>{label}</a></li>
+        : <li class="breadcrumb-item active" aria-current="page">{label}</li>,
+      )
+    }
+  </ol>
+</nav>

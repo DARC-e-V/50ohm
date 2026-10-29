@@ -1,0 +1,16 @@
+---
+// Link to the next section in a course.
+interface Props {
+  /** Destination section URL */
+  url: string;
+  /** Destination section title */
+  label: string;
+}
+
+const { url, label: title } = Astro.props;
+---
+
+<br/>
+<div>
+	Weiter zum nächsten Abschnitt: <a href={url}>{title}</a>
+</div>

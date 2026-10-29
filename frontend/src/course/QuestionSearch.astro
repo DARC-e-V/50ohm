@@ -1,0 +1,307 @@
+---
+// Search for questions or keywords.
+// Simply copied from old search with minor adjustments for the new nested URLs, still uses old JSON index.
+// TODO: Move search to Pagefind.
+import { getCollection } from "astro:content";
+
+const sections = await getCollection("sections");
+
+// Lookup table to build nested paths from sections: edition -> section ident -> chapter ident.
+const sectionChapters: Record<string, Record<string, string>> = {};
+for (const { data } of sections) {
+  (sectionChapters[data.edition] ??= {})[data.ident] = data.chapterIdent;
+}
+---
+
+<script type="application/json" id="section-chapters" is:inline set:html={JSON.stringify(sectionChapters)} />
+
+<style is:global>
+  #question-search-results .breadcrumb,
+  #question-search-results .breadcrumb li,
+  #question-search-results .breadcrumb-item {
+    margin-bottom: 0;
+  }
+</style>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="row g-3 align-items-end">
+      <div class="col-12 col-md-6 col-lg-4">
+        <label for="question-search-input" class="form-label">Suche nach Frage-ID oder Begriff:</label>
+        <input
+          id="question-search-input"
+          class="form-control"
+          type="text"
+          placeholder="VD102, PTT, ..."
+          autocomplete="off"
+          disabled
+        >
+      </div>
+    </div>
+    <div id="question-search-error" class="alert alert-danger mt-3 mb-0 d-none" role="alert"></div>
+  </div>
+</div>
+
+<div id="question-search-results" class="d-none"></div>
+
+<script is:inline>
+(() => {
+  const searchInput = document.getElementById("question-search-input");
+  const errorBox = document.getElementById("question-search-error");
+  const resultsBox = document.getElementById("question-search-results");
+
+  let questionIndex = {};
+  let indexEntries = [];
+
+  // Look up the chapter of a section to build a nested URL to link to in the search results.
+  // The JSON.parse is required because we statically write a JSON object into this pages HTML during the build.
+  // A bit weird, but will hopefully go soon.
+  const sectionChapters = JSON.parse(document.getElementById("section-chapters").textContent);
+
+  function sectionUrl(edition, sectionIdent) {
+    const chapter = sectionChapters[edition]?.[sectionIdent];
+    return chapter
+      ? `/${encodeURIComponent(edition)}/${encodeURIComponent(chapter)}/${encodeURIComponent(sectionIdent)}/`
+      : `/${encodeURIComponent(edition)}/`;
+  }
+
+  const targetClassByEdition = { N: "N", E: "E", NE: "E", A: "A", EA: "A", NEA: "A" };
+  const targetColorByClass = { N: "#47ABE8", E: "#FE756C", A: "#3BB583" };
+  const editionOrder = ["N", "NE", "NEA", "E", "EA", "A"];
+  const editionLabelByEdition = {
+    N: "N",
+    NE: "N+E",
+    NEA: "N+E+A",
+    E: "N -> E",
+    EA: "N -> A",
+    A: "E -> A",
+  };
+
+  function escapeHtml(value) {
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+  }
+
+  function normalizeQuestionQuery(value) {
+    return (value || "").trim().toUpperCase();
+  }
+
+  function normalizeText(value) {
+    return (value || "").trim().toLocaleLowerCase("de-DE");
+  }
+
+  function getTargetClass(edition) {
+    return targetClassByEdition[(edition || "").toUpperCase()] || null;
+  }
+
+  function getEditionLabel(edition) {
+    return editionLabelByEdition[(edition || "").toUpperCase()] || edition;
+  }
+
+  function sortEditions(editions) {
+    return [...editions].sort((a, b) => {
+      const aUpper = (a || "").toUpperCase();
+      const bUpper = (b || "").toUpperCase();
+      const indexA = editionOrder.indexOf(aUpper);
+      const indexB = editionOrder.indexOf(bUpper);
+
+      if (indexA === -1 && indexB === -1) return aUpper.localeCompare(bUpper);
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+      return indexA - indexB;
+    });
+  }
+
+  function renderEditionButtons(editions, sectionIdentRaw, fragmentId) {
+    const sortedEditions = sortEditions(Array.isArray(editions) ? editions : []);
+    return sortedEditions
+      .map((edition) => {
+        const editionSafe = escapeHtml(edition);
+        const editionLabel = escapeHtml(getEditionLabel(edition));
+        const targetClass = getTargetClass(edition);
+        const targetColor = targetColorByClass[targetClass] || "#6c757d";
+        const targetTitle = targetClass ? `Zielklasse ${targetClass}` : "Zielklasse unbekannt";
+        const href = `${sectionUrl(edition, sectionIdentRaw)}#${encodeURIComponent(fragmentId)}`;
+        return `<a class="btn btn-sm text-white text-decoration-none d-inline-flex align-items-center gap-2 px-3 py-2 text-nowrap" style="background-color: ${targetColor}; border-color: ${targetColor};" href="${href}" title="${escapeHtml(targetTitle)}" aria-label="${editionSafe}: ${editionLabel}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true" focusable="false" style="width: 0.95rem; height: 0.95rem;"><path d="M96 0C43 0 0 43 0 96L0 416c0 53 43 96 96 96l288 0 32 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l0-64c17.7 0 32-14.3 32-32l0-320c0-17.7-14.3-32-32-32L384 0 96 0zm0 384l256 0 0 64L96 448c-17.7 0-32-14.3-32-32s14.3-32 32-32zm32-240c0-8.8 7.2-16 16-16l192 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-192 0c-8.8 0-16-7.2-16-16zm16 48l192 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-192 0c-8.8 0-16-7.2-16-16s7.2-16 16-16z"></path></svg>${editionLabel}</a>`;
+      })
+      .join("");
+  }
+
+  function renderQuestionCards(matches) {
+    return matches.map((questionId) => {
+      const entry = questionIndex[questionId] || {};
+      const sectionIdentRaw = entry.section || "";
+      const chapterTitle = escapeHtml(entry.chapter_title || "Unbekanntes Kapitel");
+      const sectionTitle = escapeHtml(entry.section_title || entry.section || "Unbekannte Sektion");
+      const hasSolution = Boolean(entry.has_solution);
+      const editionLinks = renderEditionButtons(entry.editions, sectionIdentRaw, questionId);
+      const solutionLink = hasSolution
+        ? `<a class="btn btn-sm text-dark d-inline-flex align-items-center gap-2 px-3 py-2 text-nowrap" style="background-color: #ffc107; border-color: #ffc107;" href="/loesung/${encodeURIComponent(questionId)}/" aria-label="Lösungsweg zu ${escapeHtml(questionId)}"><svg class="solution-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true" focusable="false" style="width: 1rem; height: 1rem;"><path d="M420.9 448C428.2 425.7 442.8 405.5 459.3 388.1C492 353.7 512 307.2 512 256C512 150 426 64 320 64C214 64 128 150 128 256C128 307.2 148 353.7 180.7 388.1C197.2 405.5 211.9 425.7 219.1 448L420.8 448zM416 496L224 496L224 512C224 556.2 259.8 592 304 592L336 592C380.2 592 416 556.2 416 512L416 496zM312 176C272.2 176 240 208.2 240 248C240 261.3 229.3 272 216 272C202.7 272 192 261.3 192 248C192 181.7 245.7 128 312 128C325.3 128 336 138.7 336 152C336 165.3 325.3 176 312 176z"></path></svg>Lösungsweg</a>`
+        : "";
+
+      return `
+        <div class="card mb-3">
+          <div class="card-header d-flex flex-nowrap align-items-center gap-2 overflow-auto">
+            <div class="fw-semibold">${escapeHtml(questionId)}</div>
+            <nav aria-label="breadcrumb" class="mb-0 d-flex align-items-center text-nowrap">
+              <ol class="breadcrumb mb-0 align-items-center flex-nowrap">
+                <li class="breadcrumb-item">${chapterTitle}</li>
+                <li class="breadcrumb-item">${sectionTitle}</li>
+              </ol>
+            </nav>
+          </div>
+          <div class="card-body py-3">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              ${editionLinks || '<span class="badge text-bg-secondary">-</span>'}
+              ${solutionLink}
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  function renderIndexCards(matches) {
+    return matches.map((entry) => {
+      const term = escapeHtml(entry.term || "");
+      const subterm = entry.subterm ? escapeHtml(entry.subterm) : "";
+      const anchorId = entry.anchor_id || "";
+      const sectionIdentRaw = entry.section || "";
+      const chapterTitle = escapeHtml(entry.chapter_title || "Unbekanntes Kapitel");
+      const sectionTitle = escapeHtml(entry.section_title || entry.section || "Unbekannte Sektion");
+      const editionLinks = renderEditionButtons(entry.editions, sectionIdentRaw, anchorId);
+
+      return `
+        <div class="card mb-3">
+          <div class="card-header d-flex flex-nowrap align-items-center gap-2 overflow-auto">
+            <div class="fw-semibold">${term}${subterm ? ` / ${subterm}` : ""}</div>
+            <nav aria-label="breadcrumb" class="mb-0 d-flex align-items-center text-nowrap">
+              <ol class="breadcrumb mb-0 align-items-center flex-nowrap">
+                <li class="breadcrumb-item">${chapterTitle}</li>
+                <li class="breadcrumb-item">${sectionTitle}</li>
+              </ol>
+            </nav>
+          </div>
+          <div class="card-body py-3">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              ${editionLinks || '<span class="badge text-bg-secondary">-</span>'}
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  function findQuestionMatches(questionQuery) {
+    const questionIds = Object.keys(questionIndex);
+    const exactMatches = questionIds.filter((questionId) => questionId === questionQuery);
+    const startsWithMatches = questionIds.filter((questionId) => questionId.startsWith(questionQuery) && questionId !== questionQuery);
+    const includesMatches = questionIds.filter((questionId) => questionId.includes(questionQuery) && !questionId.startsWith(questionQuery));
+    return [...exactMatches, ...startsWithMatches, ...includesMatches];
+  }
+
+  function findIndexMatches(textQuery) {
+    const exactMatches = [];
+    const startsWithMatches = [];
+    const includesMatches = [];
+
+    for (const entry of indexEntries) {
+      const term = normalizeText(entry.term);
+      const subterm = normalizeText(entry.subterm);
+      const combined = subterm ? `${term} ${subterm}` : term;
+
+      if (term === textQuery || subterm === textQuery || combined === textQuery) {
+        exactMatches.push(entry);
+        continue;
+      }
+
+      if (term.startsWith(textQuery) || subterm.startsWith(textQuery) || combined.startsWith(textQuery)) {
+        startsWithMatches.push(entry);
+        continue;
+      }
+
+      if (term.includes(textQuery) || subterm.includes(textQuery) || combined.includes(textQuery)) {
+        includesMatches.push(entry);
+      }
+    }
+
+    return [...exactMatches, ...startsWithMatches, ...includesMatches];
+  }
+
+  function renderSearchResults() {
+    const rawQuery = (searchInput.value || "").trim();
+    const questionQuery = normalizeQuestionQuery(rawQuery);
+    const textQuery = normalizeText(rawQuery);
+
+    resultsBox.classList.remove("d-none");
+
+    if (rawQuery.length === 0) {
+      resultsBox.innerHTML = '<div class="alert alert-light border" role="status">Bitte gib eine Frage-ID oder einen Begriff ein, z. B. <strong>VD102</strong> oder <strong>PTT</strong>.</div>';
+      return;
+    }
+
+    const questionMatches = findQuestionMatches(questionQuery);
+    const indexMatches = findIndexMatches(textQuery);
+
+    if (questionMatches.length === 0 && indexMatches.length === 0) {
+      resultsBox.innerHTML = '<div class="alert alert-warning" role="status">Keine passenden Fragen oder Begriffe gefunden.</div>';
+      return;
+    }
+
+    const questionCards = renderQuestionCards(questionMatches);
+    const indexCards = renderIndexCards(indexMatches);
+    const total = questionCards.length + indexCards.length;
+
+    resultsBox.innerHTML = `
+      <p class="text-muted mb-3">${total} Treffer (${questionCards.length} Fragen, ${indexCards.length} Begriffe)</p>
+      ${questionCards.join("")}
+      ${indexCards.join("")}
+    `;
+  }
+
+  async function loadSearchIndices() {
+    try {
+      const [questionResponse, indexResponse] = await Promise.all([
+        fetch("/assets/question_index.json", {
+          cache: "no-cache",
+          headers: { Accept: "application/json" },
+        }),
+        fetch("/assets/index.json", {
+          cache: "no-cache",
+          headers: { Accept: "application/json" },
+        }),
+      ]);
+
+      if (!questionResponse.ok) throw new Error("question_index.json: HTTP " + questionResponse.status);
+      if (!indexResponse.ok) throw new Error("index.json: HTTP " + indexResponse.status);
+
+      const questionData = await questionResponse.json();
+      const indexData = await indexResponse.json();
+
+      questionIndex = questionData || {};
+      indexEntries = Array.isArray(indexData) ? indexData : [];
+
+      searchInput.disabled = false;
+      searchInput.addEventListener("input", renderSearchResults);
+      searchInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          renderSearchResults();
+        }
+      });
+
+      renderSearchResults();
+    } catch (error) {
+      errorBox.classList.remove("d-none");
+      errorBox.textContent = "Suchindex konnte nicht geladen werden: " + error.message;
+      console.error("Failed to load search indices", error);
+    }
+  }
+
+  loadSearchIndices();
+})();
+</script>

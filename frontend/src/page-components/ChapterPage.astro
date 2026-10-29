@@ -1,0 +1,54 @@
+---
+// Chapter overview with table of contents for the chapter.
+import type { ComponentProps } from "astro/types";
+import CourseContent from "virtual:ohm/course/CourseContent";
+import CourseToolbar from "virtual:ohm/course/CourseToolbar";
+import NextChapter from "virtual:ohm/course/NextChapter";
+import TableOfContents from "virtual:ohm/course/TableOfContents";
+import Breadcrumbs from "virtual:ohm/site/Breadcrumbs";
+import PageLayout from "virtual:ohm/site/PageLayout";
+
+import type { ChapterEntry, EditionEntry, SectionEntry } from "../lib/course";
+import { HOME_URL, chapterUrl, editionUrl, sectionUrl } from "../lib/urls";
+
+interface Props {
+  /** The chapter to display */
+  chapter: ChapterEntry;
+  /** The parent edition to which the chapter belongs */
+  edition: EditionEntry | undefined; // TODO: Should be required, but that creates type incopmpatibilities with the current code.
+  /** All sections of the chapter */
+  sections: SectionEntry[];
+  /** The next chapter, if any */
+  nextChapter: ChapterEntry | null;
+}
+
+const { chapter, edition, sections, nextChapter } = Astro.props;
+// TODO: Remove editionShortName once edition is required.
+const { edition: editionShortName, ident, chapterNumber, title, videoUrl } = chapter.data;
+
+const editionName = edition?.data.title ?? editionShortName;
+
+// TODO: Once slides are built in astro, this link should come from a different source.
+const slideUrl = `/${editionShortName}_slide_${ident}.html`;
+
+const breadcrumbs = [
+  { label: "Home", url: HOME_URL },
+  { label: editionName, url: editionUrl(editionShortName) },
+  { label: title },
+] satisfies ComponentProps<typeof Breadcrumbs>["items"];
+
+const toc = sections.map((section) => ({
+  url: sectionUrl(editionShortName, ident, section.data.ident),
+  number: `${chapterNumber}.${section.data.sectionNumber}`,
+  label: section.data.title,
+})) satisfies ComponentProps<typeof TableOfContents>["items"];
+---
+
+<PageLayout>
+  <CourseToolbar videoUrl={videoUrl} slideUrl={slideUrl} />
+  <Breadcrumbs items={breadcrumbs} />
+  <h1>{title}</h1>
+  <CourseContent entry={chapter} />
+  <TableOfContents items={toc} />
+  {nextChapter && <NextChapter url={chapterUrl(editionShortName, nextChapter.data.ident)} label={nextChapter.data.title} />}
+</PageLayout>

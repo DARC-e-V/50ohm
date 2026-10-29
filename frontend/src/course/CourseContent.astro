@@ -1,0 +1,16 @@
+---
+// Renders any MDX content from the renderer.
+import type { CollectionEntry } from "astro:content";
+import { render } from "astro:content";
+import mdxComponents from "virtual:ohm/mdx-components";
+
+const { entry } = Astro.props;
+
+const { Content } = await render(entry);
+---
+
+<div class="course">
+  {/* Fallback anchor for margin boxes without a `---` above. */}
+  <a id="margin_0"></a>
+  <Content components={mdxComponents} />
+</div>

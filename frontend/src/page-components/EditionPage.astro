@@ -1,0 +1,31 @@
+---
+// Edition overview with table of contents for the edition.
+import CourseContent from "virtual:ohm/course/CourseContent";
+import TableOfContents from "virtual:ohm/course/TableOfContents";
+import PageLayout from "virtual:ohm/site/PageLayout";
+
+import type { ChapterEntry, EditionEntry } from "../lib/course";
+import { chapterUrl } from "../lib/urls";
+import type { ComponentProps } from "astro/types";
+
+interface Props {
+  /** The edition to display */
+  edition: EditionEntry;
+  /** All chapters of the edition */
+  chapters: ChapterEntry[];
+}
+
+const { edition, chapters } = Astro.props;
+
+const toc = chapters.map((chapter) => ({
+  url: chapterUrl(edition.data.edition, chapter.data.ident),
+  number: String(chapter.data.chapterNumber),
+  label: chapter.data.title,
+})) satisfies ComponentProps<typeof TableOfContents>["items"];
+---
+
+<PageLayout>
+  <h1>{edition.data.title}</h1>
+  <CourseContent entry={edition} />
+  <TableOfContents items={toc} />
+</PageLayout>

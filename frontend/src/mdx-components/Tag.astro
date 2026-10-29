@@ -5,9 +5,9 @@
 // Two deliberate differences from that template, because the MDX only carries `type`:
 //   * no `id="margin_for_<n>"` / `id="margin_orig_<n>"` — nothing (CSS or content) references
 //     those ids, and the renderer does not emit the counters they were built from.
-//   * the per-box inline <script> is replaced by one global src/scripts/margin.ts, which pairs
-//     each box with the `<a class="margin-origin">` right behind it and with the nearest
-//     preceding `<a id="margin_N">` anchor.
+//   * the per-box inline <script> is replaced by src/scripts/margin.ts, bundled once per page,
+//     which pairs each box with the `<a class="margin-origin">` right behind it and with the
+//     nearest preceding `<a id="margin_N">` anchor.
 interface Props {
   type: string;
 }
@@ -19,3 +19,7 @@ const { type } = Astro.props;
   <slot />
 </div>
 <a class="margin-origin"></a>
+
+<script>
+  import "../scripts/margin";
+</script>

@@ -1,0 +1,21 @@
+---
+// Outer page shell, minimal basis for all pages.
+// TODO: Move <SiteFooter> from PageLayout to here.
+import Head from "virtual:ohm/site/Head";
+import SiteHeader from "virtual:ohm/site/SiteHeader";
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <Head />
+  </head>
+  <body>
+
+    <SiteHeader />
+
+    <slot />
+
+    <script is:inline src="/assets/bootstrap-5.2.0-beta1-dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
