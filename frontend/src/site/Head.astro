@@ -15,11 +15,10 @@ const { title } = Astro.locals.ohmRoute;
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title ? `${title} – ${SITE_TITLE}` : SITE_TITLE}</title>
 
+{/* TODO: Moves once the 50ohm website is separated from the template. */}
 <link rel="icon" href="/assets/favicon/icon.png" type="image/png">
 <link rel="icon" href="/assets/favicon/icon.svg" type="image/svg+xml">
 <link rel="mask-icon" href="/assets/favicon/mask-icon.svg" color="#00ADEF">
-{/* TODO: Replace current static assets and scripts with updated variants using the available features from astro */}
-<script is:inline defer src="/assets/script.js"></script>
 
 <script>
   import "bootstrap";
