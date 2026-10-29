@@ -2,12 +2,14 @@
 // Edition overview with table of contents for the edition.
 import CourseContent from "virtual:ohm/course/CourseContent";
 import TableOfContents from "virtual:ohm/course/TableOfContents";
+import Breadcrumbs from "virtual:ohm/site/Breadcrumbs";
 import PageLayout from "virtual:ohm/site/PageLayout";
 
 const { title } = Astro.locals.ohmRoute;
 ---
 
 <PageLayout>
+  <Breadcrumbs />
   <h1>{title}</h1>
   <CourseContent />
   <TableOfContents />
