@@ -1,6 +1,7 @@
 ---
-// Bundled CSS lands at the end of <head>, after the remaining <link> tags below.
+// The order is the cascade: our own styles override Bootstrap and KaTeX.
 import "bootstrap/dist/css/bootstrap.min.css";
+import "katex/dist/katex.min.css";
 import "../styles/fiftyohm.css";
 import "../styles/course.css";
 
@@ -18,12 +19,9 @@ const { title } = Astro.locals.ohmRoute;
 <link rel="icon" href="/assets/favicon/icon.svg" type="image/svg+xml">
 <link rel="mask-icon" href="/assets/favicon/mask-icon.svg" color="#00ADEF">
 {/* TODO: Replace current static assets and scripts with updated variants using the available features from astro */}
-<link rel="stylesheet" href="/assets/katex/katex.min.css">
-<script is:inline defer src="/assets/katex/katex.min.js"></script>
-<script is:inline defer src="/assets/katex/auto-render.min.js"></script>
-<script is:inline defer src="/assets/latex.js"></script>
 <script is:inline defer src="/assets/script.js"></script>
 
 <script>
   import "bootstrap";
+  import "../scripts/latex";
 </script>

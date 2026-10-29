@@ -436,7 +436,7 @@ span.formula {
 }
 
 /* Add space between broken lines: */
-.course .katex-display .base {
+.course .katex-display .katex-base {
   margin: 0.5em 0em;
 }
 

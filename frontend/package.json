@@ -15,7 +15,8 @@
     "@astrojs/mdx": "^7.0.5",
     "@popperjs/core": "^2.11.8",
     "astro": "^7.0.6",
-    "bootstrap": "^5.3.8"
+    "bootstrap": "^5.3.8",
+    "katex": "^0.19.1"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
