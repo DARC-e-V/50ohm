@@ -14,14 +14,3 @@
 <script is:inline defer src="/assets/katex/auto-render.min.js"></script>
 <script is:inline defer src="/assets/latex.js"></script>
 <script is:inline defer src="/assets/script.js"></script>
-
-{/* TODO: Should be first to go, move to <Reference> */}
-<script is:inline>
-  function highlightRef(ref) {
-    console.log(ref)
-    document.getElementById('ref_' + ref).style.background='#2aa6da';
-    setTimeout(() => {
-      document.getElementById('ref_' + ref).style.background='none';
-    }, 500);
-  }
-</script>

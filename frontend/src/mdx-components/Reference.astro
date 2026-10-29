@@ -1,14 +1,34 @@
 ---
-// `<Reference marker="…" label="…" />`.
-// Port of `render_reference` in ohm_renderer/fifty_ohm_html_renderer.py:188. That renderer built
-// the href from `section_url`, which was always the page the reference sits on, so the link is
-// a plain fragment here. `highlightRef` is defined in BaseLayout.
+// A figure reference, linking to the mentioned figure on the same page.
 interface Props {
+  /** The figure marker */
   marker: string;
+  /** The displayed label of the reference */
   label: string;
 }
 
 const { marker, label } = Astro.props;
 ---
 
-<a href={`#ref_${marker}`} onclick={`highlightRef('${marker}');`}>{label}</a>
+<a href={`#ref_${marker}`} data-ref={marker}>{label}</a>
+
+<script>
+  document.addEventListener("click", (event) => {
+    if (!(event.target instanceof Element)) return;
+
+    const link = event.target.closest<HTMLElement>("a[data-ref]");
+    const target = link && document.getElementById(`ref_${link.dataset.ref}`);
+    // Some references point to a figure on another page.
+    if (!target) return;
+
+    target.classList.add("ref-highlight");
+    setTimeout(() => target.classList.remove("ref-highlight"), 500);
+  });
+</script>
+
+<style is:global>
+  /* TODO: Move into main styles / use bootstrap */
+  .ref-highlight {
+    background: #2aa6da;
+  }
+</style>
