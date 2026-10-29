@@ -1,0 +1,16 @@
+---
+// Link to the next section or chapter in a course.
+const course = Astro.locals.ohmCourse;
+const next = course.kind === "edition" ? undefined : course.next;
+---
+
+{
+  next && (
+    <>
+      <br />
+      <div>
+        Weiter zum nächsten {next.kind === "section" ? "Abschnitt" : "Kapitel"}: <a href={next.url}>{next.label}</a>
+      </div>
+    </>
+  )
+}

@@ -2,7 +2,8 @@
 import { getCollection } from "astro:content";
 import SectionPage from "virtual:ohm/page-components/SectionPage";
 
-import { getChapters, getEdition, getNextChapter, getNextSection } from "../../../lib/course";
+import { sectionRouteData } from "../../../lib/route-data";
+import { setRouteData } from "../../../locals";
 
 export async function getStaticPaths() {
   const sections = await getCollection("sections");
@@ -17,21 +18,8 @@ export async function getStaticPaths() {
 }
 
 const { section } = Astro.props;
-const { edition, chapterIdent } = section.data;
 
-const editionEntry = await getEdition(edition);
-
-const chapters = await getChapters(edition);
-const chapter = chapters.find((candidate) => candidate.data.ident === chapterIdent);
-
-const nextSection = await getNextSection(section);
-const nextChapter = chapter ? await getNextChapter(chapter) : null;
+setRouteData(Astro.locals, await sectionRouteData(section));
 ---
 
-<SectionPage
-  section={section}
-  edition={editionEntry}
-  chapter={chapter}
-  nextSection={nextSection}
-  nextChapter={nextChapter}
-/>
+<SectionPage />

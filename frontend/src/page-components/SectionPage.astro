@@ -1,57 +1,18 @@
 ---
 // Display a single section. The core of 50ohm course content.
-import type { ComponentProps } from "astro/types";
 import CourseContent from "virtual:ohm/course/CourseContent";
 import CourseToolbar from "virtual:ohm/course/CourseToolbar";
-import NextChapter from "virtual:ohm/course/NextChapter";
-import NextSection from "virtual:ohm/course/NextSection";
+import NextLink from "virtual:ohm/course/NextLink";
 import Breadcrumbs from "virtual:ohm/site/Breadcrumbs";
 import PageLayout from "virtual:ohm/site/PageLayout";
 
-import type { ChapterEntry, EditionEntry, SectionEntry } from "../lib/course";
-import { HOME_URL, chapterUrl, editionUrl, sectionUrl } from "../lib/urls";
-
-interface Props {
-  /** The section to display */
-  section: SectionEntry;
-  // TODO: Make EditionEntry and ChapterEntry required.
-  /** Parent edition for the breadcrumbs */
-  edition: EditionEntry | undefined;
-  /** Parent chapter for beadcrumbs */
-  chapter: ChapterEntry | undefined;
-  /** Next section to link to, if any */
-  nextSection: SectionEntry | null;
-  /** Next chapter to link to, if any */
-  nextChapter: ChapterEntry | null;
-}
-
-const { section, edition, chapter, nextSection, nextChapter } = Astro.props;
-// TODO: Remove editionShortName and chapterIdent once edition and chapter are required.
-const { edition: editionShortName, chapterIdent, sectionNumber, title, videoUrl } = section.data;
-
-const name = edition?.data.title ?? editionShortName;
-
-// TODO: Get url from astro once slides are built here.
-const slideUrl = `/${editionShortName}_slide_${chapterIdent}.html#${String(sectionNumber)}`;
-
-const breadcrumbs = [
-  { label: "Home", url: HOME_URL },
-  { label: name, url: editionUrl(editionShortName) },
-  { label: chapter?.data.title ?? chapterIdent, url: chapterUrl(editionShortName, chapterIdent) },
-  { label: title },
-] satisfies ComponentProps<typeof Breadcrumbs>["items"];
+const { title, breadcrumbs } = Astro.locals.ohmRoute;
 ---
 
 <PageLayout>
-  <CourseToolbar videoUrl={videoUrl} slideUrl={slideUrl} />
+  <CourseToolbar />
   <Breadcrumbs items={breadcrumbs} />
   <h1>{title}</h1>
-  <CourseContent entry={section} />
-  {
-    nextSection ?
-      <NextSection url={sectionUrl(editionShortName, chapterIdent, nextSection.data.ident)} label={nextSection.data.title} />
-    : nextChapter ?
-      <NextChapter url={chapterUrl(editionShortName, nextChapter.data.ident)} label={nextChapter.data.title} />
-    : null
-  }
+  <CourseContent />
+  <NextLink />
 </PageLayout>

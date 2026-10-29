@@ -18,8 +18,7 @@ const COURSE = {
   CourseToolbar: src("course/CourseToolbar.astro"),
   CourseContent: src("course/CourseContent.astro"),
   TableOfContents: src("course/TableOfContents.astro"),
-  NextSection: src("course/NextSection.astro"),
-  NextChapter: src("course/NextChapter.astro"),
+  NextLink: src("course/NextLink.astro"),
   QuestionSearch: src("course/QuestionSearch.astro"),
 };
 
@@ -151,7 +150,7 @@ function virtualTypes() {
     `declare namespace App {`,
     `  interface Locals {`,
     `    ohmRoute: import(${routeData}).OhmRoute;`,
-    `    ohmCourse: import(${routeData}).OhmCourse;`,
+    `    ohmCourse: import(${routeData}).CoursePage;`,
     `  }`,
     `}`,
   );

@@ -2,7 +2,8 @@
 import { getCollection } from "astro:content";
 import EditionPage from "virtual:ohm/page-components/EditionPage";
 
-import { getChapters } from "../../lib/course";
+import { editionRouteData } from "../../lib/route-data";
+import { setRouteData } from "../../locals";
 
 export async function getStaticPaths() {
   const editions = await getCollection("editions");
@@ -14,7 +15,7 @@ export async function getStaticPaths() {
 
 const { edition } = Astro.props;
 
-const chapters = await getChapters(edition.data.edition);
+setRouteData(Astro.locals, await editionRouteData(edition));
 ---
 
-<EditionPage edition={edition} chapters={chapters} />
+<EditionPage />

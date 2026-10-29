@@ -34,7 +34,7 @@ build/
 | Pfad | Inhalt |
 | --- | --- |
 | `src/site/` | Komponenten für beliebige Seiten: `Head`, `BaseLayout` (Dokument), `PageLayout` (Inhaltsspalte, Sidebar, Footer), `SiteHeader`, `SiteFooter`, `Breadcrumbs` |
-| `src/course/` | Komponenten für Kursseiten: `CourseToolbar`, `CourseContent`, `TableOfContents`, `NextSection`, `NextChapter`, `QuestionSearch` |
+| `src/course/` | Komponenten für Kursseiten: `CourseToolbar`, `CourseContent`, `TableOfContents`, `NextLink`, `QuestionSearch` |
 | `src/page-components/` | Fertige Kursseiten: `EditionPage`, `ChapterPage`, `SectionPage` |
 | `src/mdx-components/` | die Komponenten, die der MDX-Renderer aufruft, darunter `Question` |
 | `src/lib/` | Helferfunktionen für URL-Aufbau, Kursnavigation, Fragendaten, Ports von `index_anchor_id` und der Morse-Tabelle |

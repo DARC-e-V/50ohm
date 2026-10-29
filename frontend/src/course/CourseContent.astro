@@ -1,10 +1,13 @@
 ---
-// Renders any MDX content from the renderer.
-import type { CollectionEntry } from "astro:content";
+// Renders the MDX content of the current edition, chapter or section.
 import { render } from "astro:content";
 import mdxComponents from "virtual:ohm/mdx-components";
 
-const { entry } = Astro.props;
+const course = Astro.locals.ohmCourse;
+const entry =
+  course.kind === "edition" ? course.edition
+  : course.kind === "chapter" ? course.chapter
+  : course.section;
 
 const { Content } = await render(entry);
 ---

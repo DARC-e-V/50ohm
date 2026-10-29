@@ -1,29 +1,18 @@
 ---
 // The list of chapters on the edition page and of sections on the chapter page.
-interface TocEntry {
-  /** Name of the entry */
-  label: string;
-  /** Number of the entry, displayed in front of the label */
-  number: string;
-  /** URL linking to the entry's page */
-  url: string;
-}
-
-interface Props {
-  /** List of Table of Contents entries */
-  items: TocEntry[];
-}
-
-const { items } = Astro.props;
+const course = Astro.locals.ohmCourse;
+const items = course.kind === "section" ? [] : course.toc;
 ---
 
-<div class="chapter-toc d-grid gap-2">
-  {
-    items.map(({ url: href, number: label, label: title }) => (
-      <a class="btn btn-outline-primary btn-labeled" href={href}>
-        <span class="btn-label">{label}</span>
-        {title}
-      </a>
-    ))
-  }
-</div>
+{
+  items.length > 0 && (
+    <div class="chapter-toc d-grid gap-2">
+      {items.map(({ url: href, number: label, label: title }) => (
+        <a class="btn btn-outline-primary btn-labeled" href={href}>
+          <span class="btn-label">{label}</span>
+          {title}
+        </a>
+      ))}
+    </div>
+  )
+}
