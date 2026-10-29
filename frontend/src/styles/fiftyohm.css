@@ -5,14 +5,14 @@ html {
 @font-face {
   font-family: 'Inter';
   font-style: normal;
-  src: url("font/Inter.ttf");
+  src: url("/assets/font/Inter.ttf");
 }
 
 @font-face {
   font-family: 'Material Icons';
   font-style: normal;
   font-weight: 400;
-  src: url("font/MaterialIconsOutlined-Regular.otf");
+  src: url("/assets/font/MaterialIconsOutlined-Regular.otf");
 }
 
 .material-icons {

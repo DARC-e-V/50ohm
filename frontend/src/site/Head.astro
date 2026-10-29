@@ -1,4 +1,8 @@
 ---
+// Bundled CSS lands at the end of <head>, after the remaining <link> tags below.
+import "../styles/fiftyohm.css";
+import "../styles/course.css";
+
 // TODO: Read the site title from `virtual:ohm/config` once it exists.
 const SITE_TITLE = "50Ω Lernplattform für Amateurfunk";
 
@@ -14,8 +18,6 @@ const { title } = Astro.locals.ohmRoute;
 <link rel="mask-icon" href="/assets/favicon/mask-icon.svg" color="#00ADEF">
 {/* TODO: Replace current static assets and scripts with updated variants using the available features from astro */}
 <link href="/assets/bootstrap-5.2.0-beta1-dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="/assets/style-fiftyohm.css?ts=202312172012">
-<link rel="stylesheet" href="/assets/style-course.css?ts=202312172012">
 <link rel="stylesheet" href="/assets/katex/katex.min.css">
 <script is:inline defer src="/assets/katex/katex.min.js"></script>
 <script is:inline defer src="/assets/katex/auto-render.min.js"></script>
