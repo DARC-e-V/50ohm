@@ -39,10 +39,11 @@ build/
 | `src/mdx-components/` | die Komponenten, die der MDX-Renderer aufruft, darunter `Question` |
 | `src/lib/` | Helferfunktionen für Seitendaten (`route-data.ts`), URL-Aufbau, Kursnavigation, Fragendaten, Ports von `index_anchor_id` und der Morse-Tabelle |
 | `src/locals.ts` | Middleware, die die Seitendaten in `Astro.locals` vorbereitet |
-| `src/scripts/` | Übernommene clientseitige Skripte: Marginalien, Mischen von Antwortoptionen |
+| `src/scripts/` | Übernommene clientseitige Skripte: Marginalien, Mischen von Antwortoptionen, Quizmodus, KaTeX-Rendering mit den Makros für Einheiten |
+| `src/styles/` | Die Stylesheets der Seite und des Kurses samt Fonts. |
 | `src/pages/[edition]/…`, `src/pages/suche.astro` | Die am Ende gerenderten Routen |
 | `src/pages/[legacy].html.astro` | Weiterleitungen von den flachen Dateinamen des HTML-Builds |
-| `public/assets/` | Kopie von `ohm_builder/assets` (wird noch zu npm-Packages aufgeräumt) |
+| `public/assets/` | Rest der Kopie von `ohm_builder/assets`, primär Inhalte für Applets und ein paar Assets. Wird noch weiter aufgeräumt. |
 
 ### Virtuelle Module
 
