@@ -1,22 +1,13 @@
 ---
 // Show a trail of links, describing the current page location in the site hierarchy.
-import type { HTMLAttributes } from "astro/types";
-
-import type { Breadcrumbs } from "../lib/route-data";
-
-interface Props extends HTMLAttributes<"nav"> {
-  /** The trail of breadcrumb items in display order. Renders nothing when empty. */
-  items: Breadcrumbs;
-}
-
-const { items, ...attrs } = Astro.props;
+const { breadcrumbs } = Astro.locals.ohmRoute;
 ---
 
 {
-  items.length > 0 && (
-    <nav aria-label="breadcrumb" {...attrs}>
+  breadcrumbs.length > 0 && (
+    <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
-        {items.map(({ label, url: href }) =>
+        {breadcrumbs.map(({ label, url: href }) =>
           // Last entry is the only entry without href and can safely be treated as current page.
           href ?
             <li class="breadcrumb-item"><a href={href}>{label}</a></li>

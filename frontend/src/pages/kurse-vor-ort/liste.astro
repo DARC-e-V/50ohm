@@ -2,13 +2,13 @@
 // Display registered online HAM courses as a list.
 // TODO: Custom content, should be moved.
 import Breadcrumbs from "virtual:ohm/site/Breadcrumbs";
-import PageLayout from "virtual:ohm/site/PageLayout";
 
-import { COURSES_MAP_URL, HOME_URL, LEARN_URL } from "../../lib/urls";
+import OhmPage from "../../site/OhmPage.astro";
+import { COURSES_MAP_URL, LEARN_URL } from "../../lib/urls";
 ---
 
-<PageLayout>
-<Breadcrumbs items={[{ label: "Home", url: HOME_URL }, { label: "Lernen", url: LEARN_URL }, { label: "Kurse vor Ort" }]} />
+<OhmPage title="Kurse vor Ort" parents={[{ label: "Lernen", url: LEARN_URL }]}>
+<Breadcrumbs />
 
 <h1>Kurse vor Ort</h1>
 <p>Erfahrene Ausbilder halten &ndash; meist einmal in der Woche abends &ndash; Lektionen. Zwischen den Treffen solltest du selbständig den Lernstoff vertiefen und üben.</p>
@@ -21,4 +21,4 @@ import { COURSES_MAP_URL, HOME_URL, LEARN_URL } from "../../lib/urls";
 <script src="https://darc.de/fileadmin/config/Resources/Public/JavaScript/tx_t3jquery/jquery-1.8.x-1.9.x-1.2.x.js?1619439474" type="text/javascript"></script>
 <script id="onlinekurse" type="text/javascript" src="https://ajw.darc.de/lehrgangskarte/onlinelehrgaenge.js"></script>
 
-</PageLayout>
+</OhmPage>

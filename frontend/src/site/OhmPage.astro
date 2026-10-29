@@ -1,0 +1,29 @@
+---
+// Entry point for custom pages: sets the page data, then renders the page in `PageLayout`.
+// Not a virtual module, it only fills `Astro.locals.ohmRoute`. Override `PageLayout` instead.
+import PageLayout from "virtual:ohm/site/PageLayout";
+
+import { pageRouteData, type Link } from "../lib/route-data";
+import { setRouteData } from "../locals";
+
+interface Props {
+  /** The page title without the site title, also the last breadcrumb. */
+  title: string;
+  /** Breadcrumbs between Home and this page. */
+  parents?: Link[];
+}
+
+setRouteData(Astro.locals, pageRouteData(Astro.props));
+---
+
+{/* Two branches: a conditional slot alone still counts for `Astro.slots.has` in `PageLayout`. */}
+{
+  Astro.slots.has("sidebar") ?
+    <PageLayout>
+      <slot />
+      <slot name="sidebar" slot="sidebar" />
+    </PageLayout>
+  : <PageLayout>
+      <slot />
+    </PageLayout>
+}

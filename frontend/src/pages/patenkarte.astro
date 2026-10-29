@@ -2,13 +2,13 @@
 // Patenkarte, a DARC / AJW service to find a mentor.
 // TODO: Custom page, not part of 50ohm core content, should be moved.
 import Breadcrumbs from "virtual:ohm/site/Breadcrumbs";
-import PageLayout from "virtual:ohm/site/PageLayout";
 
-import { HOME_URL, LEARN_URL } from "../lib/urls";
+import OhmPage from "../site/OhmPage.astro";
+import { LEARN_URL } from "../lib/urls";
 ---
 
-<PageLayout>
-  <Breadcrumbs items={[{ label: "Home", url: HOME_URL }, { label: "Lernen", url: LEARN_URL }, { label: "Ausbildungspaten" }]} />
+<OhmPage title="Ausbildungspaten" parents={[{ label: "Lernen", url: LEARN_URL }]}>
+  <Breadcrumbs />
 
   <div class="row flex-lg-row-reverse align-items-top g-5 py-1">
     <div class="col-lg-7">
@@ -20,4 +20,4 @@ import { HOME_URL, LEARN_URL } from "../lib/urls";
       <p>Die DARC-Ausbildungspaten sind erfahrene Funkamateure und helfen dir gerne beim Einstieg in den Amateurfunk. Sie beantworten Fragen, Helfen beim Lernen und können mit dir praktischen Ausbildungsfunk machen.</p>
     </div>
   </div>
-</PageLayout>
+</OhmPage>

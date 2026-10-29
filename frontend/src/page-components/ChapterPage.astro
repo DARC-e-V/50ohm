@@ -7,12 +7,12 @@ import TableOfContents from "virtual:ohm/course/TableOfContents";
 import Breadcrumbs from "virtual:ohm/site/Breadcrumbs";
 import PageLayout from "virtual:ohm/site/PageLayout";
 
-const { title, breadcrumbs } = Astro.locals.ohmRoute;
+const { title } = Astro.locals.ohmRoute;
 ---
 
 <PageLayout>
   <CourseToolbar />
-  <Breadcrumbs items={breadcrumbs} />
+  <Breadcrumbs />
   <h1>{title}</h1>
   <CourseContent />
   <TableOfContents />

@@ -1,10 +1,11 @@
 ---
 // Search all of the indexed course content (questions, keywords).
 import QuestionSearch from "virtual:ohm/course/QuestionSearch";
-import PageLayout from "virtual:ohm/site/PageLayout";
+
+import OhmPage from "../site/OhmPage.astro";
 ---
 
-<PageLayout>
+<OhmPage title="Suche">
   <h1>Suche</h1>
   <QuestionSearch />
-</PageLayout>
+</OhmPage>
