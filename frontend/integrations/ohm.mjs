@@ -55,13 +55,15 @@ const NAMESPACES = {
 
 const MDX_MAP = "virtual:ohm/mdx-components";
 
-/** Provides the `virtual:ohm/…` modules and their type declarations. */
+const ROUTE_DATA = src("lib/route-data");
+
 export default function ohm() {
   return {
     name: "ohm",
     hooks: {
-      "astro:config:setup": ({ updateConfig }) => {
+      "astro:config:setup": ({ updateConfig, addMiddleware }) => {
         updateConfig({ vite: { plugins: [vitePluginOhm()] } });
+        addMiddleware({ entrypoint: src("locals.ts"), order: "pre" });
       },
       "astro:config:done": ({ injectTypes }) => {
         injectTypes({ filename: "virtual.d.ts", content: virtualTypes() });
@@ -117,8 +119,7 @@ function virtualModules() {
 }
 
 /**
- * Declarations for `virtualModules()`. Each component module gets the type of its file, so
- * `astro check` sees the real props.
+ * Type declarations for `virtualModules()` and `Astro.locals`.
  */
 function virtualTypes() {
   const declarations = [];
@@ -142,6 +143,16 @@ function virtualTypes() {
     ),
     `  };`,
     `  export default mdxComponents;`,
+    `}`,
+  );
+
+  const routeData = JSON.stringify(fileURLToPath(ROUTE_DATA));
+  declarations.push(
+    `declare namespace App {`,
+    `  interface Locals {`,
+    `    ohmRoute: import(${routeData}).OhmRoute;`,
+    `    ohmCourse: import(${routeData}).OhmCourse;`,
+    `  }`,
     `}`,
   );
 
