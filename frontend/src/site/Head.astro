@@ -1,6 +1,13 @@
+---
+// TODO: Read the site title from `virtual:ohm/config` once it exists.
+const SITE_TITLE = "50Ω Lernplattform für Amateurfunk";
+
+const { title } = Astro.locals.ohmRoute;
+---
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>50Ω Lernplattform für Amateurfunk</title>
+<title>{title ? `${title} – ${SITE_TITLE}` : SITE_TITLE}</title>
 
 <link rel="icon" href="/assets/favicon/icon.png" type="image/png">
 <link rel="icon" href="/assets/favicon/icon.svg" type="image/svg+xml">
