@@ -6,11 +6,8 @@ const next = course.kind === "edition" ? undefined : course.next;
 
 {
   next && (
-    <>
-      <br />
-      <div>
-        Weiter zum nächsten {next.kind === "section" ? "Abschnitt" : "Kapitel"}: <a href={next.url}>{next.label}</a>
-      </div>
-    </>
+    <div class="mt-4">
+      Weiter zum nächsten {next.kind === "section" ? "Abschnitt" : "Kapitel"}: <a href={next.url}>{next.label}</a>
+    </div>
   )
 }
